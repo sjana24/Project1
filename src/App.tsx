@@ -1,15 +1,18 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Index from "./pages/Index";
+const App = () => (
 
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Index />} />
+    </Routes>
 
-const App = () => {
+  </BrowserRouter>
 
-return(
-  <>
-      <h1> hi this is App</h1>  
-  </>
 );
 
-};
-  
+
+
 
 
 export default App;
