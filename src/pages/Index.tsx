@@ -2,6 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 
 
 
@@ -112,7 +113,7 @@ const Index = () => {
                     </div>
                 </div>
             </section>
-
+            <Footer/>
         </div>
 
 
