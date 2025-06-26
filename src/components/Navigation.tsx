@@ -14,7 +14,7 @@ const Navigation = () => {
         { path: "", label: "Products" },
         { path: "", label: "Services" },
         { path: "", label: "Blog" },
-        { path: "", label: "Q&A" },
+        //{ path: "", label: "Q&A" },
         { path: "", label: "Jobs" },
         { path: "", label: "Contact" },
 
