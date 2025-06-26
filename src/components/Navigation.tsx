@@ -11,12 +11,13 @@ const Navigation = () => {
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
-        { path: "", label: "Products" },
-        { path: "", label: "Services" },
-        { path: "", label: "Blog" },
+        { path: "/products", label: "Products" },
+        { path: "/services", label: "Services" },
+        { path: "/blogs", label: "Blogs" },
         //{ path: "", label: "Q&A" },
         { path: "", label: "Jobs" },
-        { path: "", label: "Contact" },
+        { path: "/jobs", label: "Jobs" },
+        { path: "/contacts", label: "Contact" },
 
 
     ];

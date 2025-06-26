@@ -30,7 +30,7 @@ const Index = () => {
         }
     ];
     const stats = [
-        { number: "10,000+", label: "Happy Customers" },
+        { number: "10,000+", label: "staised Customers" },
         { number: "500+", label: "Certified Agents" },
         { number: "50MW", label: "Solar Capacity Installed" },
         { number: "24/7", label: "Expert Support" }

@@ -1,10 +1,10 @@
 
 const Products =()=>{
-return (
-    <> 
-    <h1> product</h1>
-    </>
-);
+    return(
+        <>
+        <h2>product</h2>
+        </>
 
-}
-export default Products;
+    );
+ }
+    export default Products;
