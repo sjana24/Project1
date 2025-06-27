@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
+import axios from "axios";
 
 
 
@@ -33,27 +34,45 @@ const Login = () => {
             console.log(" error in data");
             return;
         }
-            
-        else if (!mobileRegex.test(registerData.mobileNumber)) {
-              console.log(" error in data");
-            return; 
-            } 
-        setIsLoading(true);      
-        };
 
-         const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log(loginData);
-        
-        if (!registerData.email || !registerData.password ) {
+        else if (!mobileRegex.test(registerData.mobileNumber)) {
             console.log(" error in data");
             return;
         }
-     
-        setIsLoading(true);      
-        };
-        
-    
+        try {
+            const res = axios.post("http://localhost/Git/Project1/Backend/Customer/LoginCustomer.php", registerData);
+            console.log("Registration successful:");
+        } catch (err) {
+            console.error("Error registering user:", err);
+        } finally {
+            setIsLoading(false);
+        }
+
+        setIsLoading(true);
+    };
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log(loginData);
+
+        if (!registerData.email || !registerData.password) {
+            console.log(" error in data");
+            return;
+        }
+
+        setIsLoading(true);
+        //  axios.post("http://localhost/Git/Project1/Backend/test.php",registerData);
+        //       try {
+        //     const res =  axios.post("http://localhost/Git/Project1/Backend/databaseConnect/test1.php", registerData);
+        //     console.log("Registration successful:");
+        // } catch (err) {
+        //     console.error("Error registering user:", err);
+        // } finally {
+        //     setIsLoading(false);
+        // }
+    };
+
+
 
 
 
