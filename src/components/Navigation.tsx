@@ -70,7 +70,8 @@ const Navigation = () => {
                                 </Button>
                             </Link>
                         </div>
-
+                        
+                        
                     ) : (
                         <>
                             {!isLoginPage ?
@@ -90,7 +91,35 @@ const Navigation = () => {
                                 </div>}
                         </>
                     )
-                    }
+                    }   
+                    {/* Mobile Navigation */}
+                        <div className="md:hidden">
+                          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                            <SheetTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                {/* <Menu className="h-4 w-4" /> */}
+                              </Button>
+                            </SheetTrigger>
+                            <SheetContent side="right" className="w-64">
+                              <div className="flex flex-col space-y-4 mt-8">
+                                <NavLinks mobile />
+                                <div className="pt-4 border-t space-y-2">
+                                   <Link to="/login" onClick={() => setIsOpen(false)}>
+                                     <Button variant="outline" className="w-full">
+                                       Login
+                                     </Button>
+                                   </Link>
+                                   <Link to="/admin" onClick={() => setIsOpen(false)}>
+                                     <Button className="w-full solar-gradient text-white">
+                                       Admin
+                                     </Button>
+                                   </Link>
+                               </div>
+                              </div>
+                           </SheetContent>
+                          </Sheet>
+                        </div>
+                    
 
                 </div>
             </div>
