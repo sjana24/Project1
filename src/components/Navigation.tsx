@@ -9,7 +9,7 @@ import { Label } from "recharts";
 const Navigation = () => {
     const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
-    const currentUser= JSON.parse(localStorage.getItem("currentUser"));
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
@@ -19,7 +19,7 @@ const Navigation = () => {
         //{ path: "", label: "Q&A" },
         { path: "/jobs", label: "Jobs" },
         { path: "/contacts", label: "Contact" },
-        ...(currentUser ? [{ path: "/", label:"Shopping Curd"}] : []),
+        ...(currentUser ? [{ path: "/", label: "Shopping Curd" }] : []),
 
 
     ];
@@ -73,8 +73,8 @@ const Navigation = () => {
                                 </Button>
                             </Link>
                         </div>
-                        
-                        
+
+
                     ) : (
                         <>
                             {!isLoginPage ?
@@ -94,35 +94,59 @@ const Navigation = () => {
                                 </div>}
                         </>
                     )
-                    }   
+                    }
                     {/* Mobile Navigation */}
+                    {(currentUser) ? (<>
                         <div className="md:hidden">
-                          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                            <SheetTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                {/* <Menu className="h-4 w-4" /> */}
-                              </Button>
-                            </SheetTrigger>
-                            <SheetContent side="right" className="w-64">
-                              <div className="flex flex-col space-y-4 mt-8">
-                                <NavLinks mobile />
-                                <div className="pt-4 border-t space-y-2">
-                                   <Link to="/login" onClick={() => setIsOpen(false)}>
-                                     <Button variant="outline" className="w-full">
-                                       Login
-                                     </Button>
-                                   </Link>
-                                   <Link to="/admin" onClick={() => setIsOpen(false)}>
-                                     <Button className="w-full solar-gradient text-white">
-                                       Admin
-                                     </Button>
-                                   </Link>
-                               </div>
-                              </div>
-                           </SheetContent>
-                          </Sheet>
+                            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                                <SheetTrigger asChild>
+                                    <Button variant="outline" size="sm">
+                                        {/* <Menu className="h-4 w-4" /> */}
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent side="right" className="w-64">
+                                    <div className="flex flex-col space-y-4 mt-8">
+                                        <NavLinks mobile />
+                                        <div className="pt-4 border-t space-y-2">
+                                            <Link to="/customer/profile">
+                                                <Button size="sm" className="solar-gradient text-white"  >
+                                                    Hi,{currentUser.customerName}
+                                                  
+
+                                                </Button>
+                                            </Link>
+
+                                        </div>
+                                    </div>
+                                </SheetContent>
+                            </Sheet>
                         </div>
-                    
+                    </>) : (
+                        <>
+                            <div className="md:hidden">
+                                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                                    <SheetTrigger asChild>
+                                        <Button variant="outline" size="sm">
+
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent side="right" className="w-64">
+                                        <div className="flex flex-col space-y-4 mt-8">
+                                            <NavLinks mobile />
+                                            <div className="pt-4 border-t space-y-2">
+                                                <Link to="/login" onClick={() => setIsOpen(false)}>
+                                                    <Button variant="outline" className="w-full">
+                                                        Login/Register
+                                                    </Button>
+                                                </Link>
+
+                                            </div>
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+                        </>)}
+
 
                 </div>
             </div>
