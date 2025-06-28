@@ -63,7 +63,7 @@ const Navigation = () => {
 
                         <div className="hidden md:flex items-center space-x-4">
 
-                            <Link to="/">
+                            <Link to="/customer/profile">
                                 <Button size="sm" className="solar-gradient text-white"  >
                                     Hi,{currentUser.customerName}
                                     {/*  user name want to add here */}

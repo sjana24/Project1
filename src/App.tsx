@@ -10,6 +10,7 @@ import Services from "./pages/Services";
 import Blogs from "./pages/Blogs";
 import Jobs from "./pages/Jobs";
 import Contacts from "./pages/Contacts";
+import DashboardCustomer from "./pages/DashboardCustomer";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/contacts" element={<Contacts />} />
+          <Route path="/customer/profile" element={<DashboardCustomer />} />
         </Routes>
 
       </BrowserRouter>
