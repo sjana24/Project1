@@ -1,34 +1,63 @@
 <?php
+header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 include "../dbCon.php";
-echo " hi buddy";
+
 
 $dbObj = new Database;
 $conn = $dbObj->connect();
-var_dump($conn);
 
 $data = json_decode(file_get_contents("php://input"), true);
+if ($data && isset($data['email'], $data['password'])) {
+     // Get data from input
+    
+    $email = $data['email'];
+    
+    $userPassword = $data['password'];
 
-if ($data && isset($data['name'])) {
-    $loginData = $data['name'];
 
-    // echo $loginData;
-
-    // Prepare statement to prevent SQL injection
-    // $sql = "INSERT INTO `customer` (customerID),(fullName) ,(email) ,(customerID)  VALUES (?)";
-       $sql = "INSERT INTO `customer`(`customerID`, `fullName`, `email`, `mobileNumber`, `password`, `created_At`) VALUES (?,?,?,?,?,?)";
+     $sql = "SELECT customerID,fullName, email, password FROM customer WHERE email = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $loginData);
-    // $stmt=$conn->prepare($stmt);
+   
+    $stmt->bind_param("s",$email);
+     $stmt->execute();
 
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Name saved successfully."]);
+      $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+    $user = $result->fetch_assoc(); // Get DB row
+
+    // Datas from database
+    $dbUserId = $user['customerID'];    
+    $dbEmail = $user['email']; 
+    $dbFullName = $user['fullName'];
+    $dbPassword = $user['password'];
+    
+
+    if ($userPassword == $dbPassword) {
+        echo json_encode([
+            'success' => true,
+            'userID'=>$dbUserId,
+            'userName'=>$dbFullName,           
+            'userEmail'=>$dbEmail
+        ]);
     } else {
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Database insert failed."]);
+        echo json_encode([
+            "success" => false,
+            "message" => "Incorrect password."
+        ]);
     }
+} else {
+    echo json_encode([
+        "success" => false,
+        "message" => "User not found."
+    ]);
+    exit;
+}
 
     $stmt->close();
     $conn->close();
 }
+
+
+?>

@@ -5,13 +5,11 @@ include "../dbCon.php";
 
 $objDb=new Database;
 $conn=$objDb->connect();
-// var_dump($conn);
-echo(" this is register page");
+
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-// if ($data && isset($data['registerData'])) {
-    // $registerData = $data['registerData'];
+
 if ($data && isset($data['name'], $data['email'], $data['mobileNumber'], $data['password'])) {
      // Get data from input
     $name = $data['name'];
@@ -20,12 +18,12 @@ if ($data && isset($data['name'], $data['email'], $data['mobileNumber'], $data['
     $password = $data['password'];
 
     // Prepare statement to prevent SQL injection
-    // $sql = "INSERT INTO `customer` (customerID),(fullName) ,(email) ,(customerID)  VALUES (?)";
+    
        $sql = "INSERT INTO `customer`( `fullName`, `email`, `mobileNumber`, `password`) VALUES (?,?,?,?)";
     $stmt = $conn->prepare($sql);
-    // $stmt->bind_param("s", $loginData);
+   
     $stmt->bind_param("ssis", $name, $email, $mobile, $password);
-    // $stmt=$conn->prepare($stmt);
+   
 
     if ($stmt->execute()) {
         echo json_encode(["success" => true, "message" => "Name saved successfully."]);
