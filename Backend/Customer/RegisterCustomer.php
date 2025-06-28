@@ -1,25 +1,30 @@
-<?php
+<?php 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 include "../dbCon.php";
-echo " hi buddy";
 
-$dbObj = new Database;
-$conn = $dbObj->connect();
-var_dump($conn);
+$objDb=new Database;
+$conn=$objDb->connect();
+// var_dump($conn);
+echo(" this is register page");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if ($data && isset($data['name'])) {
-    $loginData = $data['name'];
-
-    // echo $loginData;
+// if ($data && isset($data['registerData'])) {
+    // $registerData = $data['registerData'];
+if ($data && isset($data['name'], $data['email'], $data['mobileNumber'], $data['password'])) {
+     // Get data from input
+    $name = $data['name'];
+    $email = $data['email'];
+    $mobile = (int)$data['mobileNumber']; // cast to int just in case
+    $password = $data['password'];
 
     // Prepare statement to prevent SQL injection
     // $sql = "INSERT INTO `customer` (customerID),(fullName) ,(email) ,(customerID)  VALUES (?)";
-       $sql = "INSERT INTO `customer`(`customerID`, `fullName`, `email`, `mobileNumber`, `password`, `created_At`) VALUES (?,?,?,?,?,?)";
+       $sql = "INSERT INTO `customer`( `fullName`, `email`, `mobileNumber`, `password`) VALUES (?,?,?,?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $loginData);
+    // $stmt->bind_param("s", $loginData);
+    $stmt->bind_param("ssis", $name, $email, $mobile, $password);
     // $stmt=$conn->prepare($stmt);
 
     if ($stmt->execute()) {
@@ -32,3 +37,6 @@ if ($data && isset($data['name'])) {
     $stmt->close();
     $conn->close();
 }
+
+
+?>

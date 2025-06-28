@@ -30,17 +30,17 @@ const Login = () => {
         e.preventDefault();
         console.log(registerData);
         const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
-        if (!registerData.name || !registerData.email || !registerData.password || !registerData.mobileNumber || !registerData.confirmpassword || registerData.password == registerData.confirmpassword) {
+        if (!registerData.name || !registerData.email || !registerData.password || !registerData.mobileNumber || !registerData.confirmpassword ) {
             console.log(" error in data");
             return;
         }
 
-        else if (!mobileRegex.test(registerData.mobileNumber)) {
-            console.log(" error in data");
-            return;
-        }
+        // else if (!mobileRegex.test(registerData.mobileNumber)) {
+        //     console.log(" error in data");
+        //     return;
+        // }
         try {
-            const res = axios.post("http://localhost/Git/Project1/Backend/Customer/LoginCustomer.php", registerData);
+            const res = axios.post("http://localhost/Git/Project1/Backend/Customer/RegisterCustomer.php", registerData);
             console.log("Registration successful:");
         } catch (err) {
             console.error("Error registering user:", err);
