@@ -11,6 +11,87 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
+
+  // sample products 
+   const products = [
+    {
+      id: 1,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image: "one.jpeg",
+      category: "panels",
+      specs: "300W, 25-year warranty"
+    },
+     {
+      id: 2,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image: "one.jpeg",
+      category: "panels",    
+      specs: "300W, 25-year warranty"
+    },
+     {
+      id: 3,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image:"one.jpeg",
+      category: "panels",
+      specs: "300W, 25-year warranty"
+    },
+     {
+      id: 4,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image: "one.jpeg",
+      category: "panels",    
+      specs: "300W, 25-year warranty"
+    },
+     {
+      id: 5,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image: "one.jpeg",
+      category: "panels",    
+      specs: "300W, 25-year warranty"
+    },
+     {
+      id: 6,
+      name: "Solar Panel X200",
+      description: "High-efficiency monocrystalline solar panel with 22% efficiency rating",
+      price: 250,
+      rating: 4.8,
+      image: "one.jpeg",
+      category: "panels",    
+      specs: "300W, 25-year warranty"
+    },
+  ]
+      const filteredProducts = products
+    .filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
   
   const products = [];
   
@@ -79,21 +160,21 @@ const Products = () => {
 
                     {/* Products Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      
-                        <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
+                      {filteredProducts.map((product) => (
+                        <Card key={product.id}className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
                           <CardHeader>
                             <div className="w-full h-48 bg-secondary/30 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/50 transition-colors">
-                             
+                             <img src={product.image} className="h-full w-full text-primary" />
                             </div>
                             <div className="flex items-center justify-between mb-2">
-                              <CardTitle className="text-lg">{}</CardTitle>
+                              <CardTitle className="text-lg">{product.name}</CardTitle>
                               <div className="flex items-center space-x-1">
                                 
-                                <span className="text-sm font-medium">{}</span>
+                                <span className="text-sm font-medium">{product.rating}</span>
                               </div>
                             </div>
                             <CardDescription className="text-sm text-muted-foreground">
-                             
+                             {product.description}
                             </CardDescription>
                               <div className="text-xs text-muted-foreground mt-2">
                                
@@ -102,7 +183,7 @@ const Products = () => {
                           <CardContent>
                              <div className="flex items-center justify-between mb-4">
                                <div className="text-2xl font-bold text-primary">
-                                 ${}
+                                 ${product.price.toLocaleString()}
                                </div>
                               </div>
                               <Button 
@@ -112,7 +193,7 @@ const Products = () => {
                               </Button>
                           </CardContent>
                         </Card>
-                    
+                      ))}
                     </div>
 
                     

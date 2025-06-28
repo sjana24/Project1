@@ -7,10 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+export interface currentUser{
+        customerId:number,
+        customerName:string,
 
-
+    }
 
 const Login = () => {
+    const { toast } = useToast();
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [registerData, setRegisterData] = useState({
         name: "",
@@ -24,36 +31,88 @@ const Login = () => {
         password: "",
 
     });
+    
 
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         console.log(registerData);
         const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
-        if (!registerData.name || !registerData.email || !registerData.password || !registerData.mobileNumber || !registerData.confirmpassword || registerData.password == registerData.confirmpassword) {
+        if (!registerData.name || !registerData.email || !registerData.password || !registerData.mobileNumber || !registerData.confirmpassword) {
             console.log(" error in data");
             return;
         }
-            
-        else if (!mobileRegex.test(registerData.mobileNumber)) {
-              console.log(" error in data");
-            return; 
-            } 
-        setIsLoading(true);      
-        };
 
-         const handleLogin = (e: React.FormEvent) => {
+        // else if (!mobileRegex.test(registerData.mobileNumber)) {
+        //     console.log(" error in data");
+        //     return;
+        // }
+        try {
+            const res = axios.post("http://localhost/Git/Project1/Backend/Customer/RegisterCustomer.php", registerData);
+            console.log("Registration successful:");
+        } catch (err) {
+            console.error("Error registering user:", err);
+        } finally {
+            setIsLoading(false);
+        }
+
+        setIsLoading(true);
+    };
+
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log(loginData);
-        
-        if (!registerData.email || !registerData.password ) {
+
+        if (!loginData.email || !loginData.password) {
             console.log(" error in data");
             return;
         }
-     
-        setIsLoading(true);      
-        };
-        
-    
+
+        setIsLoading(true);
+        try {
+            const res = await axios.post("http://localhost/Git/Project1/Backend/Customer/LoginCustomer.php", loginData);
+            // console.log("Login successful:");
+            // navigate("/");
+
+
+            if (res.data.success) {
+                console.log("Login successful");
+                toast({
+                    title: "Welcome back!",
+                    description: "Successfully logged in",
+                });
+                
+                // localStorage.setItem('currentUser', JSON.stringify(foundUser));
+                const loginUser: currentUser = {
+                    customerId: res.data.userID,
+                    customerName: res.data.userName,
+
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(loginUser));
+                console.log(res.data);
+                // console.log(res.data.userEmail);
+                navigate("/", {
+
+                    state: { name: res.data.userName, email: res.data.userEmail }
+                });
+                // navigate("/"); // only navigate if login is successful
+            } else {
+                toast({
+                    title: "Login failed",
+                    description: "Invalid credentials or user not found",
+                    variant: "destructive",
+                });
+                console.log(" error in login"); // show error message from PHP
+
+            }
+        } catch (err) {
+            console.error("Error login user:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
 
 
 
