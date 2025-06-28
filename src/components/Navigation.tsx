@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const Navigation = () => {
     const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
+    const currentUser= JSON.parse(localStorage.getItem("currentUser"));
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
@@ -58,13 +59,13 @@ const Navigation = () => {
 
                     {/* Desktop Actions */}
 
-                    {(0) ? (
+                    {(currentUser) ? (
 
                         <div className="hidden md:flex items-center space-x-4">
 
                             <Link to="/">
                                 <Button size="sm" className="solar-gradient text-white"  >
-                                    Hi,!
+                                    Hi,{currentUser.customerName}
                                     {/*  user name want to add here */}
 
                                 </Button>
