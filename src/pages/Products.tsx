@@ -12,7 +12,32 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
   
+  const products = [];
   
+  const filteredProducts = products
+    .filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
+
+  const handleAddToCart = (productName: string) => {
+    toast({
+      title: "Added to Cart!",
+      description: `${productName} has been added to your cart.`,
+    });
+  };
     return (
         <div className="min-h-screen">
             <Navigation />
