@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
+import { Label } from "recharts";
 
 
 const Navigation = () => {
@@ -18,6 +19,7 @@ const Navigation = () => {
         //{ path: "", label: "Q&A" },
         { path: "/jobs", label: "Jobs" },
         { path: "/contacts", label: "Contact" },
+        ...(currentUser ? [{ path: "/", label:"Shopping Curd"}] : []),
 
 
     ];
