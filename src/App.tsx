@@ -12,6 +12,8 @@ import Jobs from "./pages/Jobs";
 import Contacts from "./pages/Contacts";
 import DashboardCustomer from "./pages/DashboardCustomer";
 import IndexProvider from "./pages/provider/IndexProvider";
+import LoginProvider from "./pages/provider/LoginProvider";
+import DashboardProvider from "./pages/provider/DashboardProvider"
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
           <Route path="/customer/profile" element={<DashboardCustomer />} />
 
           <Route path="/provider/" element={<IndexProvider />} />
+          <Route path="/provider/login" element={<LoginProvider />} />
+          <Route path="/provider/dashboard" element={<DashboardProvider />} />
         </Routes>
 
       </BrowserRouter>

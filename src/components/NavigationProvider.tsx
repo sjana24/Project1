@@ -19,8 +19,8 @@ const NavigationProvider = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const isLoginPage = location.pathname === "/login";
+    const currentProvider = JSON.parse(localStorage.getItem(""));
+    const isLoginProviderPage = location.pathname === "/provider/login";
     const navItems = [
         // { path: "/", label: "Home" },
         // { path: "/products", label: "Products" },
@@ -104,7 +104,7 @@ const NavigationProvider = () => {
                     
                     <div className="hidden md:flex items-center space-x-8">
                       <NavLinks />  
-                        {(currentUser) ? (
+                        {(currentProvider) ? (
                             <>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}>bell
                                     {unreadCount > 0 && (
@@ -171,13 +171,13 @@ const NavigationProvider = () => {
 
                     {/* Desktop Actions */}
 
-                    {(currentUser) ? (
+                    {(currentProvider) ? (
 
                         <div className="hidden md:flex items-center space-x-4">
 
                             <Link to="/customer/profile">
                                 <Button size="sm" className="solar-gradient text-white"  >
-                                    Hi,{currentUser.customerName}
+                                    Hi,{currentProvider.customerName}
                                     {/*  user name want to add here */}
 
                                 </Button>
@@ -187,9 +187,9 @@ const NavigationProvider = () => {
 
                     ) : (
                         <>
-                            {!isLoginPage ?
+                            {!isLoginProviderPage ?
                                 <div className="hidden md:flex items-center space-x-4">
-                                    <Link to="/login">
+                                    <Link to="/provider/login   ">
                                         <Button variant="outline" size="sm" className="flex items-center space-x-2">
 
                                             <span>Login/Register</span>
@@ -206,7 +206,7 @@ const NavigationProvider = () => {
                     )
                     }
                     {/* Mobile Navigation */}
-                    {(currentUser) ? (<>
+                    {(currentProvider) ? (<>
                         <div className="md:hidden">
                             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                                 <SheetTrigger asChild>
@@ -220,7 +220,7 @@ const NavigationProvider = () => {
                                         <div className="pt-4 border-t space-y-2">
                                             <Link to="/customer/profile">
                                                 <Button size="sm" className="solar-gradient text-white"  >
-                                                    Hi,{currentUser.customerName}
+                                                    Hi,{currentProvider.providerName}
 
 
                                                 </Button>
