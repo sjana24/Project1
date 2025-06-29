@@ -1,9 +1,13 @@
+import NavigationProvider from "@/components/NavigationProvider";
 
 
 const DashboardProvider=()=>{
 
     return(
-        <h1>this is provider dahsboard</h1>
+        <div className="min-h-screen bg-gray-50">
+            <NavigationProvider />
+
+        </div>
     );
 };
 export default DashboardProvider;

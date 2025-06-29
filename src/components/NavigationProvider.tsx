@@ -19,7 +19,7 @@ const NavigationProvider = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
-    const currentProvider = JSON.parse(localStorage.getItem(""));
+    const currentProvider = JSON.parse(localStorage.getItem("currentProvider"));
     const isLoginProviderPage = location.pathname === "/provider/login";
     const navItems = [
         // { path: "/", label: "Home" },
@@ -177,7 +177,7 @@ const NavigationProvider = () => {
 
                             <Link to="/customer/profile">
                                 <Button size="sm" className="solar-gradient text-white"  >
-                                    Hi,{currentProvider.customerName}
+                                    Hi,{currentProvider.providerName}
                                     {/*  user name want to add here */}
 
                                 </Button>
