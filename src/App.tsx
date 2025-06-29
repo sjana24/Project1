@@ -11,6 +11,7 @@ import Blogs from "./pages/Blogs";
 import Jobs from "./pages/Jobs";
 import Contacts from "./pages/Contacts";
 import DashboardCustomer from "./pages/DashboardCustomer";
+import IndexProvider from "./pages/provider/IndexProvider";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,8 @@ const App = () => (
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/customer/profile" element={<DashboardCustomer />} />
+
+          <Route path="/provider/" element={<IndexProvider />} />
         </Routes>
 
       </BrowserRouter>

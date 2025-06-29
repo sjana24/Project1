@@ -15,22 +15,22 @@ export interface Notification {
   isRead: boolean;
 }
 
-const Navigation = () => {
+const NavigationProvider = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const isLoginPage = location.pathname === "/login";
     const navItems = [
-        { path: "/", label: "Home" },
-        { path: "/products", label: "Products" },
-        { path: "/services", label: "Services" },
-        { path: "/blogs", label: "Blogs" },
+        // { path: "/", label: "Home" },
+        // { path: "/products", label: "Products" },
+        // { path: "/services", label: "Services" },
+        // { path: "/blogs", label: "Blogs" },
         //{ path: "", label: "Q&A" },
-        { path: "/jobs", label: "Jobs" },
-        { path: "/contacts", label: "Contact" },
-        ...(currentUser ? [{ path: "/", label: "Shopping Curd" }] : []),
-        ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
+        // { path: "/jobs", label: "Jobs" },
+        // { path: "/contacts", label: "Contact" },
+        // ...(currentUser ? [{ path: "/", label: "Shopping Curd" }] : []),
+        // ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
         // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 
 
@@ -265,4 +265,4 @@ const Navigation = () => {
 
 
 }
-export default Navigation;
+export default NavigationProvider;

@@ -11,6 +11,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
   // sample products 
    const products = [
@@ -92,6 +93,18 @@ const Products = () => {
           return a.name.localeCompare(b.name);
       }
     });
+    const handleAddToCart=()=>{
+      
+       if (!currentUser) {
+    toast({
+      title: "Please log in",
+      description: "You must be logged in to add items to your cart.",
+      variant: "destructive", // optional styling
+      
+    });
+  }
+
+    }
   
   
     return (
@@ -134,7 +147,7 @@ const Products = () => {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {filteredProducts.map((product) => (
                         <Card key={product.id}className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
                           <CardHeader>
@@ -161,7 +174,7 @@ const Products = () => {
                                  ${product.price.toLocaleString()}
                                </div>
                               </div>
-                              <Button 
+                              <Button  onClick={() => handleAddToCart()}
                                 className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
                               >
                                   Add to Cart
