@@ -94,8 +94,8 @@ const NavigationProvider = () => {
 
         <nav className="sticky top-0 z-50 glass-effect border-b">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
-                    <Link to="/" className="flex items-center space-x-2">
+                <div className="flex items-center justify-between h-20 bg-red-500">
+                    <Link to="" className="flex items-center space-x-2">
 
                         <img src="logoM.JPG" className="h-12 w-12"></img>
 
