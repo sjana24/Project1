@@ -95,7 +95,7 @@ const NavigationProvider = () => {
         <nav className="sticky top-0 z-50 glass-effect border-b">
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-20 bg-red-500">
-                    <Link to="" className="flex items-center space-x-2">
+                    <Link to="/" className="flex items-center space-x-2">
 
                         <img src="logoM.JPG" className="h-12 w-12"></img>
 
@@ -104,7 +104,7 @@ const NavigationProvider = () => {
                     
                     <div className="hidden md:flex items-center space-x-8">
                       <NavLinks />  
-                        {(currentProvider) ? (
+                        {/* {(0) ? (
                             <>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}>bell
                                     {unreadCount > 0 && (
@@ -119,8 +119,8 @@ const NavigationProvider = () => {
                             <>
 
                             </>
-                        )}
-                        {isOpenNotify && (
+                        )} */}
+                        {/* {isOpenNotify && (
                             <div className="absolute right-20 top-full mt-2 w-80 sm:w-96 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
                                 <div className="p-4 border-b border-gray-100">
                                     <h3 className="font-semibold text-gray-900">Notifications</h3>
@@ -164,7 +164,7 @@ const NavigationProvider = () => {
                                     )}
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
                     </div>
 
