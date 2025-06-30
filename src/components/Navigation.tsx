@@ -14,12 +14,22 @@ export interface Notification {
   timestamp: Date;
   isRead: boolean;
 }
+export interface item {
+    image: string;
+    name: string;
+    price: number;
+    productId: number;
+    providerId: number;
+    quantity: number;
+    userId: number;
+}
 
 const Navigation = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
@@ -29,7 +39,7 @@ const Navigation = () => {
         //{ path: "", label: "Q&A" },
         { path: "/jobs", label: "Jobs" },
         { path: "/contacts", label: "Contact" },
-        ...(currentUser ? [{ path: "/cartpage", label: "Shopping Curd" }] : []),
+        // ...(currentUser ? [{ path: "/cartpage", label: "Shopping Curd" }] : []),
         ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
         // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 
@@ -51,6 +61,17 @@ const Navigation = () => {
             ))}
         </>
     );
+     const items: item[] = [
+            {
+                image: "one.jpeg",
+                name: "Sample Product",
+                price: 12345,
+                productId: 1,
+                providerId: 1,
+                quantity: 1,
+                userId: 1,
+            },
+        ]
 
     const notifications :Notification[]= [
     
@@ -90,6 +111,7 @@ const Navigation = () => {
 
 
     const unreadCount = notifications.length;
+    const addToCartItems = items.length;
     return (
 
         <nav className="sticky top-0 z-50 glass-effect border-b">
@@ -106,6 +128,14 @@ const Navigation = () => {
                       <NavLinks />  
                         {(currentUser) ? (
                             <>
+                                <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >Shopping cart
+                                    {addToCartItems > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                                            {addToCartItems > 9 ? '9+' : addToCartItems}
+                                        </span>
+                                    )}
+
+                                </button></Link></span>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}>bell
                                     {unreadCount > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
