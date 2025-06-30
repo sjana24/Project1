@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import { Label } from "recharts";
+import { Menu } from "lucide-react";
 
 export interface Notification {
   id: number;
@@ -97,7 +98,7 @@ const NavigationProvider = () => {
                 <div className="flex items-center justify-between h-20 bg-red-500">
                     <Link to="/" className="flex items-center space-x-2">
 
-                        <img src="logoM.JPG" className="h-12 w-12"></img>
+                        <img src="../logoM.JPG" className="h-12 w-12"></img>
 
                     </Link>
                     {/* Desktop Navigation */}
@@ -211,7 +212,7 @@ const NavigationProvider = () => {
                             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                                 <SheetTrigger asChild>
                                     <Button variant="outline" size="sm">
-                                        {/* <Menu className="h-4 w-4" /> */}
+                                        <Menu className="h-4 w-4" />
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent side="right" className="w-64">
