@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 const Services = () => {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState("name");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+  const {toast}=useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
 
   const services = [
     {
@@ -20,10 +25,10 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
-      img:"one.jpeg",
+      img: "one.jpeg",
       email: "contact@solartechpro.com"
     },
     {
@@ -35,10 +40,10 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
-      img:"one.jpeg",
+      img: "one.jpeg",
       email: "contact@solartechpro.com"
     },
     {
@@ -50,10 +55,10 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
-      img:"one.jpeg",
+      img: "one.jpeg",
       email: "contact@solartechpro.com"
     },
     {
@@ -65,13 +70,13 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
-      img:"one.jpeg",
+      img: "one.jpeg",
       email: "contact@solartechpro.com"
     },
-     {
+    {
       id: 5,
       name: "Solar Panel Installation",
       provider: "SolarTech Pro",
@@ -80,13 +85,13 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
-      img:"one.jpeg",
+      img: "one.jpeg",
       email: "contact@solartechpro.com"
     },
-     {
+    {
       id: 6,
       name: "Solar Panel Installation",
       provider: "SolarTech Pro",
@@ -95,78 +100,106 @@ const Services = () => {
       priceUnit: "per panel",
       rating: 4.9,
       image: "/placeholder.svg",
-      category: "installation",    
+      category: "installation",
       features: ["Free consultation", "25-year warranty", "Same-day installation"],
       phone: "+1 (555) 123-4567",
       email: "contact@solartechpro.com",
-      img:"one.jpeg",
+      img: "one.jpeg",
     },
 
-]
+  ]
 
-    const filteredServices = services
-        .filter(service =>
-            service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            service.description.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-
-
-        .sort((a, b) => {
-            switch (sortBy) {
-                case "price-low":
-                    return a.price - b.price;
-                case "price-high":
-                    return b.price - a.price;
-                case "rating":
-                    return b.rating - a.rating;
-                case "provider":
-                    return a.provider.localeCompare(b.provider);
-                default:
-                    return a.name.localeCompare(b.name);
-            }
-        });
-    return (
-        <div className="min-h-screen">
-            <Navigation />
-            <div className="py-20">
-                <div className="container mx-auto px-4">
+  const filteredServices = services
+    .filter(service =>
+      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
 
-                    <div className="text-center mb-12">
-                        <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                            Solar Services
-                        </h1>
-                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                            Connect with certified solar professionals for installation, maintenance, and consultation services.
-                        </p>
-                    </div>
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        case "provider":
+          return a.provider.localeCompare(b.provider);
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
+    const handleClick=()=>{
+      console.log("hi this is me");
+      // setSelectedProduct(product);
+    setIsModalOpen(true);
+      // navigate("/emo");
+    }
+      const closeModal = () => {
+    setIsModalOpen(false);
+    // setSelectedProduct(null);
+  };
+  const handleSendRequest = () => {
 
-                    {/* Search and Filter */}
-                    <div className="flex flex-col md:flex-row gap-4 mb-8">
-                        <div className="relative flex-1">
-                            <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search services or providers..."
-                                className="pl-10"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="w-full md:w-48">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="name">Service Name</SelectItem>
-                                <SelectItem value="provider">Provider</SelectItem>
-                                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                                <SelectItem value="rating">Highest Rated</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    {/* Services Grid */}
+    if (!currentUser) {
+      toast({
+        title: "Please log in",
+        description: "You must be logged in to add items to your cart.",
+        variant: "destructive", // optional styling
+
+      });
+    }
+    toast({
+      title: "Added to Cart function!",
+      description: ` request sended.`,
+      // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+    });
+
+    // setIsModalOpen(false);
+  }
+  return (
+    <div className="min-h-screen">
+      <Navigation />
+      <div className="py-20">
+        <div className="container mx-auto px-4">
+
+
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+              Solar Services
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Connect with certified solar professionals for installation, maintenance, and consultation services.
+            </p>
+          </div>
+
+          {/* Search and Filter */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+              <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search services or providers..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Service Name</SelectItem>
+                <SelectItem value="provider">Provider</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Services Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {filteredServices.map((service) => (
               <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
@@ -193,7 +226,7 @@ const Services = () => {
                   <div className="flex flex-wrap gap-2 mb-4">
                     {/* 123456789 */}
                     {service.features.map((feature, index) => (
-                      <h1 key={index}  className="text-xs">
+                      <h1 key={index} className="text-xs">
                         {feature}
                       </h1>
                     ))}
@@ -209,7 +242,7 @@ const Services = () => {
                         <div className="text-sm text-muted-foreground">{service.priceUnit}</div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Phone className="h-4 w-4" />
@@ -220,22 +253,22 @@ const Services = () => {
                         <span>{service.email}</span>
                       </div> */}
                     </div>
-                    
-                      <div className="  flex flex-col sm:flex-row gap-6 justify-center">
-                    <Button size="lg"
-                      className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
-                      
-                    >
-                      
-                      Request Service
-                    </Button>
-                     <Button  size="lg"
-                      className="  w-full  text-white group-hover:scale-105 transition-transform"
-                      
-                    >
-                      
-                      Request for Contact
-                    </Button>
+
+                    <div className="  flex flex-col sm:flex-row gap-6 justify-center">
+                      <Button size="lg"
+                        className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
+                        onClick={() => handleClick()}
+                      >
+
+                        Request Service
+                      </Button>
+                      <Button size="lg"
+                        className="  w-full  text-white group-hover:scale-105 transition-transform"
+                        onClick={() => handleSendRequest()}
+                      >
+
+                        Request for Contact
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -243,20 +276,27 @@ const Services = () => {
             ))}
           </div>
 
-                    {/* No Results */}
-                    {filteredServices.length === 0 && (
-                        <div className="text-center py-12">
-                            {/* <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-4" /> */}
-                            <h3 className="text-xl font-semibold text-foreground mb-2">No services found</h3>
-                            <p className="text-muted-foreground">Try adjusting your search terms or filters.</p>
-                        </div>
-                    )}
-                </div>
-
+          {/* No Results */}
+          {filteredServices.length === 0 && (
+            <div className="text-center py-12">
+              {/* <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-4" /> */}
+              <h3 className="text-xl font-semibold text-foreground mb-2">No services found</h3>
+              <p className="text-muted-foreground">Try adjusting your search terms or filters.</p>
             </div>
-            <Footer />
+          )}
         </div>
-    );
+        {isModalOpen &&  (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden">
+
+              </div>
+          </div>
+        )}
+
+      </div>
+      <Footer />
+    </div>
+  );
 
 }
 export default Services;
