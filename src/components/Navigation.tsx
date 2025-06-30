@@ -29,7 +29,7 @@ const Navigation = () => {
         //{ path: "", label: "Q&A" },
         { path: "/jobs", label: "Jobs" },
         { path: "/contacts", label: "Contact" },
-        ...(currentUser ? [{ path: "/", label: "Shopping Curd" }] : []),
+        ...(currentUser ? [{ path: "/cartpage", label: "Shopping Curd" }] : []),
         ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
         // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 

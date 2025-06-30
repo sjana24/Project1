@@ -11,6 +11,8 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
+     const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
   // sample products 
@@ -93,7 +95,18 @@ const Products = () => {
           return a.name.localeCompare(b.name);
       }
     });
-    const handleAddToCart=()=>{
+
+     const handleClick=(product:any)=>{
+      console.log("hi this is me");
+      setSelectedProduct(product);
+    setIsModalOpen(true);
+      // navigate("/emo");
+    }
+      const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+    const handleAddToCart=(product: any)=>{
       
        if (!currentUser) {
     toast({
@@ -103,7 +116,13 @@ const Products = () => {
       
     });
   }
+   toast({
+        title: "Added to Cart function!",
+        // description: `${product.title} has been added to your cart.`,
+        description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+      });
 
+      setIsModalOpen(false);
     }
   
   
@@ -149,7 +168,7 @@ const Products = () => {
                     {/* Products Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {filteredProducts.map((product) => (
-                        <Card key={product.id}className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
+                        <Card key={product.id} onClick={()=>handleClick(product)} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
                           <CardHeader>
                             <div className="w-full h-48 bg-secondary/30 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/50 transition-colors">
                              <img src={product.image} className="h-full w-full text-primary" />
@@ -174,7 +193,7 @@ const Products = () => {
                                  ${product.price.toLocaleString()}
                                </div>
                               </div>
-                              <Button  onClick={() => handleAddToCart()}
+                              <Button  onClick={() => handleAddToCart(product)}
                                 className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
                               >
                                   Add to Cart
@@ -187,6 +206,51 @@ const Products = () => {
                     
                 </div>
             </div>
+            {/* Product Modal */}
+      {isModalOpen && selectedProduct && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          {/* <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl relative"> */}
+          <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden">
+
+            {/* Close button */}
+            <button
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              onClick={closeModal}
+            >
+              <span className="text-sm">Cancel</span>
+            </button>
+
+            {/* Modal content in two columns */}
+            <div className="flex flex-col md:flex-row gap-6">
+
+              {/* Left: Image */}
+              <div className="flex-shrink-0 flex items-center justify-center w-full md:w-1/2">
+                <img
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  className="w-full h-auto object-contain rounded-lg"
+                />
+              </div>
+
+              {/* Right: Details */}
+              <div className="w-full md:w-1/2 flex flex-col justify-center">
+                {/* <h2 className="text-2xl font-semibold mb-2">{selectedProduct.name}</h2> */}
+                <p className="text-muted-foreground mb-2">{selectedProduct.description}</p>
+                <p className="text-sm text-muted-foreground mb-4">{selectedProduct.specs}</p>
+
+                <div className="flex justify-between items-center mt-auto">
+                  <div className="text-lg font-bold">${selectedProduct.price}</div>
+                  {/* <Button onClick={() => handleAddToCart(selectedProduct.name)}> */}
+                  <Button onClick={() => handleAddToCart(selectedProduct)}>
+                    
+                    Add to Cart
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
             <Footer />
         </div>
