@@ -22,7 +22,7 @@ const Login = () => {
     const [registerData, setRegisterData] = useState({
         name: "",
         email: "",
-        mobileNumber: " ",
+        contact_no: " ",
         password: "",
         confirmpassword: ""
     });
@@ -37,7 +37,7 @@ const Login = () => {
         e.preventDefault();
         console.log(registerData);
         const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
-        if (!registerData.name || !registerData.email || !registerData.password || !registerData.mobileNumber || !registerData.confirmpassword) {
+        if (!registerData.name || !registerData.email || !registerData.password || !registerData.contact_no || !registerData.confirmpassword) {
             console.log(" error in data");
             return;
         }
@@ -47,8 +47,8 @@ const Login = () => {
         //     return;
         // }
         try {
-            const res = axios.post("http://localhost/Git/Project1/Backend/Customer/RegisterCustomer.php", registerData);
-            console.log("Registration successful:");
+            const res = axios.post("http://localhost/Git/Project1/Backend/RegisterCustomer.php", registerData);
+            // console.log("Registration successful:");
         } catch (err) {
             console.error("Error registering user:", err);
         } finally {
@@ -69,7 +69,7 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            const res = await axios.post("http://localhost/Git/Project1/Backend/Customer/LoginCustomer.php", loginData);
+            const res = await axios.post("http://localhost/Git/Project1/Backend/LoginCustomer.php", loginData);
             // console.log("Login successful:");
             // navigate("/");
 
@@ -97,6 +97,7 @@ const Login = () => {
                 });
                 // navigate("/"); // only navigate if login is successful
             } else {
+                 console.log(res.data);
                 toast({
                     title: "Login failed",
                     description: "Invalid credentials or user not found",
@@ -245,8 +246,8 @@ const Login = () => {
                                                         type="number"
                                                         placeholder="077 *** ****"
                                                         className="pl-10"
-                                                        value={registerData.mobileNumber}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, mobileNumber: e.target.value }))}
+                                                        value={registerData.contact_no}
+                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
                                                         required
 
                                                     />

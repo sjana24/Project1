@@ -3,7 +3,7 @@ class Database{
     private $host="localhost";
     private $username="root";
     private $pwd="";
-    private $dbname="solax";
+    private $dbname="solaxdb";
     private $conn;
 
     // Create connection

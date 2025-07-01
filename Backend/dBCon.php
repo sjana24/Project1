@@ -3,7 +3,7 @@ class Database{
     private $host="localhost";
     private $username="root";
     private $pwd="";
-    private $dbname="solax";
+    private $dbname="solaxdb";
     private $conn;
 
     // Create connection
@@ -11,12 +11,21 @@ class Database{
   // Connect to the database
     public function connect()
     {
-        $this->conn = new mysqli($this->host, $this->username, $this->pwd, $this->dbname);
-        if ($this->conn->connect_error) {
-            throw new Exception("Connection failed: " . $this->conn->connect_error);
-        } else {
-            // echo " connected";
+        // try {
+        //     $dsn = "mysql:host={$this->host};dbname={$this->dbname}";
+        //     $this->conn = new PDO($dsn, $this->username, $this->pwd);
+        //     $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //     return $this->conn;
+        // } catch (PDOException $e) {
+        //     throw new Exception("Connection failed: " . $e->getMessage());
+        // }
+        try {
+            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+            $this->conn = new PDO($dsn, $this->username, $this->pwd);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $this->conn;
+        } catch (PDOException $e) {
+            die("Database connection failed: " . $e->getMessage());
         }
     }
 }
