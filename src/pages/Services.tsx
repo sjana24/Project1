@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,16 +6,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+interface Service {
+  service_id: number;
+  provider_id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  // specifications: string;
+  /// rating add pannale
+  images: string; // this is a JSON string (array in string)
+  is_approved: number;
+  created_at: string;
+  updated_at: string;
+  // success?: boolean;
+
+
+
+}
+
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
-  const {toast}=useToast();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const [services, setServices] = useState<Service[]>([]);
+   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
 
 
-  const services = [
+  const services1 = [
     {
       id: 1,
       name: "Solar Panel Installation",
@@ -109,10 +131,36 @@ const Services = () => {
 
   ]
 
+   useEffect(() => {
+      axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
+        .then(response => {
+          const data = response.data;
+          if (response.data.success) {
+            console.log("data got");
+  
+            setServices(data.products);
+          }
+          else {
+            // setError('Failed to load products.');
+            console.log(response.data);
+            console.log(" sorry we cant get ur products");
+          }
+          setLoading(false);
+        })
+  
+        .catch(err => {
+          // setError('Something went wrong.');
+          setLoading(false);
+        });
+  
+    }, []);
+  
+
   const filteredServices = services
     .filter(service =>
+      
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
@@ -123,25 +171,25 @@ const Services = () => {
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
-        case "rating":
-          return b.rating - a.rating;
-        case "provider":
-          return a.provider.localeCompare(b.provider);
+        // case "rating":
+          // return b.rating - a.rating;
+        // case "provider":
+          // return a.provider.localeCompare(b.provider);
         default:
           return a.name.localeCompare(b.name);
       }
     });
-    const handleClick=()=>{
-      console.log("hi this is me");
-      // setSelectedProduct(product);
+  const handleClick = () => {
+    console.log("hi this is me");
+    // setSelectedProduct(product);
     setIsModalOpen(true);
-      // navigate("/emo");
-    }
-      const closeModal = () => {
+    // navigate("/emo");
+  }
+  const closeModal = () => {
     setIsModalOpen(false);
     // setSelectedProduct(null);
   };
-  const handleSendRequest = () => {
+  const handleSendRequestContact =async (service :any) => {
 
     if (!currentUser) {
       toast({
@@ -151,12 +199,15 @@ const Services = () => {
 
       });
     }
+    else{
+      const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
+      
     toast({
-      title: "Added to Cart function!",
-      description: ` request sended.`,
+      title: "Request sent!",
+      description: ` request sended to ${service.product_id}.`,
       // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
     });
-
+  }
     // setIsModalOpen(false);
   }
   return (
@@ -202,22 +253,22 @@ const Services = () => {
           {/* Services Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {filteredServices.map((service) => (
-              <Card key={service.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
+              <Card key={service.service_id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         {/*  */}
-                        <img src={service.img} className="h-full rounded-lg w-full text-primary" />
+                        {/* <img src={service.img} className="h-full rounded-lg w-full text-primary" /> */}
                       </div>
                       <div>
                         <CardTitle className="text-xl">{service.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground font-medium">{service.provider}</p>
+                        <p className="text-sm text-muted-foreground font-medium">{service.provider_id}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
                       {/*  */}
-                      <span className="text-sm font-medium">{service.rating}</span>
+                      <span className="text-sm font-medium">{service.price}</span>
                     </div>
                   </div>
                   <CardDescription className="text-muted-foreground mb-4">
@@ -225,11 +276,11 @@ const Services = () => {
                   </CardDescription>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {/* 123456789 */}
-                    {service.features.map((feature, index) => (
+                    {/* {service.features.map((feature, index) => (
                       <h1 key={index} className="text-xs">
                         {feature}
                       </h1>
-                    ))}
+                    ))} */}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -239,7 +290,7 @@ const Services = () => {
                         <div className="text-2xl font-bold text-primary">
                           {service.price === 0 ? "Free" : `$${service.price}`}
                         </div>
-                        <div className="text-sm text-muted-foreground">{service.priceUnit}</div>
+                        <div className="text-sm text-muted-foreground">{service.price}</div>
                       </div>
                     </div>
 
@@ -264,7 +315,7 @@ const Services = () => {
                       </Button>
                       <Button size="lg"
                         className="  w-full  text-white group-hover:scale-105 transition-transform"
-                        onClick={() => handleSendRequest()}
+                        onClick={() => handleSendRequestContact(service)}
                       >
 
                         Request for Contact
@@ -285,11 +336,11 @@ const Services = () => {
             </div>
           )}
         </div>
-        {isModalOpen &&  (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
             <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden">
 
-              </div>
+            </div>
           </div>
         )}
 

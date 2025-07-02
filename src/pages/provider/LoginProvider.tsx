@@ -87,7 +87,7 @@ const LoginProvider = () => {
                         
                         // localStorage.setItem('currentUser', JSON.stringify(foundUser));
                         const loginUser: currentProvider = {
-                            providerId: res.data.userID,
+                            providerId: res.data.provider_id,
                             providerName: res.data.userName,
         
                         };
