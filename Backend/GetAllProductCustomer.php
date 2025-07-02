@@ -9,6 +9,6 @@ require_once "./Root/Product.php";
 
 
 $getAll=new Product();
-$response=$getAll->getAllProducts();
+$response=$getAll->getAllProductsCustomer();
 
 echo json_encode($response);
