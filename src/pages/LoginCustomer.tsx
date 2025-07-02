@@ -83,7 +83,7 @@ const Login = () => {
                 
                 // localStorage.setItem('currentUser', JSON.stringify(foundUser));
                 const loginUser: currentUser = {
-                    customerId: res.data.userID,
+                    customerId: res.data.customer_id,
                     customerName: res.data.userName,
 
                 };

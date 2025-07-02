@@ -2,11 +2,13 @@ import Navigation from "@/components/Navigation";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { useNavigation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   product_id: number;
@@ -34,7 +36,7 @@ const Products = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const navigate=useNavigate
   const [products, setProducts] = useState<Product[]>([]);
 
 
@@ -92,7 +94,7 @@ const Products = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
   };
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = async(product: any) => {
 
     if (!currentUser) {
       toast({
@@ -101,13 +103,18 @@ const Products = () => {
         variant: "destructive", // optional styling
 
       });
+      // navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+      return;
     }
+    else{
+    
+    const response=await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php",product );
     toast({
       title: "Added to Cart function!",
       description: `${product.name} has been added to your cart.`,
 
     });
-
+  }
     setIsModalOpen(false);
   }
 
