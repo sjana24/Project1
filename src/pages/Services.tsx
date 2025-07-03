@@ -405,11 +405,11 @@ const Services = () => {
         {/* //  ( */}
         {/* // // <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> */}
         {/* //   // <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden"> */}
-          //      {/* Close Button */}
-          //           {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
+                {/* Close Button */}
+                     {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
 
 
-          //               {/* <div className="absolute top-3 right-3">
+                         {/* <div className="absolute top-3 right-3">
           //                   <button
           //                       onClick={closeModel}
           //                       className="text-gray-500 hover:text-gray-800 transition"
@@ -423,7 +423,7 @@ const Services = () => {
 
           //   </div>
           // </div> */}
-        //
+        
         <ServiceRequestModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
