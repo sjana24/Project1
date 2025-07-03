@@ -102,22 +102,25 @@ class Product
         }
         return false;
     }
+    // public function isAlreadyExistsCartItem($cart_id, $product_id)
+
     public function isAlreadyExistsCartItem($cart_id, $product_id)
-    {
+{
+    $query = "SELECT item_id,quantity FROM cart_item WHERE product_id = :product_id AND cart_id = :cart_id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':product_id', $product_id);  // FIX: Use method argument, not $this->product_id
+    $stmt->bindParam(':cart_id', $cart_id);        // FIX: Use method argument, not $this->customer_ID
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $query = "SELECT item_id FROM cart_item WHERE product_id = :product_id AND cart_id = :cart_id";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':product_id', $this->product_id);
-        $stmt->bindParam(':cart_id', $this->customer_ID);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($stmt->rowCount() > 0) {
-            return $result['item_id'];
-        }
-        return false;
+    if ($result) {
+        // return $result['item_id'];
+        return $result;
     }
+    return false;
+}
+
+  
     public function insertCartItem($cart_id, $product_id, $quantity)
 {
     try {
@@ -148,8 +151,7 @@ class Product
             $query = "UPDATE cart_item 
                   SET cart_id = :cart_id,
                       product_id = :product_id,
-                      quantity = :quantity,
-                    --   added_at = :added_at
+                      quantity = :quantity                  
                   WHERE item_id = :item_id";
 
             $stmt = $this->conn->prepare($query);
@@ -172,42 +174,47 @@ class Product
     }
 
 
-    public function AddToCart($customer_id, $product_id,$quantity)
-    {
+    // public function AddToCart($customer_id, $product_id,$quantity)
+    public function AddToCart($customer_id, $product_id, $quantity)
+{
+    $this->customer_ID = $customer_id;
+    $this->product_id = $product_id;
+    $this->quantity = $quantity;
 
-        $this->customer_ID = $customer_id;
-        $this->product_id = $product_id;
-        $this->quantity = $quantity;
+    // 1. Check if cart exists
+    $cart_id = $this->isAlreadyExistsCart();
 
-        $check = $this->isAlreadyExistsCart();//
-        if ($check !== false) {
-            return false;
-        }
+    // 2. If not, insert cart
+    if (!$cart_id) {
+        $sql = "INSERT INTO cart (customer_id) VALUES (:customer_id)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':customer_id', $this->customer_ID);
+        $stmt->execute();
 
-        $check2=$this->isAlreadyExistsCartItem($check, $this->product_id);
-        if ($check2 !== false) {
-            //quality add ahanum
-            $this->updateCartItem($check2,$check,$this->product_id,$this->quantity);
-            return false;
-        }
-
-        $this-> insertCartItem($check,$this->product_id,1);
-
-        try {
-            $sql = "INSERT INTO cart (customer_id) VALUES (?)";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(1, $this->customer_ID);  // assuming $this->customer_id is set somewhere
-            // $stmt->bindParam(2, $this->created_at);   // assuming $this->created_at is set
-            // $stmt->bindParam(3, $this->updated_at);   // assuming $this->updated_at is set
-            $result = $stmt->execute();
-
-            if ($result) {
-                return true;
-            }
-            return false;
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Failed to register. " . $e->getMessage()]);
-        }
+        // Now retrieve newly inserted cart_id
+        $cart_id = $this->conn->lastInsertId();
     }
+
+    // 3. Check if this product already exists in this cart
+    $existingItem = $this->isAlreadyExistsCartItem($cart_id, $product_id);
+
+    if ($existingItem) {
+    $item_id = $existingItem['item_id'];
+    $existing_quantity = $existingItem['quantity'];
+
+    $new_quantity = $existing_quantity + $quantity;
+
+    return $this->updateCartItem($item_id, $cart_id, $product_id, $new_quantity);
+    // $existing_quantity= $existingItemId['quantity'];
+
+    // if ($existingItemId) {
+        // 4. If it exists, update quantity
+        // return $this->updateCartItem($existingItemId, $cart_id, $product_id,$existing_quantity);
+    } else {
+        // 5. If not, insert new cart item
+        return $this->insertCartItem($cart_id, $product_id, $quantity);
+    }
+}
+
+   
 }
