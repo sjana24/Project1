@@ -96,7 +96,8 @@ const Login = () => {
                     state: { name: res.data.userName, email: res.data.userEmail }
                 });
                 // navigate("/"); // only navigate if login is successful
-            } else {
+            } 
+            else {
                  console.log(res.data);
                 toast({
                     title: "Login failed",

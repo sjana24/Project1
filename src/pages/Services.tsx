@@ -1,4 +1,4 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [services, setServices] = useState<Service[]>([]);
-   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
+  const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
 
 
   const services1 = [
@@ -135,39 +135,39 @@ const Services = () => {
 
   ]
 
-   useEffect(() => {
-      axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
-        .then(response => {
-          const data = response.data;
-          if (response.data.success) {
-            console.log("data got");
-  
-            setServices(data.services);
-          }
-          else {
-            // setError('Failed to load products.');
-            console.log(response.data);
-            console.log(" sorry we cant get ur products");
-          }
-          setLoading(false);
-        })
-  
-        .catch(err => {
-          // setError('Something went wrong.');
-          setLoading(false);
-        });
-  
-    }, []);
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        // setSelectedProduct(null);
-    };
-  
+          setServices(data.services);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur products");
+        }
+        setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        setLoading(false);
+      });
+
+  }, []);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // setSelectedProduct(null);
+  };
+
 
   const filteredServices = services
     .filter(service =>
-      
+
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       // service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -181,9 +181,9 @@ const Services = () => {
         case "price-high":
           return b.price - a.price;
         // case "rating":
-          // return b.rating - a.rating;
+        // return b.rating - a.rating;
         // case "provider":
-          // return a.provider.localeCompare(b.provider);
+        // return a.provider.localeCompare(b.provider);
         default:
           return a.name.localeCompare(b.name);
       }
@@ -198,18 +198,18 @@ const Services = () => {
 
       });
     }
-    else{
+    else {
       // const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
       setIsModalOpen(true);
 
-  }
-    
+    }
+
   }
   const closeModel = () => {
     setIsModalOpen(false);
     // setSelectedProduct(null);
   };
-  const handleSendRequestContact =async (service :any) => {
+  const handleSendRequestContact = async (service: any) => {
 
     if (!currentUser) {
       toast({
@@ -219,25 +219,58 @@ const Services = () => {
 
       });
     }
-    else{
-      const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
-      
-    toast({
-      title: "Request sent!",
-      description: ` request sended to ${service.product_id}.`,
-      // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
-    });
-  }
+    else {
+      console.log(FormData);
+      // const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
+
+      toast({
+        title: "Request sent!",
+        description: ` request sended to ${service.product_id}.`,
+        // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+      });
+    }
     // setIsModalOpen(false);
   }
-  const sendRequestToDb=async()=>{
-     const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php")
-      
-    toast({
-      title: "Request sent!",
-      description: ` request sended to .`,
-      // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
-    });
+  const sendRequestToDb = async (formData: { message: string; phoneNumber: string; preferredDate: string }) => {
+    // console.log(formData);
+    //  const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php",formData);
+    //   // console.log("Response:", response.data);
+    // 
+    try {
+      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php", formData);
+      // console.log("Login successful:");
+      // navigate("/");
+
+
+      if (response.data.success) {
+        console.log("Request sent successful");
+        toast({
+          title: "Request sent!",
+          description: ` request sended to .`,
+          // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+        });
+
+        // console.log(res.data.userEmail);
+        // navigate("/", {
+
+        //     state: { name: res.data.userName, email: res.data.userEmail }
+        // });
+        // navigate("/"); // only navigate if login is successful
+      } else {
+        console.log(response.data);
+        toast({
+          title: "Request sent failed",
+          description: "Invalid credentials",
+          variant: "destructive",
+        });
+        // console.log(" error in login"); // show error message from PHP
+
+      }
+    } catch (err) {
+      console.error("Error login user:", err);
+    } finally {
+      setLoading(false);
+    }
 
   }
 
@@ -367,11 +400,11 @@ const Services = () => {
             </div>
           )}
         </div>
-        
+
         {/* // isModalOpen && */}
         {/* //  ( */}
-          {/* // // <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> */}
-          {/* //   // <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden"> */}
+        {/* // // <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> */}
+        {/* //   // <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden"> */}
           //      {/* Close Button */}
           //           {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
 
@@ -390,12 +423,12 @@ const Services = () => {
 
           //   </div>
           // </div> */}
-        // 
+        //
         <ServiceRequestModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={sendRequestToDb}
-      />
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={sendRequestToDb}
+        />
 
       </div>
       <Footer />
