@@ -2,8 +2,9 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import CartModal from "@/components/ui/cartModel";
+import axios from "axios";
 
 export interface item {
     image: string;
@@ -20,8 +21,9 @@ const CartPage = () => {
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [selectAll, setSelectAll] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [cartItems, setCartItems] = useState<item[]>([]);
 
-    const items: item[] = [
+    const items1: item[] = [
         {
             image: "one.jpeg",
             name: "Sample Product",
@@ -50,6 +52,29 @@ const CartPage = () => {
             userId: 3,
         },
     ];
+     useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/ShowCardItems.php")
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
+
+          setCartItems(data.items);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur items");
+        }
+        // setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        // setLoading(false);
+      });
+
+  }, []);
 
     const handleQuantityChange = (
         productId: number,
@@ -76,7 +101,7 @@ const CartPage = () => {
         }
     };
 
-    const selectedCartItems = items.filter((item) =>
+    const selectedCartItems = cartItems.filter((item) =>
         selectedItems.includes(item.productId)
     );
 
@@ -98,7 +123,7 @@ const CartPage = () => {
     return (
         <div className="min-h-screen">
             <Navigation />
-            {items.length !== 0 ? (
+            {cartItems.length !== 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 py-8">
                     <div className="lg:col-span-2">
                         <div className="flex items-center mb-4">
@@ -108,7 +133,7 @@ const CartPage = () => {
                                 onChange={(e) => {
                                     const checked = e.target.checked;
                                     setSelectAll(checked);
-                                    setSelectedItems(checked ? items.map((i) => i.productId) : []);
+                                    setSelectedItems(checked ? cartItems.map((i) => i.productId) : []);
                                 }}
                                 className="mr-2"
                             />
@@ -116,7 +141,7 @@ const CartPage = () => {
                         </div>
 
                         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                            {items.map((item) => (
+                            {cartItems.map((item) => (
                                 <div
                                     key={item.productId}
                                     className="flex items-center p-6 border-b border-gray-200 last:border-b-0"
