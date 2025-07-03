@@ -108,7 +108,11 @@ const Products = () => {
     }
     else{
     
-    const response=await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php",product );
+    const response=await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php",{
+      customer_id: currentUser.customerId,
+      product_Details:product,
+
+      });
     toast({
       title: "Added to Cart function!",
       description: `${product.name} has been added to your cart.`,
