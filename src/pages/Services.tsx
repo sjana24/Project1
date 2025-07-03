@@ -6,7 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 import axios from "axios";
+import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
+
+
 interface Service {
   service_id: number;
   provider_id: number;
@@ -138,7 +142,7 @@ const Services = () => {
           if (response.data.success) {
             console.log("data got");
   
-            setServices(data.products);
+            setServices(data.services);
           }
           else {
             // setError('Failed to load products.');
@@ -154,6 +158,11 @@ const Services = () => {
         });
   
     }, []);
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        // setSelectedProduct(null);
+    };
   
 
   const filteredServices = services
@@ -179,13 +188,24 @@ const Services = () => {
           return a.name.localeCompare(b.name);
       }
     });
-  const handleClick = () => {
-    console.log("hi this is me");
-    // setSelectedProduct(product);
-    setIsModalOpen(true);
-    // navigate("/emo");
+  const handleServiceClick = () => {
+
+    if (!currentUser) {
+      toast({
+        title: "Please log in",
+        description: "You must be logged in to add items to your cart.",
+        variant: "destructive", // optional styling
+
+      });
+    }
+    else{
+      // const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
+      setIsModalOpen(true);
+
   }
-  const closeModal = () => {
+    
+  }
+  const closeModel = () => {
     setIsModalOpen(false);
     // setSelectedProduct(null);
   };
@@ -210,6 +230,17 @@ const Services = () => {
   }
     // setIsModalOpen(false);
   }
+  const sendRequestToDb=async()=>{
+     const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php")
+      
+    toast({
+      title: "Request sent!",
+      description: ` request sended to .`,
+      // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+    });
+
+  }
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -308,7 +339,7 @@ const Services = () => {
                     <div className="  flex flex-col sm:flex-row gap-6 justify-center">
                       <Button size="lg"
                         className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
-                        onClick={() => handleClick()}
+                        onClick={() => handleServiceClick()}
                       >
 
                         Request Service
@@ -336,13 +367,35 @@ const Services = () => {
             </div>
           )}
         </div>
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden">
+        
+        {/* // isModalOpen && */}
+        {/* //  ( */}
+          {/* // // <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> */}
+          {/* //   // <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden"> */}
+          //      {/* Close Button */}
+          //           {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
 
-            </div>
-          </div>
-        )}
+
+          //               {/* <div className="absolute top-3 right-3">
+          //                   <button
+          //                       onClick={closeModel}
+          //                       className="text-gray-500 hover:text-gray-800 transition"
+          //                   >
+          //                       <X className="w-5 h-5" />
+          //                   </button>
+          //               </div>
+
+
+          //           </div>
+
+          //   </div>
+          // </div> */}
+        // 
+        <ServiceRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={sendRequestToDb}
+      />
 
       </div>
       <Footer />
