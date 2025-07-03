@@ -188,7 +188,7 @@ const Services = () => {
           return a.name.localeCompare(b.name);
       }
     });
-  const handleServiceClick = () => {
+  const handleServiceClick =async () => {
 
     if (!currentUser) {
       toast({
@@ -199,7 +199,7 @@ const Services = () => {
       });
     }
     else {
-      // const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
+      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php")
       setIsModalOpen(true);
 
     }
@@ -220,8 +220,8 @@ const Services = () => {
       });
     }
     else {
-      console.log(FormData);
-      // const response=await axios.post("http://localhost/Git/Project1/Backend/RequsetContactCustomer.php")
+      // console.log(FormData);
+      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php",service)
 
       toast({
         title: "Request sent!",

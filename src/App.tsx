@@ -15,6 +15,7 @@ import DashboardCustomer from "./pages/DashboardCustomer";
 import IndexProvider from "./pages/provider/IndexProvider";
 import LoginProvider from "./pages/provider/LoginProvider";
 import DashboardProvider from "./pages/provider/DashboardProvider"
+import AdminLogin from "./pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,8 @@ const App = () => (
           <Route path="/provider/" element={<IndexProvider />} />
           <Route path="/provider/login" element={<LoginProvider />} />
           <Route path="/provider/dashboard" element={<DashboardProvider />} />
+
+           <Route path="/admin" element={<AdminLogin />} />
         </Routes>
 
       </BrowserRouter>
