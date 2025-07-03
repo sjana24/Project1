@@ -26,7 +26,8 @@ export default function AdminLogin() {
     try {
       setLoading(true);
       // Replace with your actual API endpoint
-      const response = await axios.post("http://localhost/admin-login.php", {
+    //    const res = await axios.post("http://localhost/Git/Project1/Backend/LoginCustomer.php", loginData);
+      const response = await axios.post("http://localhost/Git/Project1/Backend/LoginAdmin.php", {
         email,
         password,
       });
