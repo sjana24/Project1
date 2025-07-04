@@ -40,6 +40,7 @@ const App = () => (
       <Toaster />
       <BrowserRouter>
         <Routes>
+
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginCustomer />} />
           <Route path="/products" element={<Products />} />
@@ -49,11 +50,7 @@ const App = () => (
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/cartpage" element={<CartPage />} />
           <Route path="/customer/profile" element={<DashboardCustomer />} />
-
-          {/* <Route path="/provider/" element={<IndexProvider />} /> */}
-          <Route path="/provider/login" element={<LoginProvider />} />
-          {/* <Route path="/provider/dashboard" element={<DashboardProvider />} /> */}
-
+       
            <Route path="/admin" element={<AdminLogin />} />
 
             <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
@@ -62,6 +59,9 @@ const App = () => (
           <Route path="/admin/service" element={<AdminLayout><ServicesPage /></AdminLayout>} />
           <Route path="/admin/user" element={<AdminLayout><UsersPage /></AdminLayout>} />
 
+          <Route path="/provider/" element={<IndexProvider />} />
+          <Route path="/provider/login" element={<LoginProvider />} />
+
           <Route path="/provider/dashboard" element={<ProviderLayout> <ProviderDashboard/></ProviderLayout>} />
           <Route path="/provider/job" element={<ProviderLayout> <JobProvider/></ProviderLayout>} />
           <Route path="/provider/product" element={<ProviderLayout> <ProductProvider/></ProviderLayout>} />
@@ -69,13 +69,7 @@ const App = () => (
           {/* <Route path="/provider/" element={<Dashboard />} /> */}
            </Routes>
 
-           {/* <AdminLayout>
-            <Routes>
-           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-           <Route path="/admin/provider" element={<ProvidersPage />} />
-
-        </Routes>
-                   </AdminLayout> */}
+           
 
       </BrowserRouter>
     </TooltipProvider>
