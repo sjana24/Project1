@@ -239,7 +239,7 @@ const Navigation = () => {
         <DropdownMenuItem
           onClick={() => {
             sessionStorage.removeItem("currentUser");
-            // navigate("/");
+            navigate("/");
             setCurrentUser(null);  
           }}
           className="text-red-600"

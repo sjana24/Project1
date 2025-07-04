@@ -3,12 +3,13 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-// require_once "./Root/Job.php";
+require_once "./Root/Cart.php";
 
-echo "hiiiii";
+// echo "hiiiii";
+$data = json_decode(file_get_contents("php://input"), true);
+$customer_id = htmlspecialchars(strip_tags($data['customer_id']));
 
+$getAll=new Cart();
+$response=$getAll->getAllCartCustomer($customer_id);
 
-// $getAll=new Job();
-// $response=$getAll->getAllJobsCustomer();
-
-// echo json_encode($response);
+echo json_encode($response);

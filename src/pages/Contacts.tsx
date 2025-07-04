@@ -1,7 +1,11 @@
+import Footer from "@/components/Footer";
+import Navigation from "@/components/Navigation";
+
 const Contacts =()=>{
 return (
     <> 
-    <h1>contact</h1>
+    <Navigation />
+    <Footer />
     </>
 );
 

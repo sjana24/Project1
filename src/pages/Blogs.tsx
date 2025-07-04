@@ -1,7 +1,11 @@
+import Footer from "@/components/Footer";
+import Navigation from "@/components/Navigation";
+
 const Blogs =()=>{
 return (
     <> 
-    <h1>blog</h1>
+    <Navigation />
+    <Footer/>
     </>
 );
 

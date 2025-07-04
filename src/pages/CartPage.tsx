@@ -54,6 +54,7 @@ const CartPage = () => {
     ];
    useEffect(() => {
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
+          setCartItems([]);
 
   if (!currentUser) return; // Safeguard in case there's no user
 
