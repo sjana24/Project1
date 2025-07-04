@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate} from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import axios from "axios";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
+  // const {navigate}= useNavigate();
+  const navigate=useNavigate();
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -37,7 +40,7 @@ export default function AdminLogin() {
           title: "Login successful",
           description: "Welcome to the admin panel!",
         });
-        // Example: navigate("/admin/dashboard");
+        navigate("/admin/dashboard");
       } else {
         toast({
           title: "Login failed",

@@ -36,7 +36,7 @@ const Products = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate=useNavigate
+  const navigate=useNavigate;
   const [products, setProducts] = useState<Product[]>([]);
 
 

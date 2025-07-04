@@ -17,7 +17,18 @@ import LoginProvider from "./pages/provider/LoginProvider";
 import DashboardProvider from "./pages/provider/DashboardProvider"
 import AdminLogin from "./pages/admin/AdminLogin";
 
+import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ProvidersPage from "./pages/admin/ProvidersPage";
+import ServicesPage from "./pages/admin/ServicesPage";
+import ProductsPage from "./pages/admin/ProductsPage";
+import UsersPage from "./pages/admin/UsersPage";
+
+import ProviderLayout from "./components/layouts/ProviderLayout";
+import ProviderDashboard from "./pages/provider2/DashboardProvider"
+import JobProvider from "./pages/provider2/Jobs";
+import ProductProvider from "./pages/provider2/Products";
+import ServiceProvider from "./pages/provider2/Services";
 
 const queryClient = new QueryClient();
 
@@ -39,13 +50,32 @@ const App = () => (
           <Route path="/cartpage" element={<CartPage />} />
           <Route path="/customer/profile" element={<DashboardCustomer />} />
 
-          <Route path="/provider/" element={<IndexProvider />} />
+          {/* <Route path="/provider/" element={<IndexProvider />} /> */}
           <Route path="/provider/login" element={<LoginProvider />} />
-          <Route path="/provider/dashboard" element={<DashboardProvider />} />
+          {/* <Route path="/provider/dashboard" element={<DashboardProvider />} /> */}
 
            <Route path="/admin" element={<AdminLogin />} />
+
+            <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+          <Route path="/admin/provider" element={<AdminLayout><ProvidersPage /></AdminLayout>} />
+          <Route path="/admin/product" element={<AdminLayout><ProductsPage /></AdminLayout>} />
+          <Route path="/admin/service" element={<AdminLayout><ServicesPage /></AdminLayout>} />
+          <Route path="/admin/user" element={<AdminLayout><UsersPage /></AdminLayout>} />
+
+          <Route path="/provider/dashboard" element={<ProviderLayout> <ProviderDashboard/></ProviderLayout>} />
+          <Route path="/provider/job" element={<ProviderLayout> <JobProvider/></ProviderLayout>} />
+          <Route path="/provider/product" element={<ProviderLayout> <ProductProvider/></ProviderLayout>} />
+          <Route path="/provider/service" element={<ProviderLayout> <ServiceProvider/></ProviderLayout>} />
+          {/* <Route path="/provider/" element={<Dashboard />} /> */}
+           </Routes>
+
+           {/* <AdminLayout>
+            <Routes>
            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+           <Route path="/admin/provider" element={<ProvidersPage />} />
+
         </Routes>
+                   </AdminLayout> */}
 
       </BrowserRouter>
     </TooltipProvider>
