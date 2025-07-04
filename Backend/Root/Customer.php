@@ -1,6 +1,7 @@
 <?php
-require_once 'dBCon.php';
-class Customer
+// require_once 'dBCon.php';
+include_once 'Root/User.php';
+class Customer extends User
 {
     protected $customer_id;
     protected $name;
@@ -8,22 +9,26 @@ class Customer
     protected $password;
     protected $contact_no;
     protected $disable_sts;
-    protected $conn;
+    // protected $conn;
     public $id = 3;
 
-    public function __construct()
+    // public function __construct()
+    // {
+    //     $dbObj = new Database;
+    //     $this->conn = $dbObj->connect();
+    // }
+     public function __construct()
     {
-        $dbObj = new Database;
-        $this->conn = $dbObj->connect();
+        parent::__construct();
     }
 
-    public function Login($email, $password)
+    public function Login($email, $password,$role)
     {
         $this->email = $email;
         $this->password = $password;
 
         try {
-            $sql = "SELECT customer_id,password FROM customer WHERE email=?";
+            $sql = "SELECT customer_id,password,name FROM customer WHERE email=?";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(1, $this->email);
             $stmt->execute();
@@ -35,9 +40,10 @@ class Customer
                 // }
 
                 $this->customer_id = $customer['customer_id'];
+                $customer_name= $customer['name'];
 
 
-                return [ 'customer_id' => $this->customer_id, 'success' => true, 'message' => 'Login Successful...'];
+                return [ 'user_id' => $this->customer_id,'user_name'=>$customer_name, 'success' => true, 'message' => 'Login Successful...'];
             } else {
                 return ["success"=>false,"message"=>"Incorrect email or password..."];
             }

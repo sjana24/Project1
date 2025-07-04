@@ -11,11 +11,15 @@ $data = json_decode(file_get_contents("php://input"), true);
 // $email = filter_var($data->email,FILTER_SANITIZE_EMAIL);
 $email = htmlspecialchars(strip_tags($data['email']));
 $password = htmlspecialchars(strip_tags($data['password']));
+$role = htmlspecialchars(strip_tags($data['role']));
+// echo "$email";
+// echo "$password";
+// echo "$role";
 
 
 $customerLogin=new Customer();
 
-$loginRes=$customerLogin->Login($email,$password);
+$loginRes=$customerLogin->Login($email,$password,$role);
 
 if ($loginRes['success']) {
     http_response_code(200);

@@ -23,7 +23,7 @@ const CartPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
 
-    const items: item[] = [
+    const item1s: item[] = [
         {
             image: "one.jpeg",
             name: "Sample Product",
@@ -52,29 +52,29 @@ const CartPage = () => {
             userId: 3,
         },
     ];
-//      useEffect(() => {
-//     axios.get("http://localhost/Git/Project1/Backend/ShowCardItems.php")
-//       .then(response => {
-//         const data = response.data;
-//         if (response.data.success) {
-//           console.log("data got");
+   useEffect(() => {
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
 
-//           setCartItems(data.items);
-//         }
-//         else {
-//           // setError('Failed to load products.');
-//           console.log(response.data);
-//           console.log(" sorry we cant get ur items");
-//         }
-//         // setLoading(false);
-//       })
+  if (!currentUser) return; // Safeguard in case there's no user
 
-//       .catch(err => {
-//         // setError('Something went wrong.');
-//         // setLoading(false);
-//       });
+  axios
+    .post("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
+      customer_id: currentUser.customerId, // send as an object
+    })
+    .then((response) => {
+      const data = response.data;
+      if (data.success) {
+        console.log("Data received:", data);
+        setCartItems(data.items);
+      } else {
+        console.log("Failed to load items:", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error fetching cart items:", err);
+    });
+}, []); // Add currentUser as dependency if it can change
 
-//   }, []);
 
     const handleQuantityChange = (
         productId: number,

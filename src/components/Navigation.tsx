@@ -3,7 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
+import {User} from'lucide-react';
+
 import { Label } from "recharts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export interface Notification {
   id: number;
@@ -28,8 +37,12 @@ const Navigation = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
     // Check if you're on the login page
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    
+    // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    const [currentUser, setCurrentUser] = useState(() => {
+  return JSON.parse(sessionStorage.getItem("currentUser") || "null");
+});
+    const navigate=useNavigate();
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
@@ -108,6 +121,7 @@ const Navigation = () => {
     const openNotifyBar = () => {
         console.log(" notify");
     }
+    
 
 
     const unreadCount = notifications.length;
@@ -202,17 +216,48 @@ const Navigation = () => {
                     {/* Desktop Actions */}
 
                     {(currentUser) ? (
+                              
+      <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            {/* You can add an avatar icon or initials here */}
+            {/* <span className="text-white font-bold">{currentUser.customerName.charAt(0)}</span> */}
+            <User className="w-4 h-4 text-white" />
+          </div>
+          <span className="hidden md:inline-block text-sm font-medium">
+            Hi, {currentUser.customerName}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
 
-                        <div className="hidden md:flex items-center space-x-4">
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={() => navigate('/customer/profile')}>
+          Edit Profile
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => {
+            sessionStorage.removeItem("currentUser");
+            // navigate("/");
+            setCurrentUser(null);  
+          }}
+          className="text-red-600"
+        >
+          Logout
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
 
-                            <Link to="/customer/profile">
-                                <Button size="sm" className="solar-gradient text-white"  >
-                                    Hi,{currentUser.customerName}
-                                    {/*  user name want to add here */}
+                        // <div className="hidden md:flex items-center space-x-4">
+                        //   <Link to="/customer/profile">
+                        //         <Button size="sm" className="solar-gradient text-white"  >
+                        //             Hi,{currentUser.customerName}
+                        //             {/*  user name want to add here */}
 
-                                </Button>
-                            </Link>
-                        </div>
+                        //         </Button>
+                        //     </Link>
+                        // </div>
 
 
                     ) : (

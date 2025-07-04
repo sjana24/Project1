@@ -9,11 +9,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
-export interface currentUser{
-        customerId:number,
-        customerName:string,
+export interface currentUser {
+    customerId: number,
+    customerName: string,
 
-    }
+}
 
 const Login = () => {
     const { toast } = useToast();
@@ -26,12 +26,24 @@ const Login = () => {
         password: "",
         confirmpassword: ""
     });
-    const [loginData, setLoginData] = useState({
-        email: "",
-        password: "",
+    // const [loginData, setLoginData] = useState({
+    //     email: "",
+    //     password: "",
+    //     role: "customer" | "service_provider" | "admin",
 
-    });
-    
+    // });
+    type RoleType = "customer" | "service_provider" | "admin";
+
+const [loginData, setLoginData] = useState<{
+  email: string;
+  password: string;
+  role: RoleType;
+}>({
+  email: "",
+  password: "",
+  role: "customer", // ✅ assign a valid default value here
+});
+
 
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,15 +92,16 @@ const Login = () => {
                     title: "Welcome back!",
                     description: "Successfully logged in",
                 });
-                
+
                 // localStorage.setItem('currentUser', JSON.stringify(foundUser));
                 const loginUser: currentUser = {
-                    customerId: res.data.customer_id,
-                    customerName: res.data.userName,
+                    customerId: res.data.user_id,
+                    customerName: res.data.user_name,
 
                 };
-                
-                localStorage.setItem('currentUser', JSON.stringify(loginUser));
+
+                // localStorage.setItem('currentUser', JSON.stringify(loginUser));
+                sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
                 console.log(res.data);
                 // console.log(res.data.userEmail);
                 navigate("/", {
@@ -96,9 +109,9 @@ const Login = () => {
                     state: { name: res.data.userName, email: res.data.userEmail }
                 });
                 // navigate("/"); // only navigate if login is successful
-            } 
+            }
             else {
-                 console.log(res.data);
+                console.log(res.data);
                 toast({
                     title: "Login failed",
                     description: "Invalid credentials or user not found",
@@ -144,12 +157,10 @@ const Login = () => {
                                 <TabsTrigger value="login">Login</TabsTrigger>
                                 <TabsTrigger value="register">Register</TabsTrigger>
                             </TabsList>
-
                             <TabsContent value="login">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
-
                                             Login to Your Account
                                         </CardTitle>
                                         <CardDescription>
@@ -160,34 +171,67 @@ const Login = () => {
                                         <form className="space-y-4" onSubmit={handleLogin}>
                                             <div className="space-y-2">
                                                 <Label htmlFor="login-email">Email</Label>
-                                                <div className="relative">
-                                                    {/* <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /> */}
-                                                    <Input
-                                                        id="login-email"
-                                                        type="email"
-                                                        placeholder="your@email.com"
-                                                        className="pl-10"
-                                                        value={loginData.email}
-                                                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
+                                                <Input
+                                                    id="login-email"
+                                                    type="email"
+                                                    placeholder="your@email.com"
+                                                    className="pl-10"
+                                                    value={loginData.email}
+                                                    onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                                                    required
+                                                />
                                             </div>
+
                                             <div className="space-y-2">
                                                 <Label htmlFor="login-password">Password</Label>
-                                                <div className="relative">
+                                                <Input
+                                                    id="login-password"
+                                                    type="password"
+                                                    placeholder="••••••••"
+                                                    className="pl-10"
+                                                    value={loginData.password}
+                                                    onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                                                    required
+                                                />
+                                            </div>
 
-                                                    <Input
-                                                        id="login-password"
-                                                        type="password"
-                                                        placeholder="••••••••"
-                                                        className="pl-10"
-                                                        value={loginData.password}
-                                                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                                                        required
-                                                    />
+                                            {/* Radio Button Group */}
+                                            <div className="space-y-2">
+                                                <Label>User Type</Label>
+                                                <div className="flex gap-4">
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="role"
+                                                            value="customer"
+                                                            checked={loginData.role === "customer"}
+                                                            onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                                                        />
+                                                        Customer
+                                                    </label>
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="role"
+                                                            value="service_provider"
+                                                            checked={loginData.role === "service_provider"}
+                                                            onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                                                        />
+                                                        Service Provider
+                                                    </label>
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="role"
+                                                            value="admin"
+                                                            checked={loginData.role === "admin"}
+                                                            onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                                                        />
+                                                        Admin
+                                                    </label>
                                                 </div>
                                             </div>
+
                                             <Button type="submit" className="w-full solar-gradient text-white">
                                                 Sign In
                                             </Button>
@@ -195,6 +239,9 @@ const Login = () => {
                                     </CardContent>
                                 </Card>
                             </TabsContent>
+
+
+
                             <TabsContent value="register">
                                 <Card>
                                     <CardHeader>
