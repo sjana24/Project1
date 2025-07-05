@@ -7,13 +7,16 @@ import CartModal from "@/components/ui/cartModel";
 import axios from "axios";
 
 export interface item {
+    item_id:number,
     image: string;
     name: string;
     price: number;
     productId: number;
     providerId: number;
     quantity: number;
+    total_price:number;
     userId: number;
+    unit_price:number;
 }
 
 const CartPage = () => {
@@ -23,35 +26,37 @@ const CartPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
 
-    const item1s: item[] = [
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 1,
-            providerId: 1,
-            quantity: 1,
-            userId: 1,
-        },
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 2,
-            providerId: 2,
-            quantity: 2,
-            userId: 2,
-        },
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 3,
-            providerId: 3,
-            quantity: 3,
-            userId: 3,
-        },
-    ];
+    // const item1s: item[] = [
+    //     {
+    //         image: "one.jpeg",
+    //         name: "Sample Product",
+    //         price: 12345,
+    //         productId: 1,
+    //         providerId: 1,
+    //         quantity: 1,
+    //         userId: 1,
+    //         total_price:1,
+    //         unit_price:2,
+    //     },
+        // {
+        //     image: "one.jpeg",
+        //     name: "Sample Product",
+        //     price: 12345,
+        //     productId: 2,
+        //     providerId: 2,
+        //     quantity: 2,
+        //     userId: 2,
+        // },
+        // {
+        //     image: "one.jpeg",
+        //     name: "Sample Product",
+        //     price: 12345,
+        //     productId: 3,
+        //     providerId: 3,
+        //     quantity: 3,
+        //     userId: 3,
+        // },
+    // ];
    useEffect(() => {
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
           setCartItems([]);
@@ -93,21 +98,21 @@ const CartPage = () => {
         }
     };
 
-    const handleItemSelect = (productId: number, checked: boolean) => {
+    const handleItemSelect = (item_id: number, checked: boolean) => {
         if (checked) {
-            setSelectedItems((prev) => [...prev, productId]);
+            setSelectedItems((prev) => [...prev, item_id]);
         } else {
-            setSelectedItems((prev) => prev.filter((id) => id !== productId));
+            setSelectedItems((prev) => prev.filter((id) => id !== item_id));
             setSelectAll(false);
         }
     };
 
     const selectedCartItems = cartItems.filter((item) =>
-        selectedItems.includes(item.productId)
+        selectedItems.includes(item.item_id)
     );
 
     const subtotal = selectedCartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) => sum + item.unit_price * item.quantity,
         0
     );
     const handleClick = () => {
@@ -134,7 +139,7 @@ const CartPage = () => {
                                 onChange={(e) => {
                                     const checked = e.target.checked;
                                     setSelectAll(checked);
-                                    setSelectedItems(checked ? cartItems.map((i) => i.productId) : []);
+                                    setSelectedItems(checked ? cartItems.map((i) => i.item_id) : []);
                                 }}
                                 className="mr-2"
                             />
@@ -144,15 +149,15 @@ const CartPage = () => {
                         <div className="bg-white rounded-lg shadow-md overflow-hidden">
                             {cartItems.map((item) => (
                                 <div
-                                    key={item.productId}
+                                    key={item.item_id}
                                     className="flex items-center p-6 border-b border-gray-200 last:border-b-0"
                                 >
                                     <input
                                         type="checkbox"
                                         className="mr-4"
-                                        checked={selectedItems.includes(item.productId)}
+                                        checked={selectedItems.includes(item.item_id)}
                                         onChange={(e) =>
-                                            handleItemSelect(item.productId, e.target.checked)
+                                            handleItemSelect(item.item_id, e.target.checked)
                                         }
                                     />
 
@@ -167,7 +172,7 @@ const CartPage = () => {
                                             {item.name}
                                         </h3>
                                         <p className="text-blue-600 font-semibold mt-1">
-                                            Rs {item.price}
+                                            Rs {item.unit_price}
                                         </p>
                                     </div>
 
@@ -209,7 +214,7 @@ const CartPage = () => {
 
                                     <div className="ml-4 text-right">
                                         <p className="text-lg font-semibold text-gray-900">
-                                            Rs {(item.price * item.quantity).toFixed(2)}
+                                            Rs {(item.unit_price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
                                 </div>
