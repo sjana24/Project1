@@ -5,6 +5,8 @@ import { toast } from "@/hooks/use-toast";
 import { useState,useEffect } from "react";
 import CartModal from "@/components/ui/cartModel";
 import axios from "axios";
+import { create } from 'zustand'
+import { useCartStore } from "@/store/useCartStore";
 
 export interface item {
     item_id:number,
@@ -25,6 +27,7 @@ const CartPage = () => {
     const [selectAll, setSelectAll] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
+    const { setCartItemsCount, updateCartCount } = useCartStore();
 
     // const item1s: item[] = [
     //     {
@@ -60,7 +63,7 @@ const CartPage = () => {
    useEffect(() => {
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
           setCartItems([]);
-
+     
   if (!currentUser) return; // Safeguard in case there's no user
 
   axios
@@ -71,6 +74,8 @@ const CartPage = () => {
       const data = response.data;
       if (data.success) {
         console.log("Data received:", data);
+        setCartItemsCount(data.items);
+        updateCartCount();
         setCartItems(data.items);
       } else {
         console.log("Failed to load items:", data);

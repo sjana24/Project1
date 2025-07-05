@@ -37,7 +37,7 @@ const Products = () => {
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate=useNavigate;
+  const navigate=useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
 
 
@@ -114,12 +114,15 @@ const Products = () => {
       product_Details:product,
 
       });
+
     toast({
       title: "Added to Cart function!",
       description: `${product.name} has been added to your cart.`,
 
     });
+     navigate('/products');
   }
+   
     setIsModalOpen(false);
   }
 

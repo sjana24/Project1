@@ -5,6 +5,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import {User} from'lucide-react';
 
+import { useCartStore } from "@/store/useCartStore";
+
 import { Label } from "recharts";
 import {
   DropdownMenu,
@@ -36,6 +38,7 @@ export interface item {
 const Navigation = () => {
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
+         const cartCount = useCartStore((state) => state.cartCount);
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
@@ -145,7 +148,8 @@ const Navigation = () => {
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >Shopping cart
                                     {addToCartItems > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
-                                            {addToCartItems > 9 ? '9+' : addToCartItems}
+                                            {/* {addToCartItems > 9 ? '9+' : addToCartItems} */}
+                                            {cartCount}
                                         </span>
                                     )}
 
