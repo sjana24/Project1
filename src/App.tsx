@@ -29,6 +29,7 @@ import ProviderDashboard from "./pages/provider2/DashboardProvider"
 import JobProvider from "./pages/provider2/Jobs";
 import ProductProvider from "./pages/provider2/Products";
 import ServiceProvider from "./pages/provider2/Services";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/login" element={<LoginCustomer />} />
           <Route path="/products" element={<Products />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/contacts" element={<Contacts />} />
