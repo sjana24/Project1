@@ -19,13 +19,29 @@ const Login = () => {
     const { toast } = useToast();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    // const [registerData, setRegisterData] = useState({
+    //     name: "",
+    //     email: "",
+    //     contact_no: " ",
+    //     password: "",
+    //     confirmpassword: ""
+    // });
     const [registerData, setRegisterData] = useState({
-        name: "",
-        email: "",
-        contact_no: " ",
-        password: "",
-        confirmpassword: ""
-    });
+  name: "",
+  email: "",
+  contact_no: "",
+  password: "",
+  confirmpassword: "",
+  role: "",                // "customer" | "service_provider"
+  address: "",
+  district: "",
+  province: "",
+  company_name: "",
+  business_reg_no: "",
+  company_description: "",
+  website: ""
+});
+
     // const [loginData, setLoginData] = useState({
     //     email: "",
     //     password: "",
@@ -59,7 +75,7 @@ const [loginData, setLoginData] = useState<{
         //     return;
         // }
         try {
-            const res = axios.post("http://localhost/Git/Project1/Backend/RegisterCustomer.php", registerData);
+            const res = axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData);
             // console.log("Registration successful:");
         } catch (err) {
             console.error("Error registering user:", err);
@@ -74,14 +90,14 @@ const [loginData, setLoginData] = useState<{
         e.preventDefault();
         console.log(loginData);
 
-        if (!loginData.email || !loginData.password) {
+        if (!loginData.email || !loginData.password || !loginData.role) {
             console.log(" error in data");
             return;
         }
 
         setIsLoading(true);
         try {
-            const res = await axios.post("http://localhost/Git/Project1/Backend/LoginCustomer.php", loginData);
+            const res = await axios.post("http://localhost/Git/Project1/Backend/LoginUser.php", loginData);
             // console.log("Login successful:");
             // navigate("/");
 
@@ -103,11 +119,20 @@ const [loginData, setLoginData] = useState<{
                 // localStorage.setItem('currentUser', JSON.stringify(loginUser));
                 sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
                 console.log(res.data);
-                // console.log(res.data.userEmail);
-                navigate("/", {
+                // if ("customer"===res.data.role){
+                    let role=res.data.user_role;
+                    // console.log(role);
+                    // navigate('/${role}');
+                    const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
+navigate(`/${cleanRole}/dashboard`);
 
-                    state: { name: res.data.userName, email: res.data.userEmail }
-                });
+                // }
+                // else if 
+                // console.log(res.data.userEmail);
+                // navigate("/", {
+
+                //     state: { name: res.data.userName, email: res.data.userEmail }
+                // });
                 // navigate("/"); // only navigate if login is successful
             }
             else {
@@ -126,6 +151,30 @@ const [loginData, setLoginData] = useState<{
             setIsLoading(false);
         }
     };
+    const provinces = [
+  { value: "Western", label: "Western" },
+  { value: "Central", label: "Central" },
+  { value: "Southern", label: "Southern" },
+  { value: "Northern", label: "Northern" },
+  { value: "Eastern", label: "Eastern" },
+  { value: "North Western", label: "North Western" },
+  { value: "North Central", label: "North Central" },
+  { value: "Uva", label: "Uva" },
+  { value: "Sabaragamuwa", label: "Sabaragamuwa" },
+];
+
+const districtsByProvince: Record<string, string[]> = {
+  Western: ["Colombo", "Gampaha", "Kalutara"],
+  Central: ["Kandy", "Matale", "Nuwara Eliya"],
+  Southern: ["Galle", "Matara", "Hambantota"],
+  Northern: ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
+  Eastern: ["Trincomalee", "Batticaloa", "Ampara"],
+  NorthWestern: ["Kurunegala", "Puttalam"],
+  NorthCentral: ["Anuradhapura", "Polonnaruwa"],
+  Uva: ["Badulla", "Monaragala"],
+  Sabaragamuwa: ["Ratnapura", "Kegalle"]
+};
+
 
 
 
@@ -242,7 +291,7 @@ const [loginData, setLoginData] = useState<{
 
 
 
-                            <TabsContent value="register">
+                            {/* <TabsContent value="register">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
@@ -336,7 +385,257 @@ const [loginData, setLoginData] = useState<{
                                         </form>
                                     </CardContent>
                                 </Card>
-                            </TabsContent>
+                            </TabsContent> */}
+                            <TabsContent value="register">
+  <Card>
+    <CardHeader>
+      <CardTitle>Create New Account</CardTitle>
+      <CardDescription>Join SolaX to access exclusive features.</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <form onSubmit={handleRegister} className="space-y-4">
+
+        {/* Full Name */}
+        <div>
+          <Label>Full Name</Label>
+          <Input
+            type="text"
+            placeholder="John Doe"
+            value={registerData.name}
+            onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            placeholder="your@email.com"
+            value={registerData.email}
+            onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+            required
+          />
+        </div>
+
+        {/* Mobile Number */}
+        <div>
+          <Label>Mobile Number</Label>
+          <Input
+            type="tel"
+            placeholder="077xxxxxxx"
+            pattern="^0\d{9}$"
+            value={registerData.contact_no}
+            onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <Label>Password</Label>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            value={registerData.password}
+            onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+            required
+          />
+        </div>
+
+        {/* Confirm Password */}
+        <div>
+          <Label>Confirm Password</Label>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            value={registerData.confirmpassword}
+            onChange={(e) => setRegisterData(prev => ({ ...prev, confirmpassword: e.target.value }))}
+            required
+          />
+        </div>
+
+        {/* Role Radio */}
+        <div>
+          <Label>Register As</Label>
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="role"
+                value="customer"
+                checked={registerData.role === 'customer'}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                required
+                
+              />
+              Customer
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="role"
+                value="service_provider"
+                checked={registerData.role === 'service_provider'}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                required
+              />
+              Service Provider
+            </label>
+          </div>
+        </div>
+
+        {/* Fields for Customer */}
+        {registerData.role === 'customer' && (
+          <>
+            <div>
+              <Label>Address</Label>
+              <Input
+                type="text"
+                placeholder="123, Main Street"
+                value={registerData.address}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, address: e.target.value }))}
+                required
+              />
+            </div>
+            {/* <div>
+              <Label>District</Label>
+              <Input
+                type="text"
+                placeholder="Colombo"
+                value={registerData.district}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, district: e.target.value }))}
+                required
+              />
+            </div> */}
+            {/* Province Dropdown */}
+<div>
+  <Label>Province</Label>
+  <select
+    className="w-full p-2 border rounded"
+    value={registerData.province || ""}
+    onChange={(e) =>
+      setRegisterData((prev) => ({
+        ...prev,
+        province: e.target.value,
+        district: "" // reset district when province changes
+      }))
+    }
+    required
+  >
+    <option value="">Select Province</option>
+    {provinces.map((prov) => (
+      <option key={prov.value} value={prov.value}>
+        {prov.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+{/* District Dropdown */}
+<div>
+  <Label>District</Label>
+  <select
+    className="w-full p-2 border rounded"
+    value={registerData.district || ""}
+    onChange={(e) =>
+      setRegisterData((prev) => ({ ...prev, district: e.target.value }))
+    }
+    required
+  >
+    <option value="">Select District</option>
+    {(districtsByProvince[registerData.province?.replace(/\s/g, "")] || []).map(
+      (district) => (
+        <option key={district} value={district}>
+          {district}
+        </option>
+      )
+    )}
+  </select>
+</div>
+
+          </>
+        )}
+
+        {/* Fields for Service Provider */}
+        {registerData.role === 'service_provider' && (
+          <>
+            <div>
+              <Label>Company Name</Label>
+              <Input
+                type="text"
+                placeholder="SolaX Pvt Ltd"
+                value={registerData.company_name}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, company_name: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Business Registration Number</Label>
+              <Input
+                type="text"
+                placeholder="BR123456"
+                value={registerData.business_reg_no}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, business_reg_no: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Company Description</Label>
+              <Input
+                type="text"
+                placeholder="Solar energy solutions provider"
+                value={registerData.company_description}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, company_description: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Address</Label>
+              <Input
+                type="text"
+                placeholder="456, Business Park"
+                value={registerData.address}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, address: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>District</Label>
+              <Input
+                type="text"
+                placeholder="Kandy"
+                value={registerData.district}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, district: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Website</Label>
+              <Input
+                type="url"
+                placeholder="https://solax.com"
+                value={registerData.website}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, website: e.target.value }))}
+              />
+            </div>
+          </>
+        )}
+
+        <Button type="submit" className="w-full solar-gradient text-white">
+          Create Account
+        </Button>
+      </form>
+    </CardContent>
+  </Card>
+</TabsContent>
+
                         </Tabs>
                         <div className="text-center mt-6">
                             <p className="text-sm text-muted-foreground">

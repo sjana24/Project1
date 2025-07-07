@@ -60,7 +60,7 @@ const App = () => (
           <Route path="/admin/user" element={<AdminLayout><UsersPage /></AdminLayout>} />
 
           <Route path="/provider/" element={<IndexProvider />} />
-          <Route path="/provider/login" element={<LoginProvider />} />
+          {/* <Route path="/provider/login" element={<LoginProvider />} /> */}
 
           <Route path="/provider/dashboard" element={<ProviderLayout> <ProviderDashboard/></ProviderLayout>} />
           <Route path="/provider/job" element={<ProviderLayout> <JobProvider/></ProviderLayout>} />
