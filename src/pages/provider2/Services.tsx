@@ -122,7 +122,7 @@ export default function Services() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     // deleteService(id);
     toast({
       title: 'Service Deleted',
@@ -267,7 +267,7 @@ export default function Services() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => handleDelete(service.service_id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="w-4 h-4" />

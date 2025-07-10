@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-// import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   Home, 
   Users, 
@@ -38,11 +39,13 @@ interface ProviderLayoutProps {
 
 const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // const { logout, user } = useAuth();
+  const { logout} = useAuth();
   const location = useLocation();
+  const navigate=useNavigate();
 
   const handleLogout = () => {
-    // logout();
+    logout();
+    navigate("/");
   };
 
   return (
