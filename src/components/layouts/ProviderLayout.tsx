@@ -19,14 +19,14 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/provider/dashboard', icon: Home },
+  { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
 //   { name: 'Users', href: '/',icon: Users },
 //   { name: 'Providers', href: '/', icon: Building2 },
-  { name: 'Products', href: '/provider/product', icon: Package },
-  { name: 'Services', href: '/provider/service', icon: ShoppingCart },
+  { name: 'Products', href: '/service_provider/product', icon: Package },
+  { name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
 //   { name: 'Orders', href: '/', icon: ShoppingCart },
 //   { name: 'Reviews', href: '/', icon: Star },
-  { name: 'Jobs', href: '/provider/job',icon: Briefcase },
+  { name: 'Jobs', href: '/service_provider/job',icon: Briefcase },
 //   { name: 'Blogs', href: '/', icon: FileText },
 //   { name: 'Notifications', href: '/', icon: Bell },
 //   { name: 'Settings', href: '/', icon: Settings },

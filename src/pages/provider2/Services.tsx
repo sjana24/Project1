@@ -11,8 +11,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { useDashboardStore, Service } from '@/store/dashboardStore';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
+import axios from 'axios';
 export interface Service {
-  id: string;
+  service_id: number;
   name: string;
   description: string;
   price: number;
@@ -27,8 +29,10 @@ export default function Services() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+    const [loading, setLoading] = useState(true);
+      const [services, setServices] = useState<Service[]>([]);
   
-  const services=[];
+  // const services=[];
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -45,6 +49,33 @@ export default function Services() {
     'Design',
     'Energy Audit'
   ];
+   useEffect(()=>{
+     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
+     {
+    withCredentials:true
+    })
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
+
+          setServices(data.services);
+        }
+        else {
+          // setError('Failed to load services.');
+          // console.log(response.data);
+          console.log(" sorry we cant get ur products");
+        }
+        setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        setLoading(false);
+      });
+
+
+  },[]);
 
   const filteredServices = services.filter(service =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -211,7 +242,7 @@ export default function Services() {
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredServices.map((service) => (
-          <Card key={service.id} className="hover:shadow-lg transition-shadow">
+          <Card key={service.service_id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
