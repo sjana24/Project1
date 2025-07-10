@@ -171,7 +171,7 @@ useEffect(() => {
                     
                     <div className="hidden md:flex items-center space-x-8">
                       <NavLinks />  
-                        {(currentUser) ? (
+                        {currentUser?.role === "customer" ? (
                             <>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >cart
                                     {addToCartItems > 0 && (

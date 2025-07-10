@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+
 if (isset($_SESSION['user'])) {
     $user_name = $_SESSION['user']['user_name'];
     $user_id = $_SESSION['user']['user_id'];
@@ -43,8 +44,9 @@ if (isset($_SESSION['user'])) {
     } else {
 
         // echo " this is not allowed to $user_role";
-        http_response_code(400);
-        echo json_encode(array("message" => "Only for customer not fot $user_role."));
+        // http_response_code(400);
+        
+        echo json_encode(array("success"=>false,"message" => "Only for customer not fot $user_role."));
     }
 
     // echo json_encode([
