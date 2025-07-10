@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import {User} from'lucide-react';
+import { useAuth } from "@/contexts/AuthContext";
 
 import { useCartStore } from "@/store/useCartStore";
 
@@ -16,6 +17,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+interface User {
+  id:number;
+  name:string;
+  email: string;
+  role: string;
+}
 export interface Notification {
   id: number;
   type: 'message' | 'support';
@@ -36,15 +43,35 @@ export interface item {
 }
 
 const Navigation = () => {
+    const { checkSession ,logout} = useAuth();
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
          const cartCount = useCartStore((state) => state.cartCount);
+         const [loading, setLoading] = useState(true); // handle async wait
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
-    const [currentUser, setCurrentUser] = useState(() => {
-  return JSON.parse(sessionStorage.getItem("currentUser") || "null");
-});
+//     const [currentUser, setCurrentUser] = useState(() => {
+//   return JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+//   useEffect(() => {
+//     const fetchRole = async () => {
+//       const user = await checkSession();
+//       setCurrentUser(user);
+//     //   const x=userR;
+//     //   setRole(x); // this will update state with the role (e.g., 'admin')
+//       setLoading(false);
+//     };
+//     fetchRole();
+//   }, [checkSession]);
+useEffect(() => {
+  (async () => {
+    if (!currentUser) {
+      const user=await checkSession();
+      setCurrentUser(user);
+    }
+  })();
+}, []);
     const navigate=useNavigate();
     const isLoginPage = location.pathname === "/login";
     const navItems = [
@@ -144,9 +171,9 @@ const Navigation = () => {
                     
                     <div className="hidden md:flex items-center space-x-8">
                       <NavLinks />  
-                        {(currentUser) ? (
+                        {currentUser?.role === "customer" ? (
                             <>
-                                <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >Shopping cart
+                                <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >cart
                                     {addToCartItems > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
                                             {/* {addToCartItems > 9 ? '9+' : addToCartItems} */}
@@ -231,7 +258,7 @@ const Navigation = () => {
             <User className="w-4 h-4 text-white" />
           </div>
           <span className="hidden md:inline-block text-sm font-medium">
-            Hi, {currentUser.customerName}
+            Hi, {currentUser.name}
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -244,6 +271,7 @@ const Navigation = () => {
         <DropdownMenuItem
           onClick={() => {
             sessionStorage.removeItem("currentUser");
+            logout();
             navigate("/");
             setCurrentUser(null);  
           }}
@@ -300,7 +328,7 @@ const Navigation = () => {
                                         <div className="pt-4 border-t space-y-2">
                                             <Link to="/customer/profile">
                                                 <Button size="sm" className="solar-gradient text-white"  >
-                                                    Hi,{currentUser.customerName}
+                                                    Hi,{currentUser.name}
 
 
                                                 </Button>

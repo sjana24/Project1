@@ -1,7 +1,12 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+
 // import { useAuth } from '../../contexts/AuthContext';
+
 import { 
   Home, 
   Users, 
@@ -38,12 +43,29 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate=useNavigate();
   // const { logout, user } = useAuth();
   const location = useLocation();
 
-  const handleLogout = () => {
-    // logout();
-  };
+  // const handleLogout = () => {
+  //   // logout();
+  // };
+  
+const handleLogout = async () => {
+  console.log("log out buddy");
+  try {
+    await axios.get("http://localhost/Git/Project1/Backend/logout.php", {
+      withCredentials: true, // send session cookies
+    });
+
+    
+
+    // Redirect to home or login
+    navigate("/");
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex">
@@ -145,6 +167,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="animate-slide-in max-w-full">
             {children}
+            {/* <Outlet /> */}
           </div>
         </main>
       </div>

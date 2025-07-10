@@ -37,7 +37,7 @@ const Products = () => {
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
 
 
@@ -95,9 +95,9 @@ const Products = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
   };
-  const handleAddToCart = async(product: any) => {
+  const handleAddToCart = async (product: any) => {
 
-    if (!currentUser) {
+    if (0) {
       toast({
         title: "Please log in",
         description: "You must be logged in to add items to your cart.",
@@ -107,22 +107,39 @@ const Products = () => {
       // navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
       return;
     }
-    else{
-    
-    const response=await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php",{
-      customer_id: currentUser.customerId,
-      product_Details:product,
+    else {
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php", {
+        // customer_id: currentUser.customerId,
+        product_Details: product,
+
+      },
+        { withCredentials: true }
+      );
+      console.log(response.data);
+      if (response.data.success) {
+        console.log("add to cart sucess ");
+        toast({
+          title: "Added to Cart function!",
+          description: `${product.name} has been added to your cart.`,
+
+        });
+      }
+      else{
+        console.log(" erroe adoi");
+        toast({
+        title: "Only for Customers!",
+        variant:"destructive",
+        // description: `${product.name} has been added to your cart.`,
 
       });
 
-    toast({
-      title: "Added to Cart function!",
-      description: `${product.name} has been added to your cart.`,
+      }
 
-    });
-     navigate('/products');
-  }
-   
+      
+      navigate('/products');
+    }
+
     setIsModalOpen(false);
   }
 
@@ -245,92 +262,92 @@ const Products = () => {
         </div>
       </div>
       {/* Product Modal */}
-            {isModalOpen && selectedProduct && (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center overflow-y-auto px-2 py-4">
-    <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl h-[90vh] overflow-hidden relative">
-      
-      {/* Close Button */}
-      <button
-        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
-        onClick={closeModal}
-      >
-        ✕
-      </button>
+      {isModalOpen && selectedProduct && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center overflow-y-auto px-2 py-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl h-[90vh] overflow-hidden relative">
 
-      {/* Scrollable Content */}
-      <div className="flex flex-col md:flex-row h-full overflow-y-auto">
-        
-        {/* Image Section */}
-        <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-4 border-r">
-          <img
-            // src={(() => {
-            //   try {
-            //     const imgArr = JSON.parse(selectedProduct.images);
-            //     return imgArr[0] || "../one.jpeg";
-            //   } catch {
-            //     return "../one.jpeg";
-            //   }
-            // })()}
-            alt={selectedProduct.name}
-            src="../one.jpeg"
-            className="w-full max-w-xs h-auto object-contain rounded-lg"
-          />
-        </div>
+            {/* Close Button */}
+            <button
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              onClick={closeModal}
+            >
+              ✕
+            </button>
 
-        {/* Info Section */}
-        <div className="w-full md:w-1/2 p-6 space-y-4 overflow-y-auto">
-          <h2 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h2>
-          <p className="text-sm text-muted-foreground">{selectedProduct.category}</p>
-          
-          <div className="text-gray-600 text-sm">
-            <strong>Provider:</strong> Solar Lanka Solutions
-          </div>
+            {/* Scrollable Content */}
+            <div className="flex flex-col md:flex-row h-full overflow-y-auto">
 
-          <p className="text-sm text-gray-700">{selectedProduct.description}</p>
+              {/* Image Section */}
+              <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-4 border-r">
+                <img
+                  // src={(() => {
+                  //   try {
+                  //     const imgArr = JSON.parse(selectedProduct.images);
+                  //     return imgArr[0] || "../one.jpeg";
+                  //   } catch {
+                  //     return "../one.jpeg";
+                  //   }
+                  // })()}
+                  alt={selectedProduct.name}
+                  src="../one.jpeg"
+                  className="w-full max-w-xs h-auto object-contain rounded-lg"
+                />
+              </div>
 
-          <div className="text-sm">
-            <strong>Specifications:</strong>
-            <p className="mt-1 text-gray-600">{selectedProduct.specifications}</p>
-          </div>
+              {/* Info Section */}
+              <div className="w-full md:w-1/2 p-6 space-y-4 overflow-y-auto">
+                <h2 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h2>
+                <p className="text-sm text-muted-foreground">{selectedProduct.category}</p>
 
-          <div className="text-lg font-semibold text-green-600">
-            Rs {selectedProduct.price.toLocaleString()}
-          </div>
-           {/* Actions */}
-          <div className="pt-4 border-t flex justify-between items-center">
-            {/* <div className="text-xl font-bold text-primary">
+                <div className="text-gray-600 text-sm">
+                  <strong>Provider:</strong> Solar Lanka Solutions
+                </div>
+
+                <p className="text-sm text-gray-700">{selectedProduct.description}</p>
+
+                <div className="text-sm">
+                  <strong>Specifications:</strong>
+                  <p className="mt-1 text-gray-600">{selectedProduct.specifications}</p>
+                </div>
+
+                <div className="text-lg font-semibold text-green-600">
+                  Rs {selectedProduct.price.toLocaleString()}
+                </div>
+                {/* Actions */}
+                <div className="pt-4 border-t flex justify-between items-center">
+                  {/* <div className="text-xl font-bold text-primary">
               Rs {selectedProduct.price.toLocaleString()}
             </div> */}
-            <Button
-              onClick={() => handleAddToCart(selectedProduct)}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
-            >
-              Add to Cart
-            </Button>
-          </div>
+                  <Button
+                    onClick={() => handleAddToCart(selectedProduct)}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
 
-          {/* Reviews Section */}
-          <div className="pt-4 border-t">
-            <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
-            <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
-              <li>
-                ⭐⭐⭐⭐☆ - “Great performance even in cloudy weather.” – <i>Ayesha</i>
-              </li>
-              <li>
-                ⭐⭐⭐⭐⭐ - “Highly recommended for rooftop installation.” – <i>Ramesh</i>
-              </li>
-              <li>
-                ⭐⭐⭐☆☆ - “Expected better packaging.” – <i>Dinuka</i>
-              </li>
-            </ul>
-          </div>
+                {/* Reviews Section */}
+                <div className="pt-4 border-t">
+                  <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
+                  <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
+                    <li>
+                      ⭐⭐⭐⭐☆ - “Great performance even in cloudy weather.” – <i>Ayesha</i>
+                    </li>
+                    <li>
+                      ⭐⭐⭐⭐⭐ - “Highly recommended for rooftop installation.” – <i>Ramesh</i>
+                    </li>
+                    <li>
+                      ⭐⭐⭐☆☆ - “Expected better packaging.” – <i>Dinuka</i>
+                    </li>
+                  </ul>
+                </div>
 
-         
+
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
 
       <Footer />

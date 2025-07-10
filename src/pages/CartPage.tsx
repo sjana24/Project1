@@ -61,14 +61,14 @@ const CartPage = () => {
         // },
     // ];
    useEffect(() => {
-  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
+//   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
           setCartItems([]);
      
-  if (!currentUser) return; // Safeguard in case there's no user
+//   if (!currentUser) return; // Safeguard in case there's no user
 
   axios
-    .post("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
-      customer_id: currentUser.customerId, // send as an object
+    .get("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
+    withCredentials:true
     })
     .then((response) => {
       const data = response.data;
