@@ -56,13 +56,13 @@ class Product
         }
     }
 
-    public function getAllProductsProvider()
+    public function getAllProductsProvider($provider_id)
     {
 
         try {
-            $sql = "SELECT * FROM product WHERE ";
+            $sql = "SELECT * FROM product WHERE  provider_id=:provider_id";
             $stmt = $this->conn->prepare($sql);
-
+             $stmt->bindParam(':provider_id', $provider_id); 
             $stmt->execute();
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
