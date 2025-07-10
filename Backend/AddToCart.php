@@ -1,16 +1,42 @@
 <?php
+session_start();
+header("Access-Control-Allow-Origin: http://localhost:8080");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // echo "hi";
 require_once "./Root/Product.php";
 
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+// if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
    
-    http_response_code(200);
-    exit();
+//     http_response_code(200);
+//     exit();
+// }
+if (isset($_SESSION['user'])) {
+    $user_name = $_SESSION['user']['user_name'];
+    $user_id = $_SESSION['user']['user_id'];
+    $user_role = $_SESSION['user']['user_role'];
+
+    echo "$user_name,$user_id,$user_role";
+
+    // echo json_encode([
+    //     "loggedIn" => true,
+    // ]);
+    // error_log("Session: " . print_r($_SESSION, true));
+
+    // echo " hi ";
+} else {
+    echo json_encode([
+        "loggedIn" => false,
+        // "user_name" => $_SESSION['user'],
+        // "user_id" => $_SESSION['user']['user_id'],
+        // "user_role" => $_SESSION['user']['user_role'],
+    ]);
+    error_log("SESSION FETCHED: " . print_r($_SESSION, true));
+
 }
 
 
@@ -24,16 +50,16 @@ $provider_id = htmlspecialchars(strip_tags($array['provider_id']));
 // $provider_id = htmlspecialchars(strip_tags($array['quantity']));
 
 
-   $addToCart=new Product();
-  $Result = $addToCart->AddToCart($customerID,$product_id,1);
+//    $addToCart=new Product();
+//   $Result = $addToCart->AddToCart($customerID,$product_id,1);
 
-  if($Result) {
-      http_response_code(200);
-      echo json_encode(array("message" => "Add to cart successfully."));
-  } else {
-      http_response_code(400);
-      echo json_encode(array("message" => "Unable to add to cart."));
-  }
+//   if($Result) {
+//       http_response_code(200);
+//       echo json_encode(array("message" => "Add to cart successfully."));
+//   } else {
+//       http_response_code(400);
+//       echo json_encode(array("message" => "Unable to add to cart."));
+//   }
 
 // echo json_encode([
 //     'product_id' => $product_id,

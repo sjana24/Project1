@@ -97,7 +97,7 @@ const Products = () => {
   };
   const handleAddToCart = async(product: any) => {
 
-    if (!currentUser) {
+    if (0) {
       toast({
         title: "Please log in",
         description: "You must be logged in to add items to your cart.",
@@ -110,7 +110,7 @@ const Products = () => {
     else{
     
     const response=await axios.post("http://localhost/Git/Project1/Backend/AddToCart.php",{
-      customer_id: currentUser.customerId,
+      // customer_id: currentUser.customerId,
       product_Details:product,
 
       });

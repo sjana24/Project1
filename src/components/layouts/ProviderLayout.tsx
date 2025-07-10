@@ -101,7 +101,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
                 <span className="text-white text-sm font-medium">A</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">Admin</p>
+                <p className="text-sm font-medium text-gray-900">Service Provider</p>
                 {/* <p className="text-xs text-gray-600">{user?.email}</p> */}
               </div>
             </div>

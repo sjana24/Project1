@@ -12,6 +12,7 @@ import axios from "axios";
 export interface currentUser {
     customerId: number,
     customerName: string,
+    role:string,
 
 }
 
@@ -97,13 +98,13 @@ const [loginData, setLoginData] = useState<{
 
         setIsLoading(true);
         try {
-            const res = await axios.post("http://localhost/Git/Project1/Backend/LoginUser.php", loginData);
+            const res = await axios.post("http://localhost/Git/Project1/Backend/LoginUser.php", loginData,{withCredentials:true});
             // console.log("Login successful:");
             // navigate("/");
 
 
             if (res.data.success) {
-                console.log("Login successful");
+                console.log("Login successful ");
                 toast({
                     title: "Welcome back!",
                     description: "Successfully logged in",
@@ -113,11 +114,13 @@ const [loginData, setLoginData] = useState<{
                 const loginUser: currentUser = {
                     customerId: res.data.user_id,
                     customerName: res.data.user_name,
+                    role: res.data.user_role,
 
                 };
-
-                // localStorage.setItem('currentUser', JSON.stringify(loginUser));
-                sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
+// localStorage.setItem('currentUser', JSON.stringify(userData));
+                localStorage.setItem('jana', JSON.stringify(loginUser));
+                // sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
+                // sessionStorage.setItem("role", JSON.stringify(loginUser));
                 console.log(res.data);
                 // if ("customer"===res.data.role){
                     let role=res.data.user_role;
