@@ -113,7 +113,9 @@ const Products = () => {
       // customer_id: currentUser.customerId,
       product_Details:product,
 
-      });
+      },
+      {withCredentials:true}
+    );
 
     toast({
       title: "Added to Cart function!",
