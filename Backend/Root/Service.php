@@ -82,6 +82,7 @@ class Service{
         }
 
     }
+    
       public function getAllServicesProvider($provider_id)
     {
 

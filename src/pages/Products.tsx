@@ -34,7 +34,7 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
+  // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();

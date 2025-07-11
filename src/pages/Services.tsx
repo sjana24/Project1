@@ -9,8 +9,14 @@ import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import axios from "axios";
 import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
+import { useAuth } from "@/contexts/AuthContext";
 
-
+interface User {
+  id:number;
+  name:string;
+  email: string;
+  role: string;
+}
 interface Service {
   service_id: number;
   provider_id: number;
@@ -36,9 +42,20 @@ const Services = () => {
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const [currentUser, setCurrentUser] = useState<User | null>(() => null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
+
+  const {checkSession}=useAuth();
+  useEffect(() => {
+  (async () => {
+    if (!currentUser) {
+      const user=await checkSession();
+      setCurrentUser(user);
+    }
+  })();
+}, []);
 
 
   const services1 = [
@@ -199,7 +216,7 @@ const Services = () => {
       });
     }
     else {
-      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php")
+      // const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php");
       setIsModalOpen(true);
 
     }
@@ -221,7 +238,7 @@ const Services = () => {
     }
     else {
       // console.log(FormData);
-      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php",service)
+      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php",service,{withCredentials:true})
 
       toast({
         title: "Request sent!",
@@ -250,17 +267,12 @@ const Services = () => {
           // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
         });
 
-        // console.log(res.data.userEmail);
-        // navigate("/", {
 
-        //     state: { name: res.data.userName, email: res.data.userEmail }
-        // });
-        // navigate("/"); // only navigate if login is successful
       } else {
         console.log(response.data);
         toast({
           title: "Request sent failed",
-          description: "Invalid credentials",
+          description: "Invalid credentials check and resend again",
           variant: "destructive",
         });
         // console.log(" error in login"); // show error message from PHP
