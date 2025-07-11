@@ -9,8 +9,9 @@ class Product
     protected $description;
     protected $price;
     protected $category;
-    protected $images;
-    protected $specification;
+    // protected array $images=[];
+    protected  $images;
+    protected $specifications;
     protected $is_approved;
     protected $conn;
     protected $customer_ID;
@@ -62,7 +63,7 @@ class Product
         try {
             $sql = "SELECT * FROM product WHERE  provider_id=:provider_id";
             $stmt = $this->conn->prepare($sql);
-             $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->bindParam(':provider_id', $provider_id);
             $stmt->execute();
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -105,43 +106,43 @@ class Product
     // public function isAlreadyExistsCartItem($cart_id, $product_id)
 
     public function isAlreadyExistsCartItem($cart_id, $product_id)
-{
-    $query = "SELECT item_id,quantity FROM cart_item WHERE product_id = :product_id AND cart_id = :cart_id";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':product_id', $product_id);  // FIX: Use method argument, not $this->product_id
-    $stmt->bindParam(':cart_id', $cart_id);        // FIX: Use method argument, not $this->customer_ID
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($result) {
-        // return $result['item_id'];
-        return $result;
-    }
-    return false;
-}
-
-  
-    public function insertCartItem($cart_id, $product_id, $quantity)
-{
-    try {
-        $query = "INSERT INTO cart_item (cart_id, product_id, quantity) VALUES (:cart_id, :product_id, :quantity)";
-
+    {
+        $query = "SELECT item_id,quantity FROM cart_item WHERE product_id = :product_id AND cart_id = :cart_id";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':cart_id', $cart_id);
-        $stmt->bindParam(':product_id', $product_id);
-        $stmt->bindParam(':quantity', $quantity);
+        $stmt->bindParam(':product_id', $product_id);  // FIX: Use method argument, not $this->product_id
+        $stmt->bindParam(':cart_id', $cart_id);        // FIX: Use method argument, not $this->customer_ID
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($stmt->execute()) {
-            return true;
+        if ($result) {
+            // return $result['item_id'];
+            return $result;
         }
-
-        return false;
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(["message" => "Failed to insert cart item. " . $e->getMessage()]);
         return false;
     }
-}
+
+
+    public function insertCartItem($cart_id, $product_id, $quantity)
+    {
+        try {
+            $query = "INSERT INTO cart_item (cart_id, product_id, quantity) VALUES (:cart_id, :product_id, :quantity)";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':cart_id', $cart_id);
+            $stmt->bindParam(':product_id', $product_id);
+            $stmt->bindParam(':quantity', $quantity);
+
+            if ($stmt->execute()) {
+                return true;
+            }
+
+            return false;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Failed to insert cart item. " . $e->getMessage()]);
+            return false;
+        }
+    }
 
 
 
@@ -176,45 +177,128 @@ class Product
 
     // public function AddToCart($customer_id, $product_id,$quantity)
     public function AddToCart($customer_id, $product_id, $quantity)
-{
-    $this->customer_ID = $customer_id;
-    $this->product_id = $product_id;
-    $this->quantity = $quantity;
+    {
+        $this->customer_ID = $customer_id;
+        $this->product_id = $product_id;
+        $this->quantity = $quantity;
 
-    // 1. Check if cart exists
-    $cart_id = $this->isAlreadyExistsCart();
+        // 1. Check if cart exists
+        $cart_id = $this->isAlreadyExistsCart();
 
-    // 2. If not, insert cart
-    if (!$cart_id) {
-        $sql = "INSERT INTO cart (customer_id) VALUES (:customer_id)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':customer_id', $this->customer_ID);
+        // 2. If not, insert cart
+        if (!$cart_id) {
+            $sql = "INSERT INTO cart (customer_id) VALUES (:customer_id)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':customer_id', $this->customer_ID);
+            $stmt->execute();
+
+            // Now retrieve newly inserted cart_id
+            $cart_id = $this->conn->lastInsertId();
+        }
+
+        // 3. Check if this product already exists in this cart
+        $existingItem = $this->isAlreadyExistsCartItem($cart_id, $product_id);
+
+        if ($existingItem) {
+            $item_id = $existingItem['item_id'];
+            $existing_quantity = $existingItem['quantity'];
+
+            $new_quantity = $existing_quantity + $quantity;
+
+            return $this->updateCartItem($item_id, $cart_id, $product_id, $new_quantity);
+            // $existing_quantity= $existingItemId['quantity'];
+
+            // if ($existingItemId) {
+            // 4. If it exists, update quantity
+            // return $this->updateCartItem($existingItemId, $cart_id, $product_id,$existing_quantity);
+        } else {
+            // 5. If not, insert new cart item
+            return $this->insertCartItem($cart_id, $product_id, $quantity);
+        }
+    }
+    public function isExistingProduct()
+    {
+        $query = "SELECT COUNT(*) FROM product WHERE product_id = ? AND provider_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $this->product_id);
+        $stmt->bindParam(2, $this->provider_id);
         $stmt->execute();
 
-        // Now retrieve newly inserted cart_id
-        $cart_id = $this->conn->lastInsertId();
+        $count = $stmt->fetchColumn();
+        return $count > 0;
     }
 
-    // 3. Check if this product already exists in this cart
-    $existingItem = $this->isAlreadyExistsCartItem($cart_id, $product_id);
+    public function addProduct($product_id, $provider_id, $name, $description, $price, $category, $images, $specifications)
+    {
+  
 
-    if ($existingItem) {
-    $item_id = $existingItem['item_id'];
-    $existing_quantity = $existingItem['quantity'];
 
-    $new_quantity = $existing_quantity + $quantity;
 
-    return $this->updateCartItem($item_id, $cart_id, $product_id, $new_quantity);
-    // $existing_quantity= $existingItemId['quantity'];
+        $this->product_id = $product_id;
+        $this->provider_id = $provider_id;
+        $this->name = $name;
+        $this->description = $description;
+        $this->price = $price;
+        $this->category = $category;
+        // $this->images[] = $images;
+        $this->images = is_array($images) ? $images : [$images];
 
-    // if ($existingItemId) {
-        // 4. If it exists, update quantity
-        // return $this->updateCartItem($existingItemId, $cart_id, $product_id,$existing_quantity);
-    } else {
-        // 5. If not, insert new cart item
-        return $this->insertCartItem($cart_id, $product_id, $quantity);
+        // $this->images[] =is_array($images) ? $images : [$images];
+        $this->specifications = $specifications;
+
+        //  is existing check pannum
+        $count = $this->isExistingProduct();
+        //  return [
+        //             "success" => true,
+        //             "message" => $this->images,
+        //         ];
+        if (0==$count) {
+
+            try {
+                $sql = "INSERT INTO product (
+                    product_id, provider_id, name, description, price,
+                    category, images, specifications, is_approved, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+
+                $stmt = $this->conn->prepare($sql);
+
+                // $created_at = date("Y-m-d H:i:s");
+                // $created_at = NOW();
+                // $updated_at = $created_at;
+                $is_approved = $this->is_approved ?? '1'; // fallback to 'pending' if not set
+
+                $stmt->execute([
+                    $this->product_id,
+                    $this->provider_id,
+                    $this->name,
+                    $this->description,
+                    $this->price,
+                    $this->category,
+                    // $this->images,
+                    implode(',', $this->images),
+                    $this->specifications,
+                    $is_approved,
+                    // $created_at,
+                    // $updated_at
+                ]);
+
+                return [
+                    "success" => true,
+                    "message" => "Product inserted successfully."
+                ];
+            } catch (PDOException $e) {
+                http_response_code(500);
+                return [
+                    "success" => false,
+                    "message" => "Error inserting product: " . $e->getMessage()
+                ];
+            }
+        }
+        else{
+             return [
+                    "success" => false,
+                    "message" => "Product exist."
+                ];
+        }
     }
-}
-
-   
 }
