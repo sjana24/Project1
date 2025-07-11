@@ -82,7 +82,7 @@ const ProductsPage = () => {
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
 
-  const updateProductStatus = (productGet:Product, is_approved: Product['is_approved']) => {
+  const updateProductStatus = async(productGet:Product, is_approved: Product['is_approved']) => {
     const updatedProducts = products.map(product => {
       if (product.product_id === productGet.product_id) {
        
@@ -93,13 +93,51 @@ const ProductsPage = () => {
 
     setProducts(updatedProducts);
     setFilteredProducts(updatedProducts);
-     toast({
-          // title: "Product Status Updated",
-          // description: `${productId} has been ${is_approved}`,
-           title: "Product Status Updated",
-            description: `${productGet.name} has been ${(is_approved)  ? "visible" : "hidden "}`,
-            variant:(!(is_approved)? 'destructive':"default"),
+    
+   try {
+      const res = await axios.post("http://localhost/Git/Project1/Backend/UpdateProductStatusAdmin.php", 
+        {
+        product_id: productGet.product_id,
+        is_approved: is_approved ? 1 : 0, // send as int to PHP
+      }, 
+        { withCredentials: true });
+      // console.log("Registration successful:");
+       if (res.data.success) {
+        console.log("account created successful ");
+        toast({
+          title: "Account Created!",
+          description: "Successful",
         });
+        // navigate (0);
+
+
+     
+      }
+      else {
+        console.log(res.data);
+        toast({
+          title: "Sign up failed",
+          description: "Email already used use another email",
+          variant: "destructive",
+        });
+        console.log(" error in login"); // show error message from PHP
+
+      }
+
+
+    } catch (err) {
+      console.error("Error registering user:", err);
+    } finally {
+      // setIsLoading(false);
+    }
+
+    //  toast({
+    //       // title: "Product Status Updated",
+    //       // description: `${productId} has been ${is_approved}`,
+    //        title: "Product Status Updated",
+    //         description: `${productGet.name} has been ${(is_approved)  ? "visible" : "hidden "}`,
+    //         variant:(!(is_approved)? 'destructive':"default"),
+    //     });
     // navigate(0);
     // setData('products', updatedProducts);
   };

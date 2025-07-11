@@ -338,4 +338,39 @@ class Product
                 ];
         }
     }
+
+    public function updateProductServiceAdmin($product_id,$is_approved){
+        $this->product_id=$product_id;
+        $this->is_approved=$is_approved;
+
+        try {
+        $sql = "UPDATE product 
+                SET is_approved = :is_approved, updated_at = NOW() 
+                WHERE  product_id = :product_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+        // $stmt->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return [
+                "success" => true,
+                "message" => "Product approval status updated successfully."
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Failed to update product approval status."
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "message" => "Error updating product approval: " . $e->getMessage()
+        ];
+    }
+
+    }
 }
