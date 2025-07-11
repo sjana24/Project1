@@ -82,9 +82,9 @@ const ProductsPage = () => {
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
 
-  const updateProductStatus = (productId: number, is_approved: Product['is_approved']) => {
+  const updateProductStatus = (productGet:Product, is_approved: Product['is_approved']) => {
     const updatedProducts = products.map(product => {
-      if (product.product_id === productId) {
+      if (product.product_id === productGet.product_id) {
        
         return { ...product, is_approved };
       }
@@ -94,14 +94,17 @@ const ProductsPage = () => {
     setProducts(updatedProducts);
     setFilteredProducts(updatedProducts);
      toast({
-          title: "Product Status Updated",
-          description: `${productId} has been ${is_approved}`,
+          // title: "Product Status Updated",
+          // description: `${productId} has been ${is_approved}`,
+           title: "Product Status Updated",
+            description: `${productGet.name} has been ${(is_approved)  ? "visible" : "hidden "}`,
+            variant:(!(is_approved)? 'destructive':"default"),
         });
     // navigate(0);
     // setData('products', updatedProducts);
   };
-  const updateProductVisibility = (productId: number, is_approved: boolean) => {
-    updateProductStatus(productId, is_approved ? true : false);
+  const updateProductVisibility = (product:Product, is_approved: boolean) => {
+    updateProductStatus(product, is_approved ? true : false);
   };
 
 
@@ -301,7 +304,7 @@ const ProductsPage = () => {
                    
                     <Switch
                       checked={product.is_approved} // assuming product has an `is_visible` boolean field
-                      onCheckedChange={(checked) => updateProductVisibility(product.product_id, checked)}
+                      onCheckedChange={(checked) => updateProductVisibility(product, checked)}
                     />
                     <span className="text-sm text-gray-700">
                       {product.is_approved ? "Visible" : "Hidden"}

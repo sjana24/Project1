@@ -6,53 +6,93 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import { Switch } from "@/components/ui/switch";
+import axios from 'axios';
 import { Search, ShoppingCart, Check, X, Clock } from 'lucide-react';
 export interface Service {
-  id: string;
+  // id: string;
   name: string;
   provider: string;
   category: string;
   price: number;
   status: 'pending' | 'approved' | 'rejected';
   dateAdded: string;
+
+   service_id: number;
+  provider_id: number;
+  // name: string;
+  description: string;
+  // price: number;
+  // category: string;
+  // specifications: string;
+  /// rating add pannale
+  images: string; // this is a JSON string (array in string)
+  is_approved: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 const ServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // const serviceData = getData<Service>('services');
-    const serviceData = [];
-    setServices(serviceData);
-    setFilteredServices(serviceData);
+    // const serviceData = [];
+    // setServices(serviceData);
+    // setFilteredServices(serviceData);
+  }, []);
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceAdmin.php")
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
+
+          setServices(data.services);
+          setFilteredServices(data.services);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur products");
+        }
+        setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        setLoading(false);
+      });
+
   }, []);
 
   useEffect(() => {
     const filtered = services.filter(service =>
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredServices(filtered);
   }, [searchTerm, services]);
 
-  const updateServiceStatus = (serviceId: string, status: 'pending' | 'approved' | 'rejected') => {
-    const updatedServices = services.map(service => {
-      if (service.id === serviceId) {
-        toast({
-          title: "Service Updated",
-          description: `Service ${service.name} has been ${status}`,
-        });
-        return { ...service, status };
-      }
-      return service;
-    });
+  // const updateServiceStatus = (serviceId: number, is_approved:boolean) => {
+  //   const updatedServices = services.map(service => {
+  //     if (service.service_id === serviceId) {
+  //       toast({
+  //         title: "Service Updated",
+  //         description: `Service ${service.name} has been ${status}`,
+  //       });
+  //       return { ...service, status };
+  //     }
+  //     return service;
+  //   });
 
-    setServices(updatedServices);
-    // setData('services', updatedServices);
-  };
+  //   // setServices(updatedServices);
+  //   // setData('services', updatedServices);
+  // };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -79,9 +119,31 @@ const ServicesPage = () => {
         );
     }
   };
+    const updateServiceStatus = ( is_approved: Service['is_approved'],serviceGet:Service) => {
+      const updatedServices = services.map(service => {
+        if (service.service_id=== serviceGet.service_id) {
+         
+          return { ...service, is_approved };
+        }
+        return service;
+      });
+  
+      setServices(updatedServices);
+      setFilteredServices(updatedServices);
+       toast({
+            title: "Service Status Updated",
+            description: `${serviceGet.name} has been ${(is_approved)  ? "visible" : "hidden "}`,
+            variant:(!(is_approved)? 'destructive':"default"),
+          });
+      // navigate(0);
+      // setData('products', updatedProducts);
+    };
+    const updateServiceVisibility = (checked: boolean,service:Service) => {
+      updateServiceStatus( checked ? true : false,service);
+    };
 
-  const pendingServices = services.filter(s => s.status === 'pending').length;
-  const approvedServices = services.filter(s => s.status === 'approved').length;
+  const hiddenServices = services.filter(s => s.is_approved == false).length;
+  const visibleServices = services.filter(s => s.is_approved == true).length;
 
   return (
     <div className="space-y-6">
@@ -92,8 +154,8 @@ const ServicesPage = () => {
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-gray-600">
-            <span className="font-medium text-yellow-600">{pendingServices} Pending</span> • 
-            <span className="font-medium text-green-600 ml-1">{approvedServices} Approved</span>
+            <span className="font-medium text-yellow-600">{hiddenServices} Hidden</span> • 
+            <span className="font-medium text-green-600 ml-1">{visibleServices} Visible</span>
           </div>
         </div>
       </div>
@@ -115,10 +177,10 @@ const ServicesPage = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending Review</p>
-                <p className="text-2xl font-bold text-yellow-600">{pendingServices}</p>
+                <p className="text-sm text-gray-600">Hidden Services</p>
+                <p className="text-2xl font-bold text-red-600">{hiddenServices}</p>
               </div>
-              <Clock className="w-8 h-8 text-yellow-500" />
+              <Clock className="w-8 h-8 text-red-500" />
             </div>
           </CardContent>
         </Card>
@@ -126,8 +188,8 @@ const ServicesPage = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Approved</p>
-                <p className="text-2xl font-bold text-green-600">{approvedServices}</p>
+                <p className="text-sm text-gray-600">Visible Services</p>
+                <p className="text-2xl font-bold text-green-600">{visibleServices}</p>
               </div>
               <Check className="w-8 h-8 text-green-500" />
             </div>
@@ -161,24 +223,35 @@ const ServicesPage = () => {
         <CardContent>
           <div className="space-y-4">
             {filteredServices.map((service) => (
-              <div key={service.id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-white/20 hover:bg-white/70 transition-colors">
+              <div key={service.service_id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-white/20 hover:bg-white/70 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-medium text-gray-900">{service.name}</h3>
-                      <p className="text-sm text-gray-600">by {service.provider}</p>
+                      <p className="text-sm text-gray-600">by {service.provider_id}</p>
                       <p className="text-xs text-gray-500">Category: {service.category}</p>
-                      <p className="text-xs text-gray-500">Added: {new Date(service.dateAdded).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500">Added: {new Date(service.created_at).toLocaleDateString()}</p>
+                       <p className="text-xs text-gray-500">Last Updated: {new Date(service.updated_at).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-gray-900">${service.price.toFixed(2)}</p>
+                      <p className="text-lg font-semibold text-gray-900">${service.price}</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4 ml-4">
-                  {getStatusBadge(service.status)}
-                  {service.status === 'pending' && (
+                  {/* {getStatusBadge(service.status)} */}
+                   <div className="flex items-center space-x-2">
+                   
+                    <Switch
+                      checked={service.is_approved} // assuming product has an `is_visible` boolean field
+                      onCheckedChange={(checked) => updateServiceVisibility( checked,service)}
+                    />
+                    <span className="text-sm text-gray-700">
+                      {service.is_approved ? "Visible" : "Hidden"}
+                    </span>
+                  </div>
+                  {/* {service.status === 'pending' && (
                     <div className="flex space-x-2">
                       <Button
                         variant="outline"
@@ -197,7 +270,7 @@ const ServicesPage = () => {
                         Reject
                       </Button>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}
