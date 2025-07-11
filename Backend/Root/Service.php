@@ -50,6 +50,39 @@ class Service{
         }
 
     }
+     public function getAllServicesAdmin(){
+
+        try {
+            $sql = "SELECT * FROM service ";
+            $stmt = $this->conn->prepare($sql);
+            
+            $stmt->execute();
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if ($services) {
+                return [
+                'success' => true,
+                'services' => $services,
+                'message' => 'Services fetched successfully.'
+            ];
+               
+            } else {
+                return [
+                'success' => false,
+                'message' => 'No products found.'
+            ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all services. " . $e->getMessage()]);
+            return [
+            'success' => false,
+            'message' => 'Failed to fetch services. ' . $e->getMessage()
+        ];
+        }
+
+    }
+    
       public function getAllServicesProvider($provider_id)
     {
 

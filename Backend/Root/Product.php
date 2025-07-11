@@ -29,9 +29,46 @@ class Product
     {
 
         try {
-            $sql = "SELECT * FROM product";
+            // $sql = "SELECT * FROM product ";
+            $sql = "SELECT * FROM product WHERE is_approved = :is_approved";
             $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+            $is_approved = 1;
+            // $stmt->bindParam(':is_approved', 1);
+            $stmt->execute();
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            if ($products) {
+                return [
+                    'success' => true,
+                    'products' => $products,
+                    'message' => 'Products fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No products found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all products. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch products. ' . $e->getMessage()
+            ];
+        }
+    }
+     public function getAllProductsAdmin()
+    {
+
+        try {
+            // $sql = "SELECT * FROM product ";
+            $sql = "SELECT * FROM product ";
+            $stmt = $this->conn->prepare($sql);
+            // $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+            // $is_approved = 1;
+            // $stmt->bindParam(':is_approved', 1);
             $stmt->execute();
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -300,5 +337,40 @@ class Product
                     "message" => "Product exist."
                 ];
         }
+    }
+
+    public function updateProductServiceAdmin($product_id,$is_approved){
+        $this->product_id=$product_id;
+        $this->is_approved=$is_approved;
+
+        try {
+        $sql = "UPDATE product 
+                SET is_approved = :is_approved, updated_at = NOW() 
+                WHERE  product_id = :product_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+        // $stmt->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return [
+                "success" => true,
+                "message" => "Product approval status updated successfully."
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Failed to update product approval status."
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "message" => "Error updating product approval: " . $e->getMessage()
+        ];
+    }
+
     }
 }

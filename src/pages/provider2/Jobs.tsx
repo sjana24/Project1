@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
 import { Plus, Edit, Trash2, Calendar, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,14 +9,26 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 // import { useDashboardStore, Job } from '@/store/dashboardStore';
 import { useToast } from '@/hooks/use-toast';
+import axios from 'axios';
 
 export interface Job {
-  id: string;
-  title: string;
-  description: string;
+  // id: string;
+  // title: string;
+  // description: string;
   salary: number;
-  expiryDate: string;
-  createdAt: string;
+  // expiryDate: string;
+  // createdAt: string;
+
+  job_id:number;
+  title:string;
+  description:string;
+  requirements:string;
+  location:string;
+  job_type:string;
+  salary_range:string;
+  is_approved:boolean;
+  posting_date;
+  expiry_date;
 }
 
 export default function Jobs() {
@@ -24,9 +36,35 @@ export default function Jobs() {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+    const [jobs, setJobs] = useState<Job []>([]);
+     const [loading, setLoading] = useState(true);
   
 
-  const jobs=[];
+  // const jobs=[];
+   useEffect(() => {
+        axios.get("http://localhost/Git/Project1/Backend/GetAllJobsProvider.php",{withCredentials:true})
+          .then(response => {
+            const data = response.data;
+            if (response.data.success) {
+              console.log("data got");
+    
+              setJobs(data.jobs);
+            }
+            else {
+              // setError('Failed to load products.');
+              console.log(response.data);
+              console.log(" sorry we cant get ur products");
+            }
+            setLoading(false);
+          })
+    
+          .catch(err => {
+            // setError('Something went wrong.');
+            setLoading(false);
+          });
+    
+      }, []);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,7 +73,7 @@ export default function Jobs() {
   });
 
   const sortedJobs = [...jobs].sort((a, b) => 
-    new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()
+    new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,12 +109,12 @@ export default function Jobs() {
       title: job.title,
       description: job.description,
       salary: job.salary,
-      expiryDate: job.expiryDate.split('T')[0], // Format for date input
+      expiryDate: job.expiry_date.split('T')[0], // Format for date input
     });
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     // deleteJob(id);
     toast({
       title: 'Job Deleted',
@@ -186,7 +224,7 @@ export default function Jobs() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Active Jobs</p>
                 <p className="text-3xl font-bold text-green-600">
-                  {jobs.filter(job => !isExpired(job.expiryDate)).length}
+                  {jobs.filter(job => !isExpired(job.expiry_date)).length}
                 </p>
               </div>
             </div>
@@ -198,7 +236,7 @@ export default function Jobs() {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Expired Jobs</p>
                 <p className="text-3xl font-bold text-red-600">
-                  {jobs.filter(job => isExpired(job.expiryDate)).length}
+                  {jobs.filter(job => isExpired(job.expiry_date)).length}
                 </p>
               </div>
             </div>
@@ -218,14 +256,18 @@ export default function Jobs() {
           </Card>
         ) : (
           sortedJobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-md transition-shadow">
+            <Card key={job.job_id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-3">
                       <h3 className="text-lg font-semibold">{job.title}</h3>
-                      <Badge variant={isExpired(job.expiryDate) ? 'destructive' : 'default'}>
-                        {isExpired(job.expiryDate) ? 'Expired' : 'Active'}
+                      <Badge variant={isExpired(job.expiry_date) ? 'destructive' : 'default'}>
+                        {isExpired(job.expiry_date) ? 'Expired' : 'Active'}
+                      </Badge>
+
+                      <Badge variant={!(job.is_approved) ? 'destructive' : 'secondary'}>
+                        {(job.is_approved) ? 'Approveld' : 'Rejected'}
                       </Badge>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
@@ -234,18 +276,18 @@ export default function Jobs() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Salary:</span>
-                        <p className="font-bold text-green-600">Rs. {job.salary.toLocaleString()}/month</p>
+                        {/* <p className="font-bold text-green-600">Rs. {job.salary.toLocaleString()}/month</p> */}
                       </div>
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Deadline:</span>
                         <p className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(job.expiryDate).toLocaleDateString()}
+                          {new Date(job.expiry_date).toLocaleDateString()}
                         </p>
                       </div>
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Posted:</span>
-                        <p>{new Date(job.createdAt).toLocaleDateString()}</p>
+                        <p>{new Date(job.posting_date).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </div>
@@ -260,7 +302,7 @@ export default function Jobs() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(job.id)}
+                      onClick={() => handleDelete(job.job_id)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 className="w-4 h-4" />

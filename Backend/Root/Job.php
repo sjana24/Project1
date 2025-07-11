@@ -52,5 +52,36 @@ class Job{
             ];
         }
     }
+      public function getAllJobsProvider($provider_id)
+    {
+
+        try {
+            $sql = "SELECT * FROM job_posting WHERE  provider_id=:provider_id";
+            $stmt = $this->conn->prepare($sql);
+             $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->execute();
+            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($jobs) {
+                return [
+                    'success' => true,
+                    'jobs' => $jobs,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
 
 }

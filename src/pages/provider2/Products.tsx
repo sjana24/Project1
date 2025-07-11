@@ -18,6 +18,7 @@ export interface Product {
   images: string;
   category: string;
   specification: string;
+  is_approved:boolean;
   createdAt: string;
 }
 
@@ -422,6 +423,10 @@ export default function Products() {
                   <CardTitle className="text-lg">{product.name}</CardTitle>
                   <Badge variant="secondary" className="mt-1">
                     {product.category}
+                  </Badge>
+                  {/* <span className='' */}
+                   <Badge variant={(product.is_approved)?"default":"destructive"} className="mt-1">
+                    {((product.is_approved)?"Enable":"Disable")}
                   </Badge>
                 </div>
                 <div className="flex space-x-1">

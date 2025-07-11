@@ -1,42 +1,45 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// echo "hi";
-require_once "./Root/Service.php";
-
-// Get JSON input and decode it as an associative array
-$data = json_decode(file_get_contents("php://input"), true);
+  session_start();
+    header("Access-Control-Allow-Origin: http://localhost:8080");
+    header("Access-Control-Allow-Credentials: true");
+    header("Content-Type: application/json");
+    // header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    require_once "./Root/Chat.php";
 
 
-// Sanitize each expected field
-$service_id = intval($data['service_id'] ?? 0);
-$provider_id = intval($data['provider_id'] ?? 0);
-$name = htmlspecialchars(strip_tags($data['name'] ?? ''));
-$description = htmlspecialchars(strip_tags($data['description'] ?? ''));
-$price = floatval($data['price'] ?? 0);
-$category = htmlspecialchars(strip_tags($data['category'] ?? ''));
-// $specifications = htmlspecialchars(strip_tags($data['specifications'] ?? ''));
-$images = htmlspecialchars(strip_tags($data['images'] ?? '')); // if this is a JSON string, store as is
-$is_approved = intval($data['is_approved'] ?? 0);
-$created_at = htmlspecialchars(strip_tags($data['created_at'] ?? ''));
-$updated_at = htmlspecialchars(strip_tags($data['updated_at'] ?? ''));
+    if (isset($_SESSION['user'])) {
+        
+        $user_name = $_SESSION['user']['user_name'];
+        $user_id = $_SESSION['user']['user_id'];
+        $user_role = $_SESSION['user']['user_role'];
 
-// Example: return sanitized data as JSON for testing
-echo json_encode([
-    'service_id' => $service_id,
-    'provider_id' => $provider_id,
-    'name' => $name,
-    'description' => $description,
-    'price' => $price,
-    'category' => $category,
-    // 'specifications' => $specifications,
-    'images' => $images,
-    'is_approved' => $is_approved,
-    'created_at' => $created_at,
-    'updated_at' => $updated_at,
-]);
+        // echo "$user_name,$user_id,$user_role";
 
+
+
+        // Get JSON input and decode it as an associative array
+        $data = json_decode(file_get_contents("php://input"), true);
+
+
+        // Sanitize each expected field
+        $service_id = intval($data['service_id'] ?? 0);
+        $provider_id = intval($data['provider_id'] ?? 0);
+
+
+        $getChat=new Chat();
+        $response=$getChat->sendRequestContactCustomer($service_id,$user_id);
+        echo json_encode($response);
+        // Example: return sanitized data as JSON for testing
+        // echo json_encode([
+        //     'service_id' => $service_id,
+        //     'provider_id' => $provider_id,
+            
+        // ]);
+
+    }
+    else{
+        echo "kjsdnkjds";
+    }
 ?>
