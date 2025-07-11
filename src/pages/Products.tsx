@@ -194,7 +194,9 @@ const Products = () => {
                 <div className="hidden md:block">
                   <CardHeader>
                     <div className="w-full h-48 bg-secondary/30 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/50 transition-colors">
-                      <img src="../one.jpeg" className="h-full w-full text-primary" />
+                      <img 
+                      src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
+                       className="h-full w-full text-primary" />
                     </div>
                     <div className="flex items-center justify-between mb-2">
                       <CardTitle className="text-lg">{product.name}</CardTitle>
@@ -229,7 +231,8 @@ const Products = () => {
 
                   <img
                     // src={product.name} // replace with image URL
-                    src="../one.jpeg"
+                    // src="../one.jpeg"
+                    src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
                     alt={product.name}
                     className="w-24 h-24 object-cover rounded-md border"
                   />
@@ -289,7 +292,8 @@ const Products = () => {
                   //   }
                   // })()}
                   alt={selectedProduct.name}
-                  src="../one.jpeg"
+                  // src="../one.jpeg"
+                  src={`http://localhost/Git/Project1/Backend/${selectedProduct.images.split(',')[0]}`}
                   className="w-full max-w-xs h-auto object-contain rounded-lg"
                 />
               </div>
