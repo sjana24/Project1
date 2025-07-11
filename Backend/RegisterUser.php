@@ -1,8 +1,11 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost:8080");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+// header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+require_once './Root/Customer.php';
 $data = json_decode(file_get_contents("php://input"), true); // For JSON input
 
 $name = htmlspecialchars(strip_tags(trim($data['name'] ?? '')));
@@ -35,21 +38,45 @@ if (!empty($errors)) {
     echo json_encode(["success" => false, "errors" => $errors]);
     exit;
 }
+else{
+    
+    $createdUser=new Customer();
+    $responce=$createdUser->signUpUser($name,$email,$contact_no,$role,$password,$address,$district,$province,$company_name,$business_reg_no,$company_description,$website);
+   
+}
+
+if ($responce['success']) {
+    http_response_code(200);
+    
+    echo json_encode($responce);
+    
+} else {
+    echo json_encode($responce);
+}
+
+
+
+
+
+
+
+
+
 
 // ✅ Echo sanitized data (example)
-echo json_encode([
-    "success" => true,
-    "data" => [
-        "name" => $name,
-        "email" => $email,
-        "contact_no" => $contact_no,
-        "role" => $role,
-        "address" => $address,
-        "district" => $district,
-        "province" => $province,
-        "company_name" => $company_name,
-        "business_reg_no" => $business_reg_no,
-        "company_description" => $company_description,
-        "website" => $website,
-    ]
-]);
+// echo json_encode([
+//     "success" => true,
+//     "data" => [
+//         "name" => $name,
+//         "email" => $email,
+//         "contact_no" => $contact_no,
+//         "role" => $role,
+//         "address" => $address,
+//         "district" => $district,
+//         "province" => $province,
+//         "company_name" => $company_name,
+//         "business_reg_no" => $business_reg_no,
+//         "company_description" => $company_description,
+//         "website" => $website,
+//     ]
+// ]);
