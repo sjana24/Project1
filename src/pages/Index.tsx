@@ -3,11 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useLocation } from "react-router-dom";
 
 
 
 
 const Index = () => {
+    const location = useLocation();
+      const { name, email } = location.state || {};
+    //   {name && <h2>Welcome, {name}!</h2>}
+
 
     const testimonials = [
         {
@@ -30,7 +35,7 @@ const Index = () => {
         }
     ];
     const stats = [
-        { number: "10,000+", label: "Happy Customers" },
+        { number: "10,000+", label: "staised Customers" },
         { number: "500+", label: "Certified Agents" },
         { number: "50MW", label: "Solar Capacity Installed" },
         { number: "24/7", label: "Expert Support" }
