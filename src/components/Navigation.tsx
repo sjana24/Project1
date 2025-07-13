@@ -46,7 +46,9 @@ const Navigation = () => {
     const { checkSession ,logout} = useAuth();
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
+
          const cartCount = useCartStore((state) => state.cartCount);
+
          const [loading, setLoading] = useState(true); // handle async wait
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -65,13 +67,16 @@ const Navigation = () => {
 //     fetchRole();
 //   }, [checkSession]);
 useEffect(() => {
-  (async () => {
-    if (!currentUser) {
-      const user=await checkSession();
-      setCurrentUser(user);
-    }
-  })();
-}, []);
+  const fetchUser = async () => {
+    const user = await checkSession();
+    setCurrentUser(user);
+  };
+
+  if (!currentUser) {
+    fetchUser();
+  }
+}, [currentUser, checkSession]);
+
     const navigate=useNavigate();
     const isLoginPage = location.pathname === "/login";
     const navItems = [
@@ -156,7 +161,7 @@ useEffect(() => {
 
 
     const unreadCount = notifications.length;
-    const addToCartItems = items.length;
+    // const addToCartItems = items.length;
     return (
 
         <nav className="sticky top-0 z-50 glass-effect border-b">
@@ -174,10 +179,10 @@ useEffect(() => {
                         {currentUser?.role === "customer" ? (
                             <>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >cart
-                                    {addToCartItems > 0 && (
+                                    {cartCount > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
-                                            {/* {addToCartItems > 9 ? '9+' : addToCartItems} */}
-                                            {cartCount}
+                                            {cartCount > 9 ? '9+' : cartCount}
+                                            
                                         </span>
                                     )}
 
