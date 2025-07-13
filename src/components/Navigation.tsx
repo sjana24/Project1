@@ -7,6 +7,7 @@ import {User} from'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { ChatWindow } from "./ui/ChatWindow";
 import { useCartStore } from "@/store/useCartStore";
+import axios from "axios";
 export interface Message {
   message_id: number;
   text: string;
@@ -17,10 +18,12 @@ export interface Message {
 
 export interface ChatSession {
   chatSession_id:  number;
+  user_id:number;
   participantName: string;
   messages: Message[];
   isOpen: boolean;
   lastActivity: Date;
+  sender_id:number;
 }
 
 import { Label } from "recharts";
@@ -39,13 +42,25 @@ interface User {
   role: string;
 }
 export interface Notification {
-  id: number;
+//   id: number;
   type: 'message' | 'support';
   title: string;
   message: string;
   chatId: number;
   timestamp: Date;
   isRead: boolean;
+
+//   interface Notification {
+  notification_id: number;
+  user_id: number;
+  user_type: 'customer' | 'service_provider' | 'admin'; // based on your sample users
+//   title: string;
+//   message: string;
+  is_read: boolean;
+  created_at: string; // or `Date` if you parse it
+  sender_id: number;
+// }
+
 }
 export interface item {
     image: string;
@@ -64,6 +79,7 @@ const Navigation = () => {
 //  const [openChats, setOpenChats] = useState<string[]>([]);
          const cartCount = useCartStore((state) => state.cartCount);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
          const [loading, setLoading] = useState(true); // handle async wait
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -81,47 +97,71 @@ const Navigation = () => {
 //     };
 //     fetchRole();
 //   }, [checkSession]);
-const notifications :Notification[]= [
+ useEffect(() => {
+
+  axios
+    .get("http://localhost/Git/Project1/Backend/GetNotificationCustomer.php", {
+    withCredentials:true
+    })
+    .then((response) => {
+      const data = response.data;
+      if (data.success) {
+        console.log("Data received:", data);
+        // setCartItemsCount(data.items);
+        // updateCartCount();
+        setNotifications(data.notifications);
+      } else {
+        console.log("Failed to load items:", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error fetching cart items:", err);
+    });
+}, []);
+
+// const notifications1 :Notification[]= [
     
-      {
-          id: 1,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 11,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
-          {
-          id: 2,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
-          {
-          id: 3,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 12,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
+//       {
+//           id: 1,
+//           type: 'message',
+//           title: 'John sent you a message',
+//           message: 'Hey! How are you doing today?',
+//           chatId: 11,
+//           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+//           isRead: false,
+//         },
+//           {
+//           id: 2,
+//           type: 'message',
+//           title: 'John sent you a message',
+//           message: 'Hey! How are you doing today?',
+//           chatId: 10,
+//           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+//           isRead: false,
+//         },
+//           {
+//           id: 3,
+//           type: 'message',
+//           title: 'John sent you a message',
+//           message: 'Hey! How are you doing today?',
+//           chatId: 12,
+//           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+//           isRead: false,
+//         },
     
-]
+// ]
  const [openChats, setOpenChats] = useState<number[]>([]);
 
   const handleNotificationClick = useCallback((notification: Notification) => {
-    const existingChat = chatSessions.find(chat => chat.chatSession_id === notification.chatId);
+    const existingChat = chatSessions.find(chat => chat.chatSession_id === notification.notification_id);
     console.log ("hi buddy");
     console.log(existingChat ,"hi 120");
     if (!existingChat) {
       const newChat: ChatSession = {
-        chatSession_id: notification.chatId,
-        participantName: String(notification.id) ,
+        sender_id:notification.sender_id,
+        user_id:notification.user_id,
+        chatSession_id: notification.notification_id,
+        participantName: String(notification.user_id) ,
         messages: [],
         isOpen: true,
         lastActivity: new Date(),
@@ -130,14 +170,14 @@ const notifications :Notification[]= [
       setChatSessions(prev => [...prev, newChat]);
     }
 
-    if (!openChats.includes(notification.id)) {
-      setOpenChats(prev => [...prev, notification.chatId]);
+    if (!openChats.includes(notification.notification_id)) {
+      setOpenChats(prev => [...prev, notification.notification_id]);
     }
   }, [chatSessions, openChats, setChatSessions]);
 
 const handleNotificationView = (notification: Notification) => {
     // onNotificationClick(notification);
-    console.log( " this is 137");
+    // console.log( " this is 137");
     setIsOpenNotify(false);
     handleNotificationClick(notification);
     // onMarkAsRead(notification.id);
@@ -286,7 +326,7 @@ const handleCloseChat = useCallback((chatId: number) => {
                                     ) : (
                                         notifications.map((notification) => (
                                             <div
-                                                key={notification.id}
+                                                key={notification.notification_id}
                                                 className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors duration-150 ${!notification.isRead ? 'bg-blue-50' : ''
                                                     }`}
                                             >
@@ -294,12 +334,17 @@ const handleCloseChat = useCallback((chatId: number) => {
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-medium text-gray-900 text-sm">
                                                             {notification.title}
+                                                            
+                                                        </p>
+                                                        <p className="font-medium text-gray-900 text-sm">
+                                                            
+                                                            {notification.sender_id}
                                                         </p>
                                                         <p className="text-gray-600 text-sm mt-1 break-words">
                                                             {notification.message}
                                                         </p>
                                                         <p className="text-xs text-gray-400 mt-2">
-                                                            {new Date(notification.timestamp).toLocaleTimeString()}
+                                                            {new Date(notification.created_at).toLocaleTimeString()}
                                                         </p>
                                                     </div>
                                                     <Button

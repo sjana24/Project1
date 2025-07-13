@@ -18,6 +18,8 @@ export interface ChatSession {
   participantName: string;
   messages: Message[];
   isOpen: boolean;
+  user_id:number;
+  sender_id:number;
   lastActivity: Date;
 }
 interface ChatWindowProps {
@@ -71,13 +73,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              // onClick={onClose}
+              onClick={onClose}
               className="p-1 hover:bg-gray-200 transition-colors duration-150 mr-3"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h3 className="font-semibold text-gray-900">{chat.participantName}</h3>
+              <h3 className="font-semibold text-gray-900">{chat.sender_id}</h3>
               <p className="text-xs text-gray-500">Online</p>
             </div>
           </div>
@@ -87,7 +89,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
-              Start a conversation with {chat.participantName}
+              Start a conversation with {chat.sender_id}
             </div>
           ) : (
             chat.messages.map((message) => (
@@ -158,7 +160,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {/* Desktop Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
           <div>
-            <h3 className="font-semibold text-gray-900">{chat.participantName}</h3>
+            <h3 className="font-semibold text-gray-900">{chat.sender_id}</h3>
             <p className="text-xs text-gray-500">Online</p>
           </div>
           <Button
@@ -175,7 +177,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
-              Start a conversation with {chat.participantName}
+              Start a conversation with {chat.sender_id}
             </div>
           ) : (
             chat.messages.map((message) => (
