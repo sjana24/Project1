@@ -5,8 +5,23 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import {User} from'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
-
+import { ChatWindow } from "./ui/ChatWindow";
 import { useCartStore } from "@/store/useCartStore";
+export interface Message {
+  message_id: number;
+  text: string;
+  sender: 'user' | 'other';
+  timestamp: Date;
+  chatId: string;
+}
+
+export interface ChatSession {
+  chatSession_id:  number;
+  participantName: string;
+  messages: Message[];
+  isOpen: boolean;
+  lastActivity: Date;
+}
 
 import { Label } from "recharts";
 import {
@@ -18,7 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface User {
-  id:number;
+  id: number;
   name:string;
   email: string;
   role: string;
@@ -46,9 +61,9 @@ const Navigation = () => {
     const { checkSession ,logout} = useAuth();
     const [isOpenNotify, setIsOpenNotify] = useState(false);
         const [isOpen, setIsOpen] = useState(false);
-
+//  const [openChats, setOpenChats] = useState<string[]>([]);
          const cartCount = useCartStore((state) => state.cartCount);
-
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
          const [loading, setLoading] = useState(true); // handle async wait
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -66,6 +81,79 @@ const Navigation = () => {
 //     };
 //     fetchRole();
 //   }, [checkSession]);
+const notifications :Notification[]= [
+    
+      {
+          id: 1,
+          type: 'message',
+          title: 'John sent you a message',
+          message: 'Hey! How are you doing today?',
+          chatId: 11,
+          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+          isRead: false,
+        },
+          {
+          id: 2,
+          type: 'message',
+          title: 'John sent you a message',
+          message: 'Hey! How are you doing today?',
+          chatId: 10,
+          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+          isRead: false,
+        },
+          {
+          id: 3,
+          type: 'message',
+          title: 'John sent you a message',
+          message: 'Hey! How are you doing today?',
+          chatId: 12,
+          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+          isRead: false,
+        },
+    
+]
+ const [openChats, setOpenChats] = useState<number[]>([]);
+
+  const handleNotificationClick = useCallback((notification: Notification) => {
+    const existingChat = chatSessions.find(chat => chat.chatSession_id === notification.chatId);
+    console.log ("hi buddy");
+    console.log(existingChat ,"hi 120");
+    if (!existingChat) {
+      const newChat: ChatSession = {
+        chatSession_id: notification.chatId,
+        participantName: String(notification.id) ,
+        messages: [],
+        isOpen: true,
+        lastActivity: new Date(),
+      };
+       console.log(newChat ,"hi 129");
+      setChatSessions(prev => [...prev, newChat]);
+    }
+
+    if (!openChats.includes(notification.id)) {
+      setOpenChats(prev => [...prev, notification.chatId]);
+    }
+  }, [chatSessions, openChats, setChatSessions]);
+
+const handleNotificationView = (notification: Notification) => {
+    // onNotificationClick(notification);
+    console.log( " this is 137");
+    setIsOpenNotify(false);
+    handleNotificationClick(notification);
+    // onMarkAsRead(notification.id);
+    
+  };
+//   const handleSendMessage = useCallback((chatSession_id: number, messageText: string) => {
+//     // const newMessage=5;
+//     const newMessage: Message = {
+//       chat_s: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+//       text: messageText,
+//       sender: 'user',
+//       timestamp: new Date(),
+//       chatId,
+//     };
+// });
+
 useEffect(() => {
   const fetchUser = async () => {
     const user = await checkSession();
@@ -122,43 +210,25 @@ useEffect(() => {
             },
         ]
 
-    const notifications :Notification[]= [
     
-      {
-          id: 1,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
-          {
-          id: 2,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
-          {
-          id: 3,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
-        },
-    
-]
 
     const openNotifyBar = () => {
         console.log(" notify");
     }
-    
+    const getChatPosition = useCallback((index: number) => {
+    return {
+        // top:100,
+      bottom: -500,
+      right: 20 + (index * 340), // 340px = width + margin
+    };
+  }, []);
 
+     const openChatSessions = chatSessions.filter(chat => openChats.includes(chat.chatSession_id));
+
+const handleCloseChat = useCallback((chatId: number) => {
+    setOpenChats(prev => prev.filter(id => id !== chatId));
+  }, []);
+  
 
     const unreadCount = notifications.length;
     // const addToCartItems = items.length;
@@ -235,7 +305,7 @@ useEffect(() => {
                                                     <Button
                                                         size="sm"
                                                         className="w-full sm:w-auto   text-white px-3 py-1 text-xs"
-
+                                                             onClick={() => handleNotificationView(notification)}
                                                     >
                                                         Open Chat
                                                     </Button>
@@ -318,6 +388,23 @@ useEffect(() => {
                         </>
                     )
                     }
+                       {openChatSessions.map((chat, index) => (
+                        // <h1> hi buddy
+                        //    {/* ${console.log("hiii");} */}
+
+                        // </h1>
+                        
+        <ChatWindow
+          key={chat.chatSession_id}
+          chat={chat}
+        //    o}
+        //   onSendMessage={handleSendMessage}
+        //   position={getChatPosition(index)}
+          onClose={() => handleCloseChat(chat.chatSession_id)}
+        //   onSendMessage={handleSendMessage}
+          position={getChatPosition(index)}
+        />
+      ))}
                     {/* Mobile Navigation */}
                     {(currentUser) ? (<>
                         <div className="md:hidden">
