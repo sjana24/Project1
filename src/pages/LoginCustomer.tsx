@@ -62,7 +62,7 @@ const Login = () => {
   });
 
 
-  const handleRegister =async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(registerData);
     const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
@@ -78,13 +78,13 @@ const Login = () => {
     try {
       const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
       // console.log("Registration successful:");
-       if (res.data.success) {
+      if (res.data.success) {
         console.log("account created successful ");
         toast({
           title: "Account Created!",
           description: "Successful",
         });
-        navigate (0);
+        navigate(0);
 
         // localStorage.setItem('currentUser', JSON.stringify(foundUser));
         // const loginUser: currentUser = {
@@ -106,7 +106,7 @@ const Login = () => {
         // navigate(`/${cleanRole}/dashboard`);
         // navigate ("/login");
 
-     
+
       }
       else {
         console.log(res.data);
@@ -326,7 +326,7 @@ const Login = () => {
                         </div>
                       </div>
 
-                      <Button type="submit" className="w-full solar-gradient text-white">
+                      <Button type="submit" className="w-full bg-[#26B170] text-white hover:bg-[#26B170]">
                         Sign In
                       </Button>
                     </form>
@@ -651,50 +651,50 @@ const Login = () => {
                           </div>
 
                           <div>
-                             <div>
-                            <Label>Province</Label>
-                            <select
-                              className="w-full p-2 border rounded"
-                              value={registerData.province || ""}
-                              onChange={(e) =>
-                                setRegisterData((prev) => ({
-                                  ...prev,
-                                  province: e.target.value,
-                                  district: "" // reset district when province changes
-                                }))
-                              }
-                              required
-                            >
-                              <option value="">Select Province</option>
-                              {provinces.map((prov) => (
-                                <option key={prov.value} value={prov.value}>
-                                  {prov.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* District Dropdown */}
-                          <div>
-                            <Label>District</Label>
-                            <select
-                              className="w-full p-2 border rounded"
-                              value={registerData.district || ""}
-                              onChange={(e) =>
-                                setRegisterData((prev) => ({ ...prev, district: e.target.value }))
-                              }
-                              required
-                            >
-                              <option value="">Select District</option>
-                              {(districtsByProvince[registerData.province?.replace(/\s/g, "")] || []).map(
-                                (district) => (
-                                  <option key={district} value={district}>
-                                    {district}
+                            <div>
+                              <Label>Province</Label>
+                              <select
+                                className="w-full p-2 border rounded"
+                                value={registerData.province || ""}
+                                onChange={(e) =>
+                                  setRegisterData((prev) => ({
+                                    ...prev,
+                                    province: e.target.value,
+                                    district: "" // reset district when province changes
+                                  }))
+                                }
+                                required
+                              >
+                                <option value="">Select Province</option>
+                                {provinces.map((prov) => (
+                                  <option key={prov.value} value={prov.value}>
+                                    {prov.label}
                                   </option>
-                                )
-                              )}
-                            </select>
-                          </div>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* District Dropdown */}
+                            <div>
+                              <Label>District</Label>
+                              <select
+                                className="w-full p-2 border rounded"
+                                value={registerData.district || ""}
+                                onChange={(e) =>
+                                  setRegisterData((prev) => ({ ...prev, district: e.target.value }))
+                                }
+                                required
+                              >
+                                <option value="">Select District</option>
+                                {(districtsByProvince[registerData.province?.replace(/\s/g, "")] || []).map(
+                                  (district) => (
+                                    <option key={district} value={district}>
+                                      {district}
+                                    </option>
+                                  )
+                                )}
+                              </select>
+                            </div>
                             {/* <Label>District</Label>
                             <Input
                               type="text"
@@ -732,10 +732,11 @@ const Login = () => {
                 participate in forums, and apply for jobs.
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                <Link to="/" className="text-primary hover:underline">
+                <Link to="/" className="text-green-600 hover:underline hover:text-green-700">
                   Continue browsing without account
                 </Link>
               </p>
+
             </div>
 
 
