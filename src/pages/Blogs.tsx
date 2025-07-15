@@ -2,6 +2,7 @@ import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { mockBlogs } from "@/store/mockData";
+
 import { Calendar, Clock, Tag, User } from "lucide-react";
 
 import { useState } from "react";
