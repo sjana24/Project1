@@ -34,6 +34,8 @@ import ProductProvider from "./pages/provider2/Products";
 import ServiceProvider from "./pages/provider2/Services";
 import AboutUs from "./pages/AboutUs";
 import PageNotFound from "./pages/PageNotFound";
+import Service_Request from "./pages/provider2/Service_request";
+import Chat from "./pages/provider2/Chat";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +120,8 @@ const App = () => (
                       <Route path="/job" element={<JobProvider />} />
                       <Route path="/product" element={<ProductProvider />} />
                       <Route path="/service" element={<ServiceProvider />} />
+                      <Route path="/service_req" element={<Service_Request />} />
+                      <Route path="/chat" element={<Chat />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
                       {/* <Route path="/provider/" element={<Dashboard />} /> */}
                     </Routes>

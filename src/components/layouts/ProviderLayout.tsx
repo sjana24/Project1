@@ -29,7 +29,8 @@ const navigation = [
 //   { name: 'Reviews', href: '/', icon: Star },
   { name: 'Jobs', href: '/service_provider/job',icon: Briefcase },
 //   { name: 'Blogs', href: '/', icon: FileText },
-//   { name: 'Notifications', href: '/', icon: Bell },
+  { name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
+   { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
 //   { name: 'Settings', href: '/', icon: Settings },
 ];
 
