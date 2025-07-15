@@ -1,0 +1,42 @@
+export const mockBlogs = [
+  {
+    id: 1,
+    title: "Top 5 Benefits of Solar Energy for Homeowners",
+    excerpt: "Discover how solar energy can reduce your electricity bills and help the environment.",
+    //image: "/images/solar-benefits.jpg",
+    publishedAt: "2025-07-10",
+    readTime: 4,
+    category: "home energy",
+    tags: ["solar", "sustainability", "home"],
+  },
+  {
+    id: 2,
+    title: "How Solar Panels Work: A Beginner’s Guide",
+    excerpt: "Understand the science and technology behind solar panels and how they convert sunlight into electricity.",
+    //image: "/images/how-solar-works.jpg",
+    publishedAt: "2025-07-08",
+    readTime: 6,
+    category: "technology",
+    tags: ["solar", "photovoltaic", "guide"],
+  },
+  {
+    id: 3,
+    title: "Is Solar Worth It in 2025? Financial Insights",
+    excerpt: "We break down the return on investment for solar panel installations this year.",
+    //image: "/images/solar-roi.jpg",
+    publishedAt: "2025-07-05",
+    readTime: 5,
+    category: "finance",
+    tags: ["solar", "cost", "investment"],
+  },
+  {
+    id: 4,
+    title: "Eco-Friendly Living with Solar Energy",
+    excerpt: "Solar energy isn't just for saving money—it's part of a sustainable lifestyle.",
+    //image: "/images/eco-living.jpg",
+    publishedAt: "2025-06-28",
+    readTime: 3,
+    category: "lifestyle",
+    tags: ["eco", "green", "living"],
+  }
+];
