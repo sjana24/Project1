@@ -60,6 +60,7 @@ class Chat
             ];
         }
     }
+    
     // public function isExistingRequest($customer_id,$provider_id)
     // {
     //     $query = "SELECT COUNT(*) FROM user WHERE email = ? AND user_role = ?";
@@ -138,4 +139,56 @@ public function isExistingChatRequest($customer_id, $provider_id, $service_id)
             ];
         }
     }
+    public function getAllChatProvider($provider_id)
+{
+    try {
+        $sql = "
+            SELECT 
+                cr.contact_id,
+                cr.customer_id,
+                cr.provider_id,
+                cr.service_id,
+                cr.status,
+                cr.requested_at,
+                u.username AS customer_name,
+                c.contact_number AS customer_phone,
+                u.email AS customer_email,
+                s.name AS service_name
+            FROM contact_request cr
+            JOIN user u ON cr.customer_id = u.user_id
+            JOIN customer c ON cr.customer_id = c.customer_id
+            JOIN service s ON cr.service_id = s.service_id
+            WHERE cr.provider_id = ?
+            ORDER BY cr.requested_at DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $provider_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($requests) {
+            return [
+                'success' => true,
+                'requests' => $requests,
+                'message' => 'Requests fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'requests' => [],
+                'message' => 'No requests found for this provider.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'requests' => [],
+            'message' => 'Failed to fetch requests. ' . $e->getMessage()
+        ];
+    }
+}
+
 }
