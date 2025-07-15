@@ -27,7 +27,7 @@ const CartPage = () => {
     const [selectAll, setSelectAll] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
-    const { setCartItemsCount, updateCartCount } = useCartStore();
+    const { setCartItemsCount, updateCartCount,cartUpdated } = useCartStore();
 
     // const item1s: item[] = [
     //     {
@@ -84,7 +84,7 @@ const CartPage = () => {
     .catch((err) => {
       console.error("Error fetching cart items:", err);
     });
-}, []); // Add currentUser as dependency if it can change
+}, [cartUpdated]); // Add currentUser as dependency if it can change
 
 
     const handleQuantityChange = (

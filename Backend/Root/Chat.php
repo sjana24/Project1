@@ -25,6 +25,52 @@ class Chat
         // $count = $stmt->fetchColumn();
         // return $count > 0;
     }
+     public function getAllNotificationCustomer($user_id)
+    {
+
+       try {
+    $sql = "
+        SELECT 
+            notification_id, 
+            user_id, 
+            user_type, 
+            title, 
+            message, 
+            is_read, 
+            created_at, 
+            sender_id 
+        FROM notification 
+        WHERE user_id = ?
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindParam(1, $user_id);
+    $stmt->execute();
+
+    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($notifications) {
+        return [
+            'success' => true,
+            'notifications' => $notifications,
+            'message' => 'Notifications fetched successfully.'
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'No notifications found for the given user.'
+        ];
+    }
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["message" => "Failed to fetch notifications. " . $e->getMessage()]);
+    return [
+        'success' => false,
+        'message' => 'Failed to fetch notifications. ' . $e->getMessage()
+    ];
+}
+
+    }
 
 
     public function sendRequestContactCustomer($service_id,$customer_id){

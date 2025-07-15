@@ -9,6 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCartStore } from "@/store/useCartStore";
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 
 interface Product {
   product_id: number;
@@ -39,31 +47,63 @@ const Products = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-
-
+  const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+  const { checkSession } = useAuth();
+   const { setCartItemsCount, updateCartCount,cartUpdated } = useCartStore();
+  const { triggerCartUpdate } = useCartStore();
   useEffect(() => {
-    axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
-      .then(response => {
-        const data = response.data;
-        if (response.data.success) {
-          console.log("data got");
-
-          setProducts(data.products);
-        }
-        else {
-          // setError('Failed to load products.');
-          console.log(response.data);
-          console.log(" sorry we cant get ur products");
-        }
-        setLoading(false);
-      })
-
-      .catch(err => {
-        setError('Something went wrong.');
-        setLoading(false);
-      });
-
+    (async () => {
+      if (!currentUser) {
+        const user = await checkSession();
+        setCurrentUser(user);
+      }
+    })();
   }, []);
+     useEffect(() => {
+
+    axios
+      .get("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
+      withCredentials:true
+      })
+      .then((response) => {
+        const data = response.data;
+        if (data.success) {
+          console.log("Data received:", data);
+          setCartItemsCount(data.items);
+          updateCartCount();
+          // setCartItems(data.items);
+        } else {
+          console.log("Failed to load items:", data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching cart items:", err);
+      });
+  }, [cartUpdated]); 
+
+    useEffect(() => {
+      axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
+        .then(response => {
+          const data = response.data;
+          if (response.data.success) {
+            console.log("data got");
+
+            setProducts(data.products);
+          }
+          else {
+            // setError('Failed to load products.');
+            console.log(response.data);
+            console.log(" sorry we cant get ur products");
+          }
+          setLoading(false);
+        })
+
+        .catch(err => {
+          setError('Something went wrong.');
+          setLoading(false);
+        });
+
+    }, []);
 
   const filteredProducts = products
 
@@ -97,7 +137,7 @@ const Products = () => {
   };
   const handleAddToCart = async (product: any) => {
 
-    if (0) {
+    if (!currentUser) {
       toast({
         title: "Please log in",
         description: "You must be logged in to add items to your cart.",
@@ -118,6 +158,8 @@ const Products = () => {
       );
       console.log(response.data);
       if (response.data.success) {
+        // After adding product to cart
+        triggerCartUpdate();
         console.log("add to cart sucess ");
         toast({
           title: "Added to Cart function!",
@@ -125,18 +167,18 @@ const Products = () => {
 
         });
       }
-      else{
+      else {
         console.log(" erroe adoi");
         toast({
-        title: "Only for Customers!",
-        variant:"destructive",
-        // description: `${product.name} has been added to your cart.`,
+          title: "Only for Customers!",
+          variant: "destructive",
+          // description: `${product.name} has been added to your cart.`,
 
-      });
+        });
 
       }
 
-      
+
       navigate('/products');
     }
 
@@ -194,9 +236,9 @@ const Products = () => {
                 <div className="hidden md:block">
                   <CardHeader>
                     <div className="w-full h-48 bg-secondary/30 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/50 transition-colors">
-                      <img 
-                      src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
-                       className="h-full w-full text-primary" />
+                      <img
+                        src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
+                        className="h-full w-full text-primary" />
                     </div>
                     <div className="flex items-center justify-between mb-2">
                       <CardTitle className="text-lg">{product.name}</CardTitle>
@@ -218,7 +260,11 @@ const Products = () => {
                         ${product.price.toLocaleString()}
                       </div>
                     </div>
-                    <Button onClick={() => handleAddToCart(product)}
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
                       className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
                     >
                       Add to Cart

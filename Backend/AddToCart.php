@@ -36,10 +36,10 @@ if (isset($_SESSION['user'])) {
 
           if($Result) {
               http_response_code(200);
-              echo json_encode(array("message" => "Add to cart successfully."));
+              echo json_encode(array("success"=>true,"message" => "Add to cart successfully."));
           } else {
               http_response_code(400);
-              echo json_encode(array("message" => "Unable to add to cart."));
+              echo json_encode(array("success"=>false,"message" => "Unable to add to cart."));
           }
     } else {
 
