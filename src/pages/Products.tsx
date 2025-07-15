@@ -219,7 +219,7 @@ const Products = () => {
                       </div>
                     </div>
                     <Button onClick={() => handleAddToCart(product)}
-                      className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
+                      className="w-full bg-[#138A8E] text-white"
                     >
                       Add to Cart
                     </Button>
@@ -324,7 +324,7 @@ const Products = () => {
             </div> */}
                   <Button
                     onClick={() => handleAddToCart(selectedProduct)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    className="bg-[#138A8E] text-white"
                   >
                     Add to Cart
                   </Button>

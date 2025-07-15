@@ -3,34 +3,34 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
-import {User} from'lucide-react';
+import { User } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 
 import { useCartStore } from "@/store/useCartStore";
 
 import { Label } from "recharts";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 interface User {
-  id:number;
-  name:string;
-  email: string;
-  role: string;
+    id: number;
+    name: string;
+    email: string;
+    role: string;
 }
 export interface Notification {
-  id: number;
-  type: 'message' | 'support';
-  title: string;
-  message: string;
-  chatId: number;
-  timestamp: Date;
-  isRead: boolean;
+    id: number;
+    type: 'message' | 'support';
+    title: string;
+    message: string;
+    chatId: number;
+    timestamp: Date;
+    isRead: boolean;
 }
 export interface item {
     image: string;
@@ -43,42 +43,42 @@ export interface item {
 }
 
 const Navigation = () => {
-    const { checkSession ,logout} = useAuth();
+    const { checkSession, logout } = useAuth();
     const [isOpenNotify, setIsOpenNotify] = useState(false);
-        const [isOpen, setIsOpen] = useState(false);
-         const cartCount = useCartStore((state) => state.cartCount);
-         const [loading, setLoading] = useState(true); // handle async wait
+    const [isOpen, setIsOpen] = useState(false);
+    const cartCount = useCartStore((state) => state.cartCount);
+    const [loading, setLoading] = useState(true); // handle async wait
     // Check if you're on the login page
     // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
-//     const [currentUser, setCurrentUser] = useState(() => {
-//   return JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    //     const [currentUser, setCurrentUser] = useState(() => {
+    //   return JSON.parse(sessionStorage.getItem("currentUser") || "null");
     const [currentUser, setCurrentUser] = useState<User | null>(() => null);
-//   useEffect(() => {
-//     const fetchRole = async () => {
-//       const user = await checkSession();
-//       setCurrentUser(user);
-//     //   const x=userR;
-//     //   setRole(x); // this will update state with the role (e.g., 'admin')
-//       setLoading(false);
-//     };
-//     fetchRole();
-//   }, [checkSession]);
-useEffect(() => {
-  (async () => {
-    if (!currentUser) {
-      const user=await checkSession();
-      setCurrentUser(user);
-    }
-  })();
-}, []);
-    const navigate=useNavigate();
+    //   useEffect(() => {
+    //     const fetchRole = async () => {
+    //       const user = await checkSession();
+    //       setCurrentUser(user);
+    //     //   const x=userR;
+    //     //   setRole(x); // this will update state with the role (e.g., 'admin')
+    //       setLoading(false);
+    //     };
+    //     fetchRole();
+    //   }, [checkSession]);
+    useEffect(() => {
+        (async () => {
+            if (!currentUser) {
+                const user = await checkSession();
+                setCurrentUser(user);
+            }
+        })();
+    }, []);
+    const navigate = useNavigate();
     const isLoginPage = location.pathname === "/login";
     const navItems = [
         { path: "/", label: "Home" },
         { path: "/products", label: "Products" },
         { path: "/services", label: "Services" },
-         { path: "/aboutus", label: "About Us" },
+        { path: "/aboutus", label: "About Us" },
         { path: "/blogs", label: "Blogs" },
         //{ path: "", label: "Q&A" },
         { path: "/jobs", label: "Jobs" },
@@ -96,7 +96,7 @@ useEffect(() => {
                     key={item.path}
                     to={item.path}
                     className={`${mobile ? "block py-2 px-4" : "inline-block"
-                        } text-foreground hover:text-primary transition-colors duration-200 ${location.pathname === item.path ? "text-primary font-semibold" : ""
+                        } text-black hover:text-black transition-colors duration-200 ${location.pathname === item.path ? "text-primary font-semibold" : ""
                         }`}
                     onClick={() => mobile && setIsOpen(false)}
                 >
@@ -105,54 +105,54 @@ useEffect(() => {
             ))}
         </>
     );
-     const items: item[] = [
-            {
-                image: "one.jpeg",
-                name: "Sample Product",
-                price: 12345,
-                productId: 1,
-                providerId: 1,
-                quantity: 1,
-                userId: 1,
-            },
-        ]
+    const items: item[] = [
+        {
+            image: "one.jpeg",
+            name: "Sample Product",
+            price: 12345,
+            productId: 1,
+            providerId: 1,
+            quantity: 1,
+            userId: 1,
+        },
+    ]
 
-    const notifications :Notification[]= [
-    
-      {
-          id: 1,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
+    const notifications: Notification[] = [
+
+        {
+            id: 1,
+            type: 'message',
+            title: 'John sent you a message',
+            message: 'Hey! How are you doing today?',
+            chatId: 10,
+            timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+            isRead: false,
         },
-          {
-          id: 2,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
+        {
+            id: 2,
+            type: 'message',
+            title: 'John sent you a message',
+            message: 'Hey! How are you doing today?',
+            chatId: 10,
+            timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+            isRead: false,
         },
-          {
-          id: 3,
-          type: 'message',
-          title: 'John sent you a message',
-          message: 'Hey! How are you doing today?',
-          chatId: 10,
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          isRead: false,
+        {
+            id: 3,
+            type: 'message',
+            title: 'John sent you a message',
+            message: 'Hey! How are you doing today?',
+            chatId: 10,
+            timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+            isRead: false,
         },
-    
-]
+
+    ]
 
     const openNotifyBar = () => {
         console.log(" notify");
     }
-    
+
 
 
     const unreadCount = notifications.length;
@@ -168,14 +168,14 @@ useEffect(() => {
 
                     </Link>
                     {/* Desktop Navigation */}
-                    
+
                     <div className="hidden md:flex items-center space-x-8">
-                      <NavLinks />  
+                        <NavLinks />
                         {currentUser?.role === "customer" ? (
                             <>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button >cart
                                     {addToCartItems > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                                        <span className="absolute -top-1 -right-1 bg-teal-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
                                             {/* {addToCartItems > 9 ? '9+' : addToCartItems} */}
                                             {cartCount}
                                         </span>
@@ -184,7 +184,7 @@ useEffect(() => {
                                 </button></Link></span>
                                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}>bell
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                                        <span className="absolute -top-1 -right-1 bg-teal-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </span>
                                     )}
@@ -229,11 +229,11 @@ useEffect(() => {
                                                     </div>
                                                     <Button
                                                         size="sm"
-                                                        className="w-full sm:w-auto   text-white px-3 py-1 text-xs"
-
+                                                        className="w-full sm:w-auto bg-teal-400 text-white px-3 py-1 text-xs hover:bg-teal-500"
                                                     >
                                                         Open Chat
                                                     </Button>
+
                                                 </div>
                                             </div>
                                         ))
@@ -248,39 +248,39 @@ useEffect(() => {
                     {/* Desktop Actions */}
 
                     {(currentUser) ? (
-                              
-      <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            {/* You can add an avatar icon or initials here */}
-            {/* <span className="text-white font-bold">{currentUser.customerName.charAt(0)}</span> */}
-            <User className="w-4 h-4 text-white" />
-          </div>
-          <span className="hidden md:inline-block text-sm font-medium">
-            Hi, {currentUser.name}
-          </span>
-        </Button>
-      </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={() => navigate('/customer/profile')}>
-          Edit Profile
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            sessionStorage.removeItem("currentUser");
-            logout();
-            navigate("/");
-            setCurrentUser(null);  
-          }}
-          className="text-red-600"
-        >
-          Logout
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="flex items-center space-x-2">
+                                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                        {/* You can add an avatar icon or initials here */}
+                                        {/* <span className="text-white font-bold">{currentUser.customerName.charAt(0)}</span> */}
+                                        <User className="w-4 h-4 text-white" />
+                                    </div>
+                                    <span className="hidden md:inline-block text-sm font-medium">
+                                        Hi, {currentUser.name}
+                                    </span>
+                                </Button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => navigate('/customer/profile')}>
+                                    Edit Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        sessionStorage.removeItem("currentUser");
+                                        logout();
+                                        navigate("/");
+                                        setCurrentUser(null);
+                                    }}
+                                    className="text-red-600"
+                                >
+                                    Logout
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
                         // <div className="hidden md:flex items-center space-x-4">
                         //   <Link to="/customer/profile">

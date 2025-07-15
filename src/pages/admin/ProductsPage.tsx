@@ -173,7 +173,7 @@ const ProductsPage = () => {
         return null;
     }
   };
-
+ 
   // const pendingCount = products.filter(p => p.is_approved === 'pending').length;
   const approvedCount = products.filter(p => p.is_approved == true).length;
   const rejectedCount = products.filter(p => p.is_approved == false).length;
