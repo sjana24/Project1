@@ -94,8 +94,11 @@ public function isExistingChatRequest($customer_id, $provider_id, $service_id)
 
 
 
+
     public function sendRequestContactCustomer($service_id, $customer_id, $provider_id)
     {
+
+
         $this->service_id = $service_id;
         $this->customer_id = $customer_id;
         $this->provider_id = $provider_id;
