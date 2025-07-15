@@ -240,12 +240,28 @@ const Services = () => {
       // console.log(FormData);
       const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php",service,{withCredentials:true})
 
-      toast({
-        title: "Request sent!",
-        description: ` request sended to ${service.product_id}.`,
-        // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
-      });
-    }
+       if (response.data.success) {
+        console.log("Request sent successful");
+        toast({
+          title: "Request sent!",
+          description: ` request sended to ${service.name}.`,
+          // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+        });
+
+
+      } else {
+        console.log(response.data);
+        toast({
+          title: "Request already sent",
+          description: "Try another service provider",
+          variant: "destructive",
+        });
+      // toast({
+      //   title: "Request sent!",
+      //   description: ` request sended to ${service.product_id}.`,
+      //   // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+      // });
+    }}
     // setIsModalOpen(false);
   }
   const sendRequestToDb = async (formData: { message: string; phoneNumber: string; preferredDate: string }) => {
