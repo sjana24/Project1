@@ -45,7 +45,7 @@ const Index = () => {
             <Navigation />
             {/* Hero Section */}
             <section className="relative py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/solar-bg1.jpg')] bg-cover bg-center opacity-50" />
+                <div className="absolute inset-0 bg-[url('/solax.png')] bg-cover bg-center opacity-50" />
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="animate-fade-in">
