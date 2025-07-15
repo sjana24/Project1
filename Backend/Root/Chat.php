@@ -5,6 +5,7 @@ class Chat
 {
     protected $service_id;
     protected $customer_id;
+    protected $provider_id;
 
      protected $conn;
 
@@ -73,9 +74,10 @@ class Chat
     }
 
 
-    public function sendRequestContactCustomer($service_id,$customer_id){
+    public function sendRequestContactCustomer($service_id,$customer_id,$provider_id){
         $this->service_id = $service_id;
         $this->customer_id = $customer_id;
+        $this->provider_id = $provider_id;
 
 
         //  is existing check pannum
@@ -84,13 +86,14 @@ class Chat
         if (0==$count) {
 
             try {
-                $sql = "INSERT INTO product (service_id, customer_id) VALUES (?, ?)";
+                $sql = "INSERT INTO contact_request (customer_id,provider_id,service_id) VALUES (?, ?, ?)";
 
                 $stmt = $this->conn->prepare($sql);
                 
                 $stmt->execute([
-                    $this->service_id,
-                    $this->customer_id
+                    $this->customer_id,
+                    $this->provider_id,
+                    $this->service_id
                 ]);
 
                 return [

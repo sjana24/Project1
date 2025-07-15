@@ -29,7 +29,7 @@
 
 
         $getChat=new Chat();
-        $response=$getChat->sendRequestContactCustomer($service_id,$user_id);
+        $response=$getChat->sendRequestContactCustomer($service_id,$user_id,$provider_id);
         echo json_encode($response);
         // Example: return sanitized data as JSON for testing
         // echo json_encode([
