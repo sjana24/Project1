@@ -15,51 +15,7 @@ class Chat
         $this->conn = $dbObj->connect();
     }
 
-    public function getAllNotificationCustomer($user_id)
-    {
-
-        try {
-            $sql = "
-        SELECT 
-            notification_id, 
-            user_id, 
-            user_type, 
-            title, 
-            message, 
-            is_read, 
-            created_at, 
-            sender_id 
-        FROM notification 
-        WHERE user_id = ?
-    ";
-
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(1, $user_id);
-            $stmt->execute();
-
-            $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($notifications) {
-                return [
-                    'success' => true,
-                    'notifications' => $notifications,
-                    'message' => 'Notifications fetched successfully.'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No notifications found for the given user.'
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Failed to fetch notifications. " . $e->getMessage()]);
-            return [
-                'success' => false,
-                'message' => 'Failed to fetch notifications. ' . $e->getMessage()
-            ];
-        }
-    }
+ 
     
     // public function isExistingRequest($customer_id,$provider_id)
     // {
@@ -193,5 +149,40 @@ public function isExistingChatRequest($customer_id, $provider_id, $service_id)
         ];
     }
 }
+
+public function ManageChatProvider($contact_id, $new_status)
+{
+    try {
+        // Prepare the SQL update statement
+        $sql = "UPDATE contact_request SET status = ? WHERE contact_id = ?";
+        $stmt = $this->conn->prepare($sql);
+
+        // Execute with bound parameters
+        $stmt->execute([$new_status, $contact_id]);
+
+        if ($stmt->rowCount() > 0) {
+            return [
+                "success" => true,
+                "message" => "Status updated successfully.",
+                "contact_id" => $contact_id,
+                "status" => $new_status
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "No record updated. Contact ID may not exist or status already set.",
+                "contact_id" => $contact_id,
+                "status" => $new_status
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            "success" => false,
+            "message" => "Error updating status: " . $e->getMessage(),
+            "contact_id" => $contact_id
+        ];
+    }
+}
+
 
 }

@@ -21,7 +21,8 @@ import axios from 'axios';
 
 // Dummy data model
 interface Request {
-  chat_id: number;
+  request_id: number;
+  customer_id:number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -58,7 +59,8 @@ export default function Chat() {
         if (response.data.success) {
           console.log("data got");
             const mappedRequests: Request[] = data.requests.map((item: any) => ({
-          chat_id: item.contact_id,
+          request_id: item.contact_id,
+          customer_id:item.customer_id,
           customerName: item.customer_name,
           customerEmail: item.customer_email || 'N/A', // Fallback if email not provided
           customerPhone: item.customer_phone,
@@ -87,10 +89,44 @@ export default function Chat() {
 
   }, []);
 
-  const handleStatusChange = (chat_id: number, newStatus: 'accepted' | 'rejected') => {
+  const handleStatusChange =async (request_id: number,customer_id:number, newStatus: 'accepted' | 'rejected') => {
+
+
+    const response = await axios.post("http://localhost/Git/Project1/Backend/ManageChatRequest.php", {
+        // customer_id: currentUser.customerId,
+        // product_Details: product,
+        request_id:request_id,
+        customer_id:customer_id,
+        status:newStatus,
+
+      },
+        { withCredentials: true }
+      );
+      console.log(response.data);
+      // if (response.data.success) {
+      //   // After adding product to cart
+      //   triggerCartUpdate();
+      //   console.log("add to cart sucess ");
+      //   toast({
+      //     title: "Added to Cart function!",
+      //     description: `${product.name} has been added to your cart.`,
+
+      //   });
+      // }
+      // else {
+      //   console.log(" erroe adoi");
+      //   toast({
+      //     title: "Only for Customers!",
+      //     variant: "destructive",
+      //     // description: `${product.name} has been added to your cart.`,
+
+      //   });
+
+      // }
+
     setRequests((prev) =>
       prev.map((req) =>
-        req.chat_id === chat_id ? { ...req, status: newStatus } : req
+        req.request_id === request_id ? { ...req, status: newStatus } : req
       )
     );
   };
@@ -175,7 +211,7 @@ export default function Chat() {
 
       <div className="space-y-4">
         {filteredRequests.map((request) => (
-          <Card key={request.chat_id} className="hover:shadow-md">
+          <Card key={request.request_id} className="hover:shadow-md">
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -202,12 +238,12 @@ export default function Chat() {
                 <div className="flex flex-col gap-2 ml-4">
                   {request.status === 'pending' ? (
                     <>
-                      <Button size="sm" onClick={() => handleStatusChange(request.chat_id, 'accepted')}>Accept</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleStatusChange(request.chat_id, 'rejected')}>Reject</Button>
+                      <Button size="sm" onClick={() => handleStatusChange(request.request_id,request.customer_id, 'accepted')}>Accept</Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleStatusChange(request.request_id,request.customer_id, 'rejected')}>Reject</Button>
                     </>
                   ):
                   <>
-                      <Button size="sm" onClick={() => handleStatusChange(request.chat_id, 'accepted')}>Open chat</Button>
+                      <Button size="sm" onClick={() => handleStatusChange(request.request_id,request.customer_id, 'accepted')}>Open chat</Button>
                       {/* <Button variant="destructive" size="sm" onClick={() => handleStatusChange(request.id, 'Rejected')}>Reject</Button> */}
                     </>
                   
