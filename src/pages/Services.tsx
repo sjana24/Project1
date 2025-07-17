@@ -12,8 +12,8 @@ import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface User {
-  id:number;
-  name:string;
+  id: number;
+  name: string;
   email: string;
   role: string;
 }
@@ -43,19 +43,19 @@ const Services = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
 
-  const {checkSession}=useAuth();
+  const { checkSession } = useAuth();
   useEffect(() => {
-  (async () => {
-    if (!currentUser) {
-      const user=await checkSession();
-      setCurrentUser(user);
-    }
-  })();
-}, []);
+    (async () => {
+      if (!currentUser) {
+        const user = await checkSession();
+        setCurrentUser(user);
+      }
+    })();
+  }, []);
 
 
   const services1 = [
@@ -205,7 +205,7 @@ const Services = () => {
           return a.name.localeCompare(b.name);
       }
     });
-  const handleServiceClick =async () => {
+  const handleServiceClick = async () => {
 
     if (!currentUser) {
       toast({
@@ -238,9 +238,9 @@ const Services = () => {
     }
     else {
       // console.log(FormData);
-      const response=await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php",service,{withCredentials:true})
+      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php", service, { withCredentials: true })
 
-       if (response.data.success) {
+      if (response.data.success) {
         console.log("Request sent successful");
         toast({
           title: "Request sent!",
@@ -256,12 +256,13 @@ const Services = () => {
           description: "Try another service provider",
           variant: "destructive",
         });
-      // toast({
-      //   title: "Request sent!",
-      //   description: ` request sended to ${service.product_id}.`,
-      //   // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
-      // });
-    }}
+        // toast({
+        //   title: "Request sent!",
+        //   description: ` request sended to ${service.product_id}.`,
+        //   // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
+        // });
+      }
+    }
     // setIsModalOpen(false);
   }
   const sendRequestToDb = async (formData: { message: string; phoneNumber: string; preferredDate: string }) => {
@@ -398,15 +399,16 @@ const Services = () => {
                     </div>
 
                     <div className="  flex flex-col sm:flex-row gap-6 justify-center">
-                      <Button size="lg"
-                        className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
+                      <Button
+                        size="lg"
+                        className="w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
                         onClick={() => handleServiceClick()}
                       >
-
                         Request Service
                       </Button>
+
                       <Button size="lg"
-                        className="  w-full  text-white group-hover:scale-105 transition-transform"
+                        className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
                         onClick={() => handleSendRequestContact(service)}
                       >
 
@@ -433,11 +435,11 @@ const Services = () => {
         {/* //  ( */}
         {/* // // <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"> */}
         {/* //   // <div className="bg-white rounded-xl shadow-lg p-6 w-[700px] h-[450px] relative overflow-hidden"> */}
-                {/* Close Button */}
-                     {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
+        {/* Close Button */}
+        {/* <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
 
 
-                         {/* <div className="absolute top-3 right-3">
+        {/* <div className="absolute top-3 right-3">
           //                   <button
           //                       onClick={closeModel}
           //                       className="text-gray-500 hover:text-gray-800 transition"
@@ -451,7 +453,7 @@ const Services = () => {
 
           //   </div>
           // </div> */}
-        
+
         <ServiceRequestModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
