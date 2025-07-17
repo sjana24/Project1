@@ -29,7 +29,7 @@ if (isset($_SESSION['user'])) {
        $request_id = htmlspecialchars(strip_tags($data['request_id']));
         $customer_id = htmlspecialchars(strip_tags($data['customer_id']));
        $status = htmlspecialchars(strip_tags($data['status']));
-echo "$user_name,$customer_id,$request_id";
+// echo "$user_name,$customer_id,$request_id";
 
 
 
@@ -42,6 +42,8 @@ echo "$user_name,$customer_id,$request_id";
 
         if ($success){
             $responce2=$insertNotification->insertNotificationStatusCustomer($contact_id,$user_role, $status, $customer_id, $success, $user_id);
+            $responce3=$manageChat->createConversation($contact_id, $customer_id, $user_id);
+            echo json_encode($responce3);
              echo json_encode($responce2);
         }
         echo json_encode($response);
