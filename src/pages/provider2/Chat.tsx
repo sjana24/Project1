@@ -9,16 +9,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import axios from 'axios';
 import { useToast } from "@/hooks/use-toast";
 import { ChatWindow } from '@/components/ui/ChatWindow';
+import { ChatSession, Message } from "@/types/chat";
 
-export interface ChatSession {
-  conversation_id: number;
-  request_id: number;
-  customer_id: number;
-  provider_id: number;
-  is_active: boolean;
-  started_at: Date;
-  updated_at: Date;
-}
+
+// export interface ChatSession {
+//   chatSession_id: number;
+//   request_id: number;
+//   customer_id: number;
+//   provider_id: number;
+//   is_active: boolean;
+//   started_at: Date;
+//   updated_at: Date;
+// }
+// export interface ChatSession {
+//   chatSession_id: number;       // conversation_id from backend
+//   participantName: string;      // You'll need to provide or compute this separately
+//   messages: Message[];          // Array of messages
+//   isOpen: boolean;              // UI state
+//   user_id: number;              // current user ID (logged in user)
+//   sender_id: number;            // last sender ID or current user sender ID
+//   lastActivity: Date;           // last message sent date
+// }
 
 // Dummy data model
 interface Request {
@@ -32,6 +43,16 @@ interface Request {
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;
 }
+
+// export interface Message {
+//   message_id: number;
+//   chatSession_id: number;
+//   sender_id: number;
+//   receiver_id: number;
+//   message: string;
+//   is_read: boolean | number;
+//   sent_at: Date;
+// }
 
 
 // // const dummyRequests: Request[] = [
@@ -92,39 +113,97 @@ export default function Chat() {
       });
 
   }, []);
+
+  const mapMessages = (rawMessages: any[]): Message[] => {
+    return rawMessages.map(msg => ({
+      message_id: msg.message_id,
+      chatSession_id: msg.chatSession_id,
+      sender_id: msg.sender_id,
+      receiver_id: msg.receiver_id,
+      message: msg.message,
+      is_read: msg.is_read,
+      sent_at: new Date(msg.sent_at),
+    }));
+  };
   const [openChats, setOpenChats] = useState<number[]>([]);
+
   const openConversation = async (request_id: number) => {
-    const response = await axios.post("http://localhost/Git/Project1/Backend/OpenConversation.php", {
-      // customer_id: currentUser.customerId,
-      // product_Details: product,
-      request_id: request_id,
-      // customer_id:customer_id,
-      // status:newStatus,
 
-    },
-      { withCredentials: true }
-    );
-
-    if (response.data.success) {
-      const newConversation: ChatSession = {
-        conversation_id: response.data.conversation_id,
+    try {
+      const response = await axios.post("http://localhost/Git/Project1/Backend/OpenConversation.php", {
+        // customer_id: currentUser.customerId,
+        // product_Details: product,
         request_id: request_id,
-        customer_id: response.data.customer_id, // Ensure backend returns this
-        provider_id: response.data.provider_id, // Ensure backend returns this
-        is_active: true,
-        started_at: new Date(response.data.started_at),
-        updated_at: new Date(response.data.updated_at)
-      };
+        // customer_id:customer_id,
+        // status:newStatus,
 
-      // Avoid duplicate chats
-      if (!openChats.includes(newConversation.conversation_id)) {
-        setOpenChats((prev) => [...prev, newConversation.conversation_id]);
-        setChatSessions((prev) => [...prev, newConversation]);
+      },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        // console.log(response.data.conversation);
+        console.log(response.data.message);
+        if (response.data.success) {
+          const convData = response.data.data;   // Assuming conversation info here
+          const rawMessages = response.data.messages || [];
+          const rawMessages2 = response.data.messages[0] || [];    // messages from backend
+          console.log(rawMessages);
+          const messages = mapMessages(rawMessages);
+
+          // Determine last activity from last message sent date or fallback
+          const lastActivity =
+            messages.length > 0
+              ? messages[messages.length - 1].sent_at
+              : new Date();
+
+          const newChatSession: ChatSession = {
+            chatSession_id: rawMessages2.chatSession_id,
+            participantName: rawMessages2.participantName || "Customer", // You must supply this or fetch separately
+            messages: messages,
+            isOpen: true,
+            user_id: rawMessages2.sender_id || 0,    // you must get this from backend or from auth context
+            sender_id: rawMessages2.receiver_id || 0, // usually current logged in user id
+            lastActivity: lastActivity,
+          };
+          console.log(newChatSession);
+
+          if (!openChats.includes(newChatSession.chatSession_id)) {
+            console.log(" this is zhat open ")
+            // setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
+            setChatSessions((prev) => [...prev, newChatSession]);
+            console.log("Chat sessions now:", [...chatSessions, newChatSession]);
+            setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
+            console.log("Open chats now:", [...openChats, newChatSession.chatSession_id]);
+
+
+          }
+        }
       }
-      // setChatSessions(response.data.conversation);
-      const openChatSessions = chatSessions.filter(chatSessions => openChats.includes(chatSessions.conversation_id));
+    }
+    catch (error) {
+      console.error("Failed to open conversation:", error);
     }
   }
+  // const newConversation: ChatSession = {
+  //   conversation_id: response.data.conversation_id,
+  //   request_id: request_id,
+  //   customer_id: response.data.customer_id, // Ensure backend returns this
+  //   provider_id: response.data.provider_id, // Ensure backend returns this
+  //   is_active: true,
+  //   started_at: new Date(response.data.started_at),
+  //   updated_at: new Date(response.data.updated_at)
+  // };
+
+  // Avoid duplicate chats
+  // if (!openChats.includes(newConversation.conversation_id)) {
+  //   setOpenChats((prev) => [...prev, newConversation.conversation_id]);
+  //   setChatSessions((prev) => [...prev, newConversation]);
+  // }
+  // setChatSessions(response.data.conversation);
+  const openChatSessions = chatSessions.filter(chatSessions => openChats.includes(chatSessions.chatSession_id));
+
+
 
   const getChatPosition = useCallback((index: number) => {
     return {
@@ -135,7 +214,7 @@ export default function Chat() {
   }, []);
 
   const handleCloseChat = useCallback((chatId: number) => {
-    setOpenChats(prev => prev.filter(id => id !== chatId));
+    // setOpenChats(prev => prev.filter(id => id !== chatId));
   }, []);
 
   const handleStatusChange = async (request_id: number, customer_id: number, newStatus: 'accepted' | 'rejected') => {
@@ -156,11 +235,11 @@ export default function Chat() {
       //   // After adding product to cart
       //   triggerCartUpdate();
       //   console.log("add to cart sucess ");
-      toast({
-        title: "Requset accepted !",
-        description: ``,
+      // toast({
+      //   title: "Requset accepted !",
+      //   description: ``,
 
-      });
+      // });
     }
     // else {
     //   console.log(" erroe adoi");
@@ -173,11 +252,11 @@ export default function Chat() {
 
     // }
 
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.request_id === request_id ? { ...req, status: newStatus } : req
-      )
-    );
+    // setRequests((prev) =>
+    //   prev.map((req) =>
+    //     req.request_id === request_id ? { ...req, status: newStatus } : req
+    //   )
+    // );
   };
 
   const filteredRequests = requests.filter((r) =>
@@ -325,16 +404,24 @@ export default function Chat() {
             </CardContent>
           </Card>
         ))}
-        {chatSessions
-          .filter((chat) => openChats.includes(chat.conversation_id))
-          .map((chat, index) => (
-            <ChatWindow
-              key={chat.conversation_id}
-              chat={chat}
-              position={getChatPosition(index)}
-              onClose={() => handleCloseChat(chat.conversation_id)}
-            />
-          ))}
+        {openChatSessions
+          .filter((chat) => {
+            const isOpen = openChats.includes(chat.chatSession_id);
+            console.log(`Checking chat ${chat.chatSession_id}, isOpen: ${isOpen}`);
+            return isOpen;
+          })
+          .map((chat, index) => {
+            console.log("Rendering ChatWindow for:", chat);
+            return (
+              <ChatWindow
+                // key={chat.chatSession_id}
+                chat={openChatSessions[0]}
+                position={{ bottom: 100, right: 100 }}
+                onClose={() => console.log("Closed")}
+              />
+            );
+          })}
+
 
         {/* {openChatSessions.map((chatSessions, index) => (
 

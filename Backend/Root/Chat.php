@@ -216,89 +216,34 @@ public function createConversation($request_id, $customer_id, $provider_id)
     }
 }
 
-public function OpenConversation($request_id)
-{
-    try {
-        $sql = "
-            SELECT 
-                *
-            FROM conversation
-            WHERE request_id = ?
-            LIMIT 1
-        ";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$request_id]);
-
-        $conversation = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($conversation) {
-            return [
-                "success" => true,
-                "message" => "Conversation details fetched successfully.",
-                "data" => $conversation
-            ];
-        } else {
-            return [
-                "success" => false,
-                "message" => "No conversation found for the given request ID."
-            ];
-        }
-    } catch (PDOException $e) {
-        http_response_code(500);
-        return [
-            "success" => false,
-            "message" => "Error fetching conversation: " . $e->getMessage()
-        ];
-    }
-}
-
-
 // public function OpenConversation($request_id)
 // {
 //     try {
-//         // Step 1: Get conversation by request_id
-//         $sql = "SELECT * FROM conversation WHERE request_id = ? LIMIT 1";
+//         $sql = "
+//             SELECT 
+//                 *
+//             FROM conversation
+//             WHERE request_id = ?
+//             LIMIT 1
+//         ";
+
 //         $stmt = $this->conn->prepare($sql);
 //         $stmt->execute([$request_id]);
+
 //         $conversation = $stmt->fetch(PDO::FETCH_ASSOC);
 
-//         if (!$conversation) {
+//         if ($conversation) {
+//             return [
+//                 "success" => true,
+//                 "message" => "Conversation details fetched successfully.",
+//                 "data" => $conversation
+//             ];
+//         } else {
 //             return [
 //                 "success" => false,
 //                 "message" => "No conversation found for the given request ID."
 //             ];
 //         }
-
-//         $conversation_id = $conversation['conversation_id'];
-
-//         // Step 2: Fetch messages for that conversation_id
-//         $msgSql = "
-//             SELECT 
-//                 message_id, 
-//                 conversation_id, 
-//                 sender_id, 
-//                 receiver_id, 
-//                 message, 
-//                 is_read, 
-//                 sent_at 
-//             FROM chat_sessions 
-//             WHERE conversation_id = ?
-//             ORDER BY sent_at ASC
-//         ";
-
-//         $msgStmt = $this->conn->prepare($msgSql);
-//         $msgStmt->execute([$conversation_id]);
-//         $messages = $msgStmt->fetchAll(PDO::FETCH_ASSOC);
-
-//         // Step 3: Return conversation and messages
-//         return [
-//             "success" => true,
-//             "message" => count($messages) > 0 ? "Conversation with messages fetched successfully." : "Start a new conversation.",
-//             "conversation" => $conversation,
-//             "messages" => $messages
-//         ];
-
 //     } catch (PDOException $e) {
 //         http_response_code(500);
 //         return [
@@ -307,6 +252,61 @@ public function OpenConversation($request_id)
 //         ];
 //     }
 // }
+
+
+public function OpenConversation($request_id)
+{
+    try {
+        // Step 1: Get conversation by request_id
+        $sql = "SELECT * FROM conversation WHERE request_id = ? LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$request_id]);
+        $conversation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$conversation) {
+            return [
+                "success" => false,
+                "message" => "No conversation found for the given request ID."
+            ];
+        }
+
+        $chatSession_id = $conversation['chatSession_id'];
+
+        // Step 2: Fetch messages for that conversation_id
+        $msgSql = "
+            SELECT 
+                message_id, 
+                chatSession_id, 
+                sender_id, 
+                receiver_id, 
+                message, 
+                is_read, 
+                sent_at 
+            FROM chat_sessions 
+            WHERE chatSession_id = ?
+            ORDER BY sent_at ASC
+        ";
+
+        $msgStmt = $this->conn->prepare($msgSql);
+        $msgStmt->execute([$chatSession_id]);
+        $messages = $msgStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Step 3: Return conversation and messages
+        return [
+            "success" => true,
+            "message" => count($messages) > 0 ? "Conversation with messages fetched successfully." : "Start a new conversation.",
+            // "conversation" => $conversation,
+            "messages" => $messages
+        ];
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "message" => "Error fetching conversation: " . $e->getMessage()
+        ];
+    }
+}
 
 
 
