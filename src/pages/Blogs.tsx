@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Tag, User } from "lucide-react";
 import { useState } from "react";
 
-// 👉 Merged mockBlogs data
+// Merged mockBlogs data
 const mockBlogs = [
   {
     id: 1,
@@ -66,23 +66,30 @@ const Blogs: React.FC = () => {
             Solar Energy Insights
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Stay informed with the latest news, tips, and insights about solar energy, 
+            Stay informed with the latest news, tips, and insights about solar energy,
             sustainability, and renewable technology.
           </p>
         </div>
 
         {/* Category Filter */}
         <div className="flex flex-wrap gap-4 mb-8">
-          {categories.map(category => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
+  {categories.map(category => (
+    <button
+      key={category}
+      onClick={() => setSelectedCategory(category)}
+      className={`font-semibold py-2 px-4 rounded border text-sm transition-all
+        ${
+          selectedCategory === category
+            ? "bg-[#26B170] text-white border-[#26B170]"
+            : "bg-white text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white"
+        }
+      `}
+    >
+      {category}
+    </button>
+  ))}
+</div>
+
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -127,9 +134,10 @@ const Blogs: React.FC = () => {
                     {/* Author name can be added here if available */}
                   </div>
 
-                  <Button variant="outline" size="sm">
+                  <Button className="bg-white text-[#26B170] border border-[#26B170] font-semibold py-2 px-4 rounded text-sm hover:bg-[#26B170] hover:text-white">
                     Read More
                   </Button>
+
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-4">
