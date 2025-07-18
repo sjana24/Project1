@@ -145,7 +145,7 @@ export default function Chat() {
         // console.log(response.data.conversation);
         console.log(response.data.message);
         if (response.data.success) {
-          const convData = response.data.data;   // Assuming conversation info here
+          const convData = response.data.conversation;   // Assuming conversation info here
           const rawMessages = response.data.messages || [];
           const rawMessages2 = response.data.messages[0] || [];    // messages from backend
           console.log(rawMessages);
@@ -158,8 +158,8 @@ export default function Chat() {
               : new Date();
 
           const newChatSession: ChatSession = {
-            chatSession_id: rawMessages2.chatSession_id,
-            participantName: rawMessages2.participantName || "Customer", // You must supply this or fetch separately
+            chatSession_id: convData.chatSession_id,
+            participantName: convData.customer_username || "hi", // You must supply this or fetch separately
             messages: messages,
             isOpen: true,
             user_id: rawMessages2.sender_id || 0,    // you must get this from backend or from auth context
@@ -207,14 +207,15 @@ export default function Chat() {
 
   const getChatPosition = useCallback((index: number) => {
     return {
-      // top:100,
-      bottom: -500,
+      // top:200,
+      bottom: 20,
       right: 20 + (index * 340), // 340px = width + margin
     };
   }, []);
 
-  const handleCloseChat = useCallback((chatId: number) => {
-    // setOpenChats(prev => prev.filter(id => id !== chatId));
+  const handleCloseChat = useCallback((chatSession_id: number) => {
+    setOpenChats(prev => prev.filter(id => id !== chatSession_id));
+    setChatSessions(prev => prev.filter(chatSession_id => chatSession_id !== chatSession_id));
   }, []);
 
   const handleStatusChange = async (request_id: number, customer_id: number, newStatus: 'accepted' | 'rejected') => {
@@ -407,17 +408,18 @@ export default function Chat() {
         {openChatSessions
           .filter((chat) => {
             const isOpen = openChats.includes(chat.chatSession_id);
-            console.log(`Checking chat ${chat.chatSession_id}, isOpen: ${isOpen}`);
+            // console.log(`Checking chat ${chat.chatSession_id}, isOpen: ${isOpen}`);
             return isOpen;
           })
           .map((chat, index) => {
-            console.log("Rendering ChatWindow for:", chat);
+            // console.log("Rendering ChatWindow for:", chat);
             return (
               <ChatWindow
                 // key={chat.chatSession_id}
                 chat={openChatSessions[0]}
-                position={{ bottom: 100, right: 100 }}
-                onClose={() => console.log("Closed")}
+                // position={{ bottom: 100, right: 100 }}
+                position={getChatPosition(index)}
+                onClose={() => handleCloseChat(chat.chatSession_id)}
               />
             );
           })}
