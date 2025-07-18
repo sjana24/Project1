@@ -1,38 +1,18 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// import { ChatSession, Message } from '@/types/chat';
+import { ChatSession, Message } from '@/types/chat';
 
-export interface Message {
-  message_id: number;
-  text: string;
-  sender: 'user' | 'other';
-  timestamp: Date;
-  chatId: string;
-}
-
-export interface ChatSession {
-  chatSession_id: number;
-  participantName: string;
-  messages: Message[];
-  isOpen: boolean;
-  user_id:number;
-  sender_id:number;
-  lastActivity: Date;
-}
 interface ChatWindowProps {
   chat: ChatSession;
   onClose: () => void;
-  // onSendMessage: (chatId: number, message: string) => void;
   position: { bottom: number; right: number };
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   chat,
   onClose,
-  // onSendMessage,
   position,
 }) => {
   const [newMessage, setNewMessage] = useState('');
@@ -51,7 +31,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      // onSendMessage(chat.id, newMessage.trim());
+      // Add your send logic here
       setNewMessage('');
     }
   };
@@ -61,6 +41,37 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const renderMessage = (message: Message) => {
+    const isUser = message.sender_id === chat.user_id;
+
+    return (
+      <div
+        key={message.message_id}
+        className={`mb-4 flex ${isUser ? 'justify-end' : 'justify-start'}`}
+      >
+        <div
+          className={`max-w-xs px-4 py-3 rounded-2xl text-sm ${
+            isUser
+              ? 'bg-blue-500 text-white rounded-br-md'
+              : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
+          }`}
+        >
+          <p>{message.message}</p>
+          <p
+            className={`text-xs mt-1 ${
+              isUser ? 'text-blue-100' : 'text-gray-400'
+            }`}
+          >
+            {new Date(message.sent_at).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -79,7 +90,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h3 className="font-semibold text-gray-900">{chat.sender_id}</h3>
+              <h3 className="font-semibold text-gray-900">{chat.participantName}</h3>
               <p className="text-xs text-gray-500">Online</p>
             </div>
           </div>
@@ -89,37 +100,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
-              Start a conversation with {chat.sender_id}
+              Start a conversation with {chat.participantName}
             </div>
           ) : (
-            chat.messages.map((message) => (
-              <div
-                key={message.message_id}
-                className={`mb-4 flex ${
-                  message.sender === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                <div
-                  className={`max-w-xs px-4 py-3 rounded-2xl text-sm ${
-                    message.sender === 'user'
-                      ? 'bg-blue-500 text-white rounded-br-md'
-                      : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
-                  }`}
-                >
-                  <p>{message.text}</p>
-                  <p
-                    className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-400'
-                    }`}
-                  >
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))
+            chat.messages.map(renderMessage)
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -160,7 +144,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {/* Desktop Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
           <div>
-            <h3 className="font-semibold text-gray-900">{chat.sender_id}</h3>
+            <h3 className="font-semibold text-gray-900">{chat.participantName}</h3>
             <p className="text-xs text-gray-500">Online</p>
           </div>
           <Button
@@ -177,37 +161,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
-              Start a conversation with {chat.sender_id}
+              Start a conversation with {chat.participantName}
             </div>
           ) : (
-            chat.messages.map((message) => (
-              <div
-                key={message.message_id}
-                className={`mb-3 flex ${
-                  message.sender === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                <div
-                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                    message.sender === 'user'
-                      ? 'bg-blue-500 text-white rounded-br-sm'
-                      : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'
-                  }`}
-                >
-                  <p>{message.text}</p>
-                  <p
-                    className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-400'
-                    }`}
-                  >
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))
+            chat.messages.map(renderMessage)
           )}
           <div ref={messagesEndRef} />
         </div>

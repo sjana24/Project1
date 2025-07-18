@@ -52,6 +52,7 @@ export interface Notification {
 
 //   interface Notification {
   notification_id: number;
+  sender_name:string;
   user_id: number;
   user_type: 'customer' | 'service_provider' | 'admin'; // based on your sample users
 //   title: string;
@@ -338,7 +339,7 @@ const handleCloseChat = useCallback((chatId: number) => {
                                                         </p>
                                                         <p className="font-medium text-gray-900 text-sm">
                                                             
-                                                            {notification.sender_id}
+                                                            {notification.sender_name}
                                                         </p>
                                                         <p className="text-gray-600 text-sm mt-1 break-words">
                                                             {notification.message}
