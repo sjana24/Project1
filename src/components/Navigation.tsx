@@ -52,6 +52,7 @@ export interface Notification {
 
   //   interface Notification {
   notification_id: number;
+  sender_name:string;
   user_id: number;
   user_type: 'customer' | 'service_provider' | 'admin'; // based on your sample users
   //   title: string;
@@ -268,6 +269,8 @@ const Navigation = () => {
   const handleCloseChat = useCallback((chatId: number) => {
     setOpenChats(prev => prev.filter(id => id !== chatId));
   }, []);
+
+
 
 
   const unreadCount = notifications.length;
