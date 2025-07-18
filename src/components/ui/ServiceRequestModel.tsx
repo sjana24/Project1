@@ -1,9 +1,27 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+interface Service {
+  service_id: number;
+  provider_id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  // specifications: string;
+  /// rating add pannale
+  images: string; // this is a JSON string (array in string)
+  is_approved: number;
+  created_at: string;
+  updated_at: string;
+  // success?: boolean;
+
+
+
+}
 const provinces = [
   { value: "Central", label: "Central Province" },
   { value: "Eastern", label: "Eastern Province" },
@@ -32,9 +50,10 @@ interface ServiceRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (formData: any) => void;
+  selectedService: String;
 }
 
-const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, onSubmit,selectedService }) => {
   const [formData, setFormData] = useState<any>({
     fullName: "",
     phone: "",
@@ -56,6 +75,11 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
     preferredDate: "",
     preferredTime: "",
   });
+  //  useEffect(() => {
+  //   console.log(selectedService.category);
+        
+
+  // });
 
   const [errors, setErrors] = useState<any>({});
 
@@ -75,6 +99,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
 
   const handleSubmit = () => {
     const validationErrors = validate();
+    // console.log(selectedService[0].category);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -160,7 +185,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
           </div>
 
-          <div>
+          {/* <div>
             <label className="block mb-1 text-sm font-medium">Service Type *</label>
             <Select value={formData.serviceType} onValueChange={v => handleChange("serviceType", v)}>
               <SelectTrigger><SelectValue placeholder="Select Service Type" /></SelectTrigger>
@@ -170,9 +195,9 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
                 <SelectItem value="maintenance">Maintenance</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
-          {formData.serviceType === "installation" && (
+        {selectedService === "installation" && (
             <>
               <div>
                 <label className="block mb-1 text-sm font-medium">Roof Type</label>
@@ -189,7 +214,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             </>
           )}
 
-          {formData.serviceType === "relocation" && (
+       {selectedService  === "relocation" && (
             <>
               <div>
                 <label className="block mb-1 text-sm font-medium">Current Address</label>
@@ -202,7 +227,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             </>
           )}
 
-          {formData.serviceType === "maintenance" && (
+       {selectedService === "maintenance" && (
             <div>
               <label className="block mb-1 text-sm font-medium">Describe the issue</label>
               <Textarea placeholder="Describe the issue" value={formData.problem} onChange={e => handleChange("problem", e.target.value)} />
