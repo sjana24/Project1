@@ -97,9 +97,10 @@ const Contact = () => {
                 <CardContent className="space-y-6">
                   {contactInfo.map((info, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <info.icon className="h-5 w-5 text-primary" />
-                      </div>
+                      <div className="w-10 h-10 rounded-lg bg-[#26B170]/10 flex items-center justify-center flex-shrink-0">
+  <info.icon className="h-5 w-5 text-[#26B170]" />
+</div>
+
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">{info.title}</h3>
                         <p className="text-sm text-muted-foreground mb-2">{info.description}</p>
@@ -221,7 +222,7 @@ const Contact = () => {
                       <p className="text-sm text-muted-foreground">
                         * Required fields
                       </p>
-                      <Button type="submit" className="solar-gradient text-white">
+                      <Button type="submit" className="bg-[#26B170] text-white hover:bg-[#26B170]">
                         <Send className="mr-2 h-4 w-4" />
                         Send Message
                       </Button>

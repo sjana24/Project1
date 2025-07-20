@@ -240,7 +240,9 @@ const Services = () => {
           return a.name.localeCompare(b.name);
       }
     });
+
   const handleServiceClick = async (service: any) => {
+
 
     if (!currentUser) {
       toast({
@@ -449,15 +451,17 @@ const Services = () => {
                     </div>
 
                     <div className="  flex flex-col sm:flex-row gap-6 justify-center">
+
                       <Button size="lg"
                         className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
                         onClick={() => handleServiceClick(service)}
-                      >
 
+                      >
                         Request Service
                       </Button>
+
                       <Button size="lg"
-                        className="  w-full  text-white group-hover:scale-105 transition-transform"
+                        className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
                         onClick={() => handleSendRequestContact(service)}
                       >
 

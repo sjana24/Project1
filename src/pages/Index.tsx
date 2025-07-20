@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
 
 const Index = () => {
     const location = useLocation();
-      const { name, email } = location.state || {};
+    const { name, email } = location.state || {};
     //   {name && <h2>Welcome, {name}!</h2>}
 
 
@@ -45,29 +45,33 @@ const Index = () => {
             <Navigation />
             {/* Hero Section */}
             <section className="relative py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/solar-bg1.jpg')] bg-cover bg-center opacity-70" />
+                <div className="absolute inset-0 bg-[url('/solax.png')] bg-cover bg-center opacity-50" />
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="animate-fade-in">
                             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6">
                                 Power Your Future with
-                                <span className="block text-primary">Solar Energy</span>
+                                <span className="block text-[#205072]">Solar Energy</span>
                             </h1>
-                            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                            <p className="text-xl text-black mb-8 max-w-2xl mx-auto">
                                 Discover trusted solar products, connect with certified professionals,
                                 and join the renewable energy revolution. Your sustainable future starts here.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link to="/products">
-                                    <Button size="lg" className="solar-gradient text-white hover:scale-105 transition-transform">
+                                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
                                         Explore Products
-
                                     </Button>
                                 </Link>
                                 <Link to="/services">
-                                    <Button size="lg" variant="outline" className="hover:scale-105 transition-transform">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white transition-transform hover:scale-105"
+                                    >
                                         Find Services
                                     </Button>
+
                                 </Link>
                             </div>
                         </div>
@@ -80,7 +84,7 @@ const Index = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.number}</div>
+                                <div className="text-3xl md:text-4xl font-bold text-[hsl(170,100%,35%)] mb-2">{stat.number}</div>
                                 <div className="text-muted-foreground">{stat.label}</div>
                             </div>
                         ))}
@@ -92,7 +96,7 @@ const Index = () => {
             {/* CTA Section */}
             <section className="py-20">
                 <div className="container mx-auto px-4">
-                    <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-12 text-center">
+                    <div className="bg-gradient-to-r from-blue-100 to-green-100 rounded-3xl p-12 text-center">
                         <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
                             Ready to Go Solar?
                         </h2>
@@ -102,14 +106,18 @@ const Index = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link to="/contact">
-                                <Button size="lg" className="solar-gradient text-white hover:scale-105 transition-transform">
+                                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
                                     Get Free Consultation
                                     {/* <CheckCircle className="ml-2 h-5 w-5" /> */}
                                 </Button>
                             </Link>
                             {/* {!(user)?( */}
                             <Link to="/login">
-                                <Button size="lg" variant="outline" className="hover:scale-105 transition-transform">
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    className="text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white transition-transform hover:scale-105"
+                                >
                                     Create Account
                                 </Button>
                             </Link>
@@ -118,7 +126,7 @@ const Index = () => {
                     </div>
                 </div>
             </section>
-            <Footer/>
+            <Footer />
         </div>
 
 
