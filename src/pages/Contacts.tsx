@@ -9,6 +9,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -20,12 +21,38 @@ const Contact = () => {
   });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-    });
+
+    // const $responce=await axios
+    try {
+      const res = await axios.post("http://localhost/Git/Project1/Backend/ContactUsCustomer.php", formData, { withCredentials: true });
+
+      if (res.data.success) {
+        console.log("messge send successful ");
+        toast({
+          title: "Message Sent!",
+          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        });
+
+        console.log(res.data);
+      }
+      else {
+        console.log(res.data);
+       toast({
+          title: "Message Sent!",
+          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+          variant:"destructive",
+        });
+        console.log(" error in send message"); // show error message from PHP
+
+      }
+    } catch (err) {
+      console.error("Error login user:", err);
+    } finally {
+      
+    }
+
     setFormData({ name: "", email: "", subject: "", category: "", message: "" });
   };
 
@@ -60,6 +87,7 @@ const Contact = () => {
     }
   ];
 
+
   const categories = [
     "General Inquiry",
     "Product Support",
@@ -72,7 +100,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      
+
       <div className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -98,8 +126,8 @@ const Contact = () => {
                   {contactInfo.map((info, index) => (
                     <div key={index} className="flex items-start space-x-4">
                       <div className="w-10 h-10 rounded-lg bg-[#26B170]/10 flex items-center justify-center flex-shrink-0">
-  <info.icon className="h-5 w-5 text-[#26B170]" />
-</div>
+                        <info.icon className="h-5 w-5 text-[#26B170]" />
+                      </div>
 
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">{info.title}</h3>

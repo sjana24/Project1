@@ -293,8 +293,7 @@ const Navigation = () => {
     setOpenChats(prev => prev.filter(id => id !== chatId));
   }, []);
 
-                            </p>
-                            <p className="font-medium text-gray-900 text-sm">
+                
 
   const unreadCount = notifications.length;
   // const addToCartItems = items.length;
@@ -463,23 +462,23 @@ const Navigation = () => {
             </>
           )
           }
-          {openChatSessions.map((chat, index) => (
-            // <h1> hi buddy
+          {/* {openChatSessions.map((chat, index) => ( */}
+            {/* // <h1> hi buddy */}
             //    {/* ${console.log("hiii");} */}
 
-            // </h1>
+            {/* // </h1> */}
 
-            <ChatWindow
-              key={chat.chatSession_id}
-              chat={chat}
-              //    o}
-              //   onSendMessage={handleSendMessage}
-              //   position={getChatPosition(index)}
-              onClose={() => handleCloseChat(chat.chatSession_id)}
-              //   onSendMessage={handleSendMessage}
-              position={getChatPosition(index)}
-            />
-          ))}
+            {/* // <ChatWindow */}
+            {/* //   key={chat.chatSession_id} */}
+            {/* //   // chat={chat} */}
+            {/* //   //    o} */}
+            {/* //   //   onSendMessage={handleSendMessage} */}
+            {/* //   //   position={getChatPosition(index)} */}
+            {/* //   onClose={() => handleCloseChat(chat.chatSession_id)} */}
+            {/* //   //   onSendMessage={handleSendMessage} */}
+            {/* //   position={getChatPosition(index)} */}
+            {/* // /> */}
+          {/* // ))} */}
           {/* Mobile Navigation */}
           {(currentUser) ? (<>
             <div className="md:hidden">
@@ -550,7 +549,5 @@ const Navigation = () => {
       </div>
     </nav>
   );
-
-
-}
+};
 export default Navigation;
