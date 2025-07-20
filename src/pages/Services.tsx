@@ -315,7 +315,7 @@ const Services = () => {
     //   // console.log("Response:", response.data);
     // 
     try {
-      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php", { "userDate": formData, "serviceData": servicesA }, { withCredentials: true });
+      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php", { "userData": formData, "serviceData": servicesA }, { withCredentials: true });
       // console.log("Login successful:");
       // navigate("/");
 
