@@ -3,16 +3,37 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useEffect,useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "react-router-dom";
 
-
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 
 
 const Index = () => {
     const location = useLocation();
-    const { name, email } = location.state || {};
+
+    const {checkSession} =useAuth();
+      const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+      const { name, email } = location.state || {};
+
     //   {name && <h2>Welcome, {name}!</h2>}
 
+    useEffect(() => {
+        const fetchUser = async () => {
+          const user = await checkSession();
+          setCurrentUser(user);
+        };
+    
+        if (!currentUser) {
+          fetchUser();
+        }
+      }, [currentUser, checkSession]);
 
     const testimonials = [
         {
@@ -105,13 +126,15 @@ const Index = () => {
                             Start your solar journey today.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link to="/contact">
-                                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
+
+                            <Link to="/contacts">
+                                <Button size="lg" className="solar-gradient text-white hover:scale-105 transition-transform">
+
                                     Get Free Consultation
                                     {/* <CheckCircle className="ml-2 h-5 w-5" /> */}
                                 </Button>
                             </Link>
-                            {/* {!(user)?( */}
+                            {!(currentUser)?(
                             <Link to="/login">
                                 <Button
                                     size="lg"
@@ -121,7 +144,7 @@ const Index = () => {
                                     Create Account
                                 </Button>
                             </Link>
-                            {/* ):(<></>)} */}
+                              ):(null)} 
                         </div>
                     </div>
                 </div>
