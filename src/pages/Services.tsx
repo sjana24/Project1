@@ -30,7 +30,7 @@ interface Service {
   // specifications: string;
   /// rating add pannale
   rating:number;
-  profile_image:string;
+  company_image:string;
   images: string; // this is a JSON string (array in string)
   is_approved: number;
   created_at: string;
@@ -400,7 +400,9 @@ const Services = () => {
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         {/*  */}
-                        <img src={service.profile_image} alt={service.provider_name} className="h-full rounded-lg w-full text-primary" />
+                        <img 
+                        src={`http://localhost/Git/Project1/Backend/${service.company_image.split(',')[0]}`}
+                        alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
                       </div>
                       <div>
                         <CardTitle className="text-xl">{service.company_name}</CardTitle>

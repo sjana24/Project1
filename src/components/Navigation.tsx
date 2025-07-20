@@ -464,7 +464,7 @@ const Navigation = () => {
           }
           {/* {openChatSessions.map((chat, index) => ( */}
             {/* // <h1> hi buddy */}
-            //    {/* ${console.log("hiii");} */}
+               {/* ${console.log("hiii");} */}
 
             {/* // </h1> */}
 

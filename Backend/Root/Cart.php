@@ -18,7 +18,7 @@ class Cart
         try {
             // $sql = "SELECT * FROM ";
             // $sql = " SELECT ci.item_id, ci.cart_id, ci.product_id, ci.quantity, ci.added_at FROM cart_item ci INNER JOIN cart c ON ci.cart_id = c.cart_id WHERE c.customer_id = ?";
-                $sql = "SELECT  ci.item_id,  ci.cart_id, ci.product_id, p.name AS product_name, p.price AS unit_price, ci.quantity, (ci.quantity * p.price) AS total_price,ci.added_at
+                $sql = "SELECT  ci.item_id,  ci.cart_id, ci.product_id, p.name AS product_name, p.price AS unit_price,p.images AS images, ci.quantity, (ci.quantity * p.price) AS total_price,ci.added_at
                 FROM cart_item ci
                 INNER JOIN cart c ON ci.cart_id = c.cart_id
                 INNER JOIN product p ON ci.product_id = p.product_id
