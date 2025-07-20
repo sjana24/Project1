@@ -239,7 +239,13 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             <Input type="date" value={formData.preferredDate} onChange={e => handleChange("preferredDate", e.target.value)} />
           </div>
 
-          <Button className="w-full mt-4" onClick={handleSubmit}>Submit Request</Button>
+          <Button
+            onClick={handleSubmit}
+            className="w-full mt-6 bg-[#26B170] text-white font-semibold py-2 px-4 rounded"
+          >
+            Submit Request
+          </Button>
+
         </div>
       </div>
     </div>

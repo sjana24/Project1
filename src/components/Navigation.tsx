@@ -3,7 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
+
 import { User, ShoppingCart, Bell, Menu, LogOut } from 'lucide-react';
+
 import { useAuth } from "@/contexts/AuthContext";
 import { ChatWindow } from "./ui/ChatWindow";
 import { useCartStore } from "@/store/useCartStore";
@@ -194,6 +196,7 @@ const Navigation = () => {
   //       chatId,
   //     };
   // });
+
   // const handleLogout = async () => {
   //   console.log("log out buddy");
   //   try {
@@ -209,6 +212,7 @@ const Navigation = () => {
   //     console.error("Logout failed:", err);
   //   }
   // };
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -227,6 +231,7 @@ const Navigation = () => {
     { path: "/", label: "Home" },
     { path: "/products", label: "Products" },
     { path: "/services", label: "Services" },
+
     { path: "/jobs", label: "Jobs" },
     { path: "/blogs", label: "Blogs" },
     { path: "/contacts", label: "Contact" },
@@ -237,6 +242,7 @@ const Navigation = () => {
 
     ...(currentUser ? [{ path: "", label: "Order" }] : []),
     // ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
+
     // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 
 
@@ -248,7 +254,9 @@ const Navigation = () => {
           key={item.path}
           to={item.path}
           className={`${mobile ? "block py-2 px-4" : "inline-block"
+
             } text-foreground hover:text-primary transition-colors duration-200 ${location.pathname === item.path ? "text-primary font-semibold" : ""
+
             }`}
           onClick={() => mobile && setIsOpen(false)}
         >
@@ -289,9 +297,11 @@ const Navigation = () => {
   }, []);
 
 
+
   const unreadCount = notifications.length;
   // const addToCartItems = items.length;
   return (
+
 
     <nav className="sticky top-0 z-50 glass-effect border-b">
       <div className="container mx-auto px-4">
@@ -302,6 +312,7 @@ const Navigation = () => {
 
           </Link>
           {/* Desktop Navigation */}
+
           <div className="hidden md:flex items-center space-x-8">
             <NavLinks />
           </div>
@@ -312,15 +323,18 @@ const Navigation = () => {
                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button ><ShoppingCart />
                   {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+
                       {cartCount > 9 ? '9+' : cartCount}
 
                     </span>
                   )}
 
                 </button></Link></span>
+
                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}><Bell />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
@@ -328,7 +342,9 @@ const Navigation = () => {
                 </button></span>
               </>
             ) : (
+
               null
+
             )}
             {isOpenNotify && (
               <div className="absolute right-20 top-full mt-2 w-80 sm:w-96 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
@@ -357,7 +373,9 @@ const Navigation = () => {
                             </p>
                             <p className="font-medium text-gray-900 text-sm">
 
+
                               {notification.sender_name}
+
                             </p>
                             <p className="text-gray-600 text-sm mt-1 break-words">
                               {notification.message}
@@ -368,11 +386,14 @@ const Navigation = () => {
                           </div>
                           <Button
                             size="sm"
+
                             className="w-full sm:w-auto   text-white px-3 py-1 text-xs"
+
                             onClick={() => handleNotificationView(notification)}
                           >
                             Open Chat
                           </Button>
+
                         </div>
                       </div>
                     ))
@@ -387,6 +408,7 @@ const Navigation = () => {
           {/* Desktop Actions */}
 
           {(currentUser) ? (
+
             <div className="hidden md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -425,16 +447,31 @@ const Navigation = () => {
               </DropdownMenu>
             </div>
 
+
             // <div className="hidden md:flex items-center space-x-4">
             //   <Link to="/customer/profile">
             //         <Button size="sm" className="solar-gradient text-white"  >
             //             Hi,{currentUser.customerName}
             //             {/*  user name want to add here */}
 
+
             //         </Button>
             //     </Link>
             // </div>
 
+
+          ) : (
+            <>
+              {!isLoginPage ?
+                <div className="hidden md:flex items-center space-x-4">
+                  <Link to="/login">
+                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
+
+                      <span>Login/Register</span>
+
+
+                    </Button>
+                  </Link>
 
           ) : (
             <>
@@ -479,13 +516,14 @@ const Navigation = () => {
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm">
+
                     <Menu className="h-4 w-4" />
+
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-64">
                   <div className="flex flex-col space-y-4 mt-8">
                     <NavLinks mobile />
-
 
                     <div className="pt-4 border-t space-y-2">
                       <Link to="/customer/profile">
@@ -495,6 +533,7 @@ const Navigation = () => {
 
                         </Button>
                       </Link>
+
                     </div>
 
                     <Button size="sm"
@@ -508,6 +547,7 @@ const Navigation = () => {
                       className="bg-white-300 text-black justify-start space-x-2">
                       <LogOut /><span >Logout</span>
                     </Button>
+
                   </div>
                 </SheetContent>
               </Sheet>
@@ -518,7 +558,9 @@ const Navigation = () => {
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm">
+
                       <Menu className="h-4 w-4" />
+
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="right" className="w-64">
