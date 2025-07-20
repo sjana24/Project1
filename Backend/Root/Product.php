@@ -25,40 +25,148 @@ class Product
 
 
 
+    // public function getAllProductsCustomer()
+    // {
+
+    //     try {
+    //         // $sql = "SELECT * FROM product ";
+    //         $sql = "SELECT * FROM product WHERE is_approved = :is_approved";
+    //         $stmt = $this->conn->prepare($sql);
+    //         $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+    //         $is_approved = 1;
+    //         // $stmt->bindParam(':is_approved', 1);
+    //         $stmt->execute();
+    //         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //         if ($products) {
+    //             return [
+    //                 'success' => true,
+    //                 'products' => $products,
+    //                 'message' => 'Products fetched successfully.'
+    //             ];
+    //         } else {
+    //             return [
+    //                 'success' => false,
+    //                 'message' => 'No products found.'
+    //             ];
+    //         }
+    //     } catch (PDOException $e) {
+    //         http_response_code(500);
+    //         echo json_encode(["message" => "failed get all products. " . $e->getMessage()]);
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Failed to fetch products. ' . $e->getMessage()
+    //         ];
+    //     }
+    // }
     public function getAllProductsCustomer()
-    {
+{
+    try {
+        $is_approved = 1;
 
-        try {
-            // $sql = "SELECT * FROM product ";
-            $sql = "SELECT * FROM product WHERE is_approved = :is_approved";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
-            $is_approved = 1;
-            // $stmt->bindParam(':is_approved', 1);
-            $stmt->execute();
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Fetch all approved products
+        // $sql = "SELECT * FROM product WHERE is_approved = :is_approved";
+        $sql="SELECT 
+    p.*, 
+    u.username AS provider_name
+FROM 
+    product p
+JOIN 
+    service_provider sp ON p.provider_id = sp.provider_id
+JOIN 
+    user u ON sp.user_id = u.user_id
+WHERE 
+    p.is_approved = :is_approved";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($products) {
-                return [
-                    'success' => true,
-                    'products' => $products,
-                    'message' => 'Products fetched successfully.'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No products found.'
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "failed get all products. " . $e->getMessage()]);
+        if ($products) {
+            foreach ($products as &$product) {
+    $product_id = $product['product_id'];
+
+    // Fetch individual reviews
+    $reviewSql = "
+        SELECT 
+            r.review_id,
+            r.customer_id,
+            r.rating,
+            r.comment,
+            r.created_at,
+            u.username AS reviewer_name
+        FROM review r
+        JOIN user u ON r.customer_id = u.user_id
+        WHERE r.product_id = :product_id
+        ORDER BY r.created_at DESC
+    ";
+    $reviewStmt = $this->conn->prepare($reviewSql);
+    $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+    $reviewStmt->execute();
+    $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch average rating
+    $avgRatingSql = "
+        SELECT ROUND(AVG(rating), 1) AS average_rating
+        FROM review
+        WHERE product_id = :product_id
+    ";
+    $avgStmt = $this->conn->prepare($avgRatingSql);
+    $avgStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+    $avgStmt->execute();
+    $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Attach to product array
+    $product['reviews'] = $reviews;
+    $product['average_rating'] = $avgRating['average_rating'] ?? null;
+}
+
+            // For each product, fetch its reviews and reviewer names
+            // foreach ($products as &$product) {
+            //     $product_id = $product['product_id'];
+
+            //     $reviewSql = "
+            //         SELECT 
+            //             r.review_id,
+            //             r.customer_id,
+            //             r.rating,
+                        // r.comment,
+            //             r.created_at,
+            //             u.username AS reviewer_name
+            //         FROM review r
+            //         JOIN user u ON r.customer_id = u.user_id
+            //         WHERE r.product_id = :product_id
+            //         ORDER BY r.created_at DESC
+            //     ";
+
+            //     $reviewStmt = $this->conn->prepare($reviewSql);
+            //     $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+            //     $reviewStmt->execute();
+            //     $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            //     $product['reviews'] = $reviews;
+            // }
+
+            return [
+                'success' => true,
+                'products' => $products,
+                'message' => 'Products with reviews fetched successfully.'
+            ];
+        } else {
             return [
                 'success' => false,
-                'message' => 'Failed to fetch products. ' . $e->getMessage()
+                'message' => 'No products found.'
             ];
         }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch products. ' . $e->getMessage()
+        ];
     }
+}
+
      public function getAllProductsAdmin()
     {
 

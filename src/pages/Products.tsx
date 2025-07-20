@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import { useNavigation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCartStore } from "@/store/useCartStore";
+import { Star } from "lucide-react";
 interface User {
   id: number;
   name: string;
@@ -26,6 +28,7 @@ interface Product {
   price: number;
   category: string;
   specifications: string;
+  average_rating:number;
   /// rating add pannale
   images: string; // this is a JSON string (array in string)
   is_approved: number;
@@ -49,7 +52,7 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(() => null);
   const { checkSession } = useAuth();
-   const { setCartItemsCount, updateCartCount,cartUpdated } = useCartStore();
+  const { setCartItemsCount, updateCartCount, cartUpdated } = useCartStore();
   const { triggerCartUpdate } = useCartStore();
   useEffect(() => {
     (async () => {
@@ -59,11 +62,11 @@ const Products = () => {
       }
     })();
   }, []);
-     useEffect(() => {
+  useEffect(() => {
 
     axios
       .get("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
-      withCredentials:true
+        withCredentials: true
       })
       .then((response) => {
         const data = response.data;
@@ -79,31 +82,31 @@ const Products = () => {
       .catch((err) => {
         console.error("Error fetching cart items:", err);
       });
-  }, [cartUpdated]); 
+  }, [cartUpdated]);
 
-    useEffect(() => {
-      axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
-        .then(response => {
-          const data = response.data;
-          if (response.data.success) {
-            console.log("data got");
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
 
-            setProducts(data.products);
-          }
-          else {
-            // setError('Failed to load products.');
-            console.log(response.data);
-            console.log(" sorry we cant get ur products");
-          }
-          setLoading(false);
-        })
+          setProducts(data.products);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur products");
+        }
+        setLoading(false);
+      })
 
-        .catch(err => {
-          setError('Something went wrong.');
-          setLoading(false);
-        });
+      .catch(err => {
+        setError('Something went wrong.');
+        setLoading(false);
+      });
 
-    }, []);
+  }, []);
 
   const filteredProducts = products
 
@@ -251,7 +254,11 @@ const Products = () => {
                       {product.description}
                     </CardDescription>
                     <div className="text-xs text-muted-foreground mt-2">
-
+                      <div className="flex items-center space-x-1">
+                        <Star size={20} className="text-yellow-500" />
+                        <span className="text-sm font-medium">{product.average_rating}</span>
+                        {/* </Star> */}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -347,10 +354,19 @@ const Products = () => {
               {/* Info Section */}
               <div className="w-full md:w-1/2 p-6 space-y-4 overflow-y-auto">
                 <h2 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h2>
-                <p className="text-sm text-muted-foreground">{selectedProduct.category}</p>
-
+                <Badge variant="default" className="mt-1 bg-blue-300">
+                          {/* {service.category} */}
+                    <p className="text-sm text-muted-foreground">{selectedProduct.category} </p>
+                        </Badge>
+                {/* <p className="text-sm text-muted-foreground">{selectedProduct.category} */}
+                  {/* <div className="flex items-center space-x-1"> */}
+                    {/* <Star size={20} className="text-yellow-500" /> */}
+                    {/* <span className="text-sm font-medium">{service.rating}</span> */}
+                    {/* </Star> */}
+                  {/* </div> */}
+                {/* </p> */}
                 <div className="text-gray-600 text-sm">
-                  <strong>Provider:</strong> Solar Lanka Solutions
+                  <strong>Provider:</strong> {selectedProduct.provider_name}
                 </div>
 
                 <p className="text-sm text-gray-700">{selectedProduct.description}</p>
@@ -379,6 +395,22 @@ const Products = () => {
                 {/* Reviews Section */}
                 <div className="pt-4 border-t">
                   <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
+
+                  <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
+                    {selectedProduct.reviews && selectedProduct.reviews.length > 0 ? (
+                      selectedProduct.reviews.map((review, index) => (
+                        <li key={index}>
+                          {"⭐".repeat(Math.floor(review.rating))}{"☆".repeat(5 - Math.floor(review.rating))} - “{review.comment}” – <i>{review.reviewer_name}</i>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No reviews yet.</li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* <div className="pt-4 border-t">
+                  <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
                   <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
                     <li>
                       ⭐⭐⭐⭐☆ - “Great performance even in cloudy weather.” – <i>Ayesha</i>
@@ -390,7 +422,7 @@ const Products = () => {
                       ⭐⭐⭐☆☆ - “Expected better packaging.” – <i>Dinuka</i>
                     </li>
                   </ul>
-                </div>
+                </div> */}
 
 
               </div>
