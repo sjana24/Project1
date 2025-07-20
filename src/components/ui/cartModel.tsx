@@ -36,18 +36,18 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                 <div className="fixed inset-0 bg-black opacity-30" />
 
 
-                    {/* Close Button */}
-                    <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Close Button */}
+                <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
 
-                        <div className="absolute top-3 right-3">
-                            <button
-                                onClick={onClose}
-                                className="text-gray-500 hover:text-gray-800 transition"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+                    <div className="absolute top-3 right-3">
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-800 transition"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
 
                     {/* Left: Item Details */}
                     <div className="lg:col-span-2 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
@@ -134,11 +134,14 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
 
                         <button
                             onClick={() => alert("Payment confirmed")}
-                            className="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded"
+                            className="w-full mt-6 bg-[#26B170] text-white font-semibold py-2 px-4 rounded"
                             disabled={!paymentMethod}
                         >
                             Confirm & Pay
                         </button>
+
+
+
                     </div>
                 </div>
             </div>

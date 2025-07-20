@@ -194,6 +194,7 @@ const Navigation = () => {
   //       chatId,
   //     };
   // });
+
   // const handleLogout = async () => {
   //   console.log("log out buddy");
   //   try {
@@ -227,6 +228,7 @@ const Navigation = () => {
     { path: "/", label: "Home" },
     { path: "/products", label: "Products" },
     { path: "/services", label: "Services" },
+
     { path: "/jobs", label: "Jobs" },
     { path: "/blogs", label: "Blogs" },
     { path: "/contacts", label: "Contact" },
@@ -237,6 +239,7 @@ const Navigation = () => {
 
     ...(currentUser ? [{ path: "", label: "Order" }] : []),
     // ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
+
     // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 
 
@@ -248,7 +251,9 @@ const Navigation = () => {
           key={item.path}
           to={item.path}
           className={`${mobile ? "block py-2 px-4" : "inline-block"
+
             } text-foreground hover:text-primary transition-colors duration-200 ${location.pathname === item.path ? "text-primary font-semibold" : ""
+
             }`}
           onClick={() => mobile && setIsOpen(false)}
         >
@@ -288,6 +293,8 @@ const Navigation = () => {
     setOpenChats(prev => prev.filter(id => id !== chatId));
   }, []);
 
+                            </p>
+                            <p className="font-medium text-gray-900 text-sm">
 
   const unreadCount = notifications.length;
   // const addToCartItems = items.length;

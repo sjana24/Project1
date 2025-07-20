@@ -272,7 +272,7 @@ const Products = () => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
+                      className="w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
                     >
                       Add to Cart
                     </Button>
@@ -386,7 +386,7 @@ const Products = () => {
             </div> */}
                   <Button
                     onClick={() => handleAddToCart(selectedProduct)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    className="bg-[#26B170] hover:bg-[#21965F] text-white"
                   >
                     Add to Cart
                   </Button>
