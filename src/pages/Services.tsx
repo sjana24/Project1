@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { X ,Star} from "lucide-react";
 import axios from "axios";
 import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,20 +21,50 @@ interface User {
 interface Service {
   service_id: number;
   provider_id: number;
+  provider_name: string;
+  company_name:string;
   name: string;
   description: string;
   price: number;
   category: string;
   // specifications: string;
   /// rating add pannale
+  rating:number;
   images: string; // this is a JSON string (array in string)
   is_approved: number;
   created_at: string;
   updated_at: string;
+  reviews:string[];
   // success?: boolean;
 
 
 
+}
+interface SelectedServices {
+  address: string;
+  battery: string;
+  capacity: string;
+  city: string;
+  email: string;
+  fullName: string;
+  locationLink: string;
+  newAddress: string;
+  oldAddress: string;
+  phone: string;
+  preferredDate: string;
+  preferredTime: string;
+  problem: string;
+  province: string;
+  roofHeight: string;
+  roofSize: string;
+  roofType: string;
+  serviceType: "installation" | "relocate";
+  zip: string;
+}
+interface formData {
+  message: string;
+  phoneNumber: string;
+  preferredDate: string;
 }
 
 
@@ -42,10 +73,14 @@ const Services = () => {
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [typeService, setTypeservice] = useState("");
   // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [currentUser, setCurrentUser] = useState<User | null>(() => null);
   const [services, setServices] = useState<Service[]>([]);
+  const [servicesA, setServicesA] = useState<Service[]>([]);
+  const [selectedServices, setSelectedServices] = useState<SelectedServices[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
+  const [selectedFormData, setSelectedFormData] = useState<formData[]>([]);
 
   const { checkSession } = useAuth();
   useEffect(() => {
@@ -205,7 +240,9 @@ const Services = () => {
           return a.name.localeCompare(b.name);
       }
     });
-  const handleServiceClick = async () => {
+
+  const handleServiceClick = async (service: any) => {
+
 
     if (!currentUser) {
       toast({
@@ -218,14 +255,16 @@ const Services = () => {
     else {
       // const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php");
       setIsModalOpen(true);
+      setTypeservice(service.category);
+      setServicesA(service);
 
     }
 
   }
-  const closeModel = () => {
-    setIsModalOpen(false);
-    // setSelectedProduct(null);
-  };
+  // const closeModel = () => {
+  //   setIsModalOpen(false);
+  //   // setSelectedProduct(null);
+  // };
   const handleSendRequestContact = async (service: any) => {
 
     if (!currentUser) {
@@ -265,13 +304,20 @@ const Services = () => {
     }
     // setIsModalOpen(false);
   }
-  const sendRequestToDb = async (formData: { message: string; phoneNumber: string; preferredDate: string }) => {
+  const sendRequestToDb = async (formData: any) => {
+    //  console.log(formData.message);
+    console.log(formData);
+    console.log(servicesA);
+    // console.log(formData.phoneNumber);
+    //  console.log(formData.preferredDate);
+    //  setSelectedServices(formData);
+
     // console.log(formData);
-    //  const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php",formData);
+    //  const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php",formData,serviceA,{w});
     //   // console.log("Response:", response.data);
     // 
     try {
-      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php", formData);
+      const response = await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php", { "userDate": formData, "serviceData": servicesA }, { withCredentials: true });
       // console.log("Login successful:");
       // navigate("/");
 
@@ -355,13 +401,19 @@ const Services = () => {
                         {/* <img src={service.img} className="h-full rounded-lg w-full text-primary" /> */}
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{service.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground font-medium">{service.provider_id}</p>
+                        <CardTitle className="text-xl">{service.company_name}</CardTitle>
+                        <p className="text-sm text-muted-foreground font-medium">{service.provider_name}</p>
+                        <div className="">
+                        <Badge variant="default" className="mt-1 bg-blue-300">
+                          {service.category}
+                        </Badge>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      {/*  */}
-                      <span className="text-sm font-medium">{service.price}</span>
+                      <Star size={20} className="text-yellow-500" />
+                      <span className="text-sm font-medium">{service.rating}</span>
+                      {/* </Star> */}
                     </div>
                   </div>
                   <CardDescription className="text-muted-foreground mb-4">
@@ -399,10 +451,11 @@ const Services = () => {
                     </div>
 
                     <div className="  flex flex-col sm:flex-row gap-6 justify-center">
-                      <Button
-                        size="lg"
-                        className="w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
-                        onClick={() => handleServiceClick()}
+
+                      <Button size="lg"
+                        className="w-full solar-gradient text-white group-hover:scale-105 transition-transform"
+                        onClick={() => handleServiceClick(service)}
+
                       >
                         Request Service
                       </Button>
@@ -458,6 +511,8 @@ const Services = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSubmit={sendRequestToDb}
+          selectedService={typeService}
+        // selectedService=ServiceA
         />
 
       </div>
