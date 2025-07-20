@@ -120,8 +120,8 @@ const Products = () => {
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
-        // case "rating":
-        //   return b.rating - a.rating;
+        case "rating":
+          return b.average_rating - a.average_rating;
         default:
           return a.name.localeCompare(b.name);
       }
