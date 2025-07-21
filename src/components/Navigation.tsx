@@ -242,7 +242,7 @@ const Navigation = () => {
     //{ path: "", label: "Q&A" },
 
 
-    ...(currentUser ? [{ path: "", label: "Order" }] : []),
+    ...(currentUser ? [{ path: "/orders", label: "Orders" }] : []),
     // ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
 
     // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
@@ -483,7 +483,7 @@ const Navigation = () => {
             )}
             </div>
           )}
-
+          
            {/* Mobile Navigation  */}
           {(currentUser) ? (
             <>
