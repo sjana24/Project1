@@ -387,14 +387,13 @@ const Navigation = () => {
                             </p>
                           </div>
                           <Button
-                            size="sm"
+  size="sm"
+  className="w-full sm:w-auto bg-[#26B170] hover:bg-[#21965F] text-white px-3 py-1 text-xs transition-colors"
+  onClick={() => handleNotificationView(notification)}
+>
+  Open Chat
+</Button>
 
-                            className="w-full sm:w-auto   text-white px-3 py-1 text-xs"
-
-                            onClick={() => handleNotificationView(notification)}
-                          >
-                            Open Chat
-                          </Button>
                         </div>
                       </div>
                     ))
