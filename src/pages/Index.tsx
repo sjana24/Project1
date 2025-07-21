@@ -80,16 +80,16 @@ const Index = () => {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link to="/products">
-                                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
-                                        Explore Products
-                                    </Button>
-                                </Link>
-                                <Link to="/services">
                                     <Button
                                         size="lg"
                                         variant="outline"
                                         className="text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white transition-transform hover:scale-105"
                                     >
+                                        Explore Products
+                                    </Button>
+                                </Link>
+                                <Link to="/services">
+                                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
                                         Find Services
                                     </Button>
 
@@ -128,19 +128,18 @@ const Index = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
                             <Link to="/contacts">
-                                <Button size="lg" className="solar-gradient text-white hover:scale-105 transition-transform">
-
+                                <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white transition-transform hover:scale-105"
+                                    >
                                     Get Free Consultation
                                     {/* <CheckCircle className="ml-2 h-5 w-5" /> */}
                                 </Button>
                             </Link>
                             {!(currentUser)?(
                             <Link to="/login">
-                                <Button
-                                    size="lg"
-                                    variant="outline"
-                                    className="text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white transition-transform hover:scale-105"
-                                >
+                                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-green-400 text-white hover:scale-105 transition-transform">
                                     Create Account
                                 </Button>
                             </Link>
