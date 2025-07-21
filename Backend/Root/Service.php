@@ -33,7 +33,8 @@ class Service
             $sql = "SELECT 
             s.*, 
             u.username AS provider_name,
-            sp.company_name AS company_name
+            sp.company_name AS company_name,
+            sp.profile_image AS company_image
             FROM 
             service s
             JOIN 

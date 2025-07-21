@@ -10,7 +10,7 @@ import { useCartStore } from "@/store/useCartStore";
 
 export interface item {
     item_id: number,
-    image: string;
+    images: string;
     name: string;
     price: number;
     productId: number;
@@ -167,7 +167,8 @@ const CartPage = () => {
                                     />
 
                                     <img
-                                        src={item.image}
+                                        // src={item.image}
+                                        src={`http://localhost/Git/Project1/Backend/${item.images}`}
                                         alt={item.name}
                                         className="w-24 h-24 object-cover rounded-lg"
                                     />

@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 import { User, ShoppingCart, Bell, Menu, LogOut } from 'lucide-react';
 
+
+
 import { useAuth } from "@/contexts/AuthContext";
 import { ChatWindow } from "./ui/ChatWindow";
 import { useCartStore } from "@/store/useCartStore";
@@ -312,7 +314,6 @@ const Navigation = () => {
 
           </Link>
           {/* Desktop Navigation */}
-
           <div className="hidden md:flex items-center space-x-8">
             <NavLinks />
           </div>
@@ -393,7 +394,6 @@ const Navigation = () => {
                           >
                             Open Chat
                           </Button>
-
                         </div>
                       </div>
                     ))
@@ -493,23 +493,23 @@ const Navigation = () => {
             </>
           )
           }
-          {openChatSessions.map((chat, index) => (
-            // <h1> hi buddy
-            //    {/* ${console.log("hiii");} */}
+          {/* {openChatSessions.map((chat, index) => ( */}
+            {/* // <h1> hi buddy */}
+               {/* ${console.log("hiii");} */}
 
-            // </h1>
+            {/* // </h1> */}
 
-            <ChatWindow
-              key={chat.chatSession_id}
-              chat={chat}
-              //    o}
-              //   onSendMessage={handleSendMessage}
-              //   position={getChatPosition(index)}
-              onClose={() => handleCloseChat(chat.chatSession_id)}
-              //   onSendMessage={handleSendMessage}
-              position={getChatPosition(index)}
-            />
-          ))}
+            {/* // <ChatWindow */}
+            {/* //   key={chat.chatSession_id} */}
+            {/* //   // chat={chat} */}
+            {/* //   //    o} */}
+            {/* //   //   onSendMessage={handleSendMessage} */}
+            {/* //   //   position={getChatPosition(index)} */}
+            {/* //   onClose={() => handleCloseChat(chat.chatSession_id)} */}
+            {/* //   //   onSendMessage={handleSendMessage} */}
+            {/* //   position={getChatPosition(index)} */}
+            {/* // /> */}
+          {/* // ))} */}
           {/* Mobile Navigation */}
           {(currentUser) ? (<>
             <div className="md:hidden">
@@ -525,6 +525,7 @@ const Navigation = () => {
                   <div className="flex flex-col space-y-4 mt-8">
                     <NavLinks mobile />
 
+
                     <div className="pt-4 border-t space-y-2">
                       <Link to="/customer/profile">
                         <Button size="sm" className="solar-gradient text-white"  >
@@ -533,7 +534,6 @@ const Navigation = () => {
 
                         </Button>
                       </Link>
-
                     </div>
 
                     <Button size="sm"
@@ -585,7 +585,5 @@ const Navigation = () => {
       </div>
     </nav>
   );
-
-
-}
+};
 export default Navigation;
