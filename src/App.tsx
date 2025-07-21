@@ -34,8 +34,9 @@ import ProductProvider from "./pages/provider2/Products";
 import ServiceProvider from "./pages/provider2/Services";
 import AboutUs from "./pages/AboutUs";
 import PageNotFound from "./pages/PageNotFound";
-import Service_Request from "./pages/provider2/Service_request";
+import Service_Request from "./pages/provider2/Service_Request";
 import Chat from "./pages/provider2/Chat";
+import Orders from "./pages/Orders";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/cartpage" element={<CartPage />} />
             <Route path="/customer/profile" element={<DashboardCustomer />} />
+            <Route path="/orders" element={<Orders />} />
 
             {/* <ProtectedRoute allowedRoles={['admin']}>
       <AdminLayout>

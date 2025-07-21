@@ -39,10 +39,10 @@ const Contact = () => {
       }
       else {
         console.log(res.data);
-       toast({
+        toast({
           title: "Message Sent!",
           description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-          variant:"destructive",
+          variant: "destructive",
         });
         console.log(" error in send message"); // show error message from PHP
 
@@ -50,7 +50,7 @@ const Contact = () => {
     } catch (err) {
       console.error("Error login user:", err);
     } finally {
-      
+
     }
 
     setFormData({ name: "", email: "", subject: "", category: "", message: "" });
@@ -206,7 +206,9 @@ const Contact = () => {
                           Category *
                         </label>
                         <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-                          <SelectTrigger>
+                          <SelectTrigger
+                            className="border border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 rounded-md"
+                          >
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                           <SelectContent>
@@ -243,7 +245,9 @@ const Contact = () => {
                         value={formData.message}
                         onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                         required
+                        className="focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                       />
+
                     </div>
 
                     <div className="flex items-center justify-between">
