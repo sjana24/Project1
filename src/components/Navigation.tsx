@@ -347,6 +347,7 @@ const Navigation = () => {
               null
 
             )}
+
             {isOpenNotify && (
               <div className="absolute right-20 top-full mt-2 w-80 sm:w-96 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
                 <div className="p-4 border-b border-gray-100">
@@ -408,7 +409,7 @@ const Navigation = () => {
           {/* Desktop Actions */}
 
           {(currentUser) ? (
-
+            <>
             <div className="hidden md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -446,23 +447,10 @@ const Navigation = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-
-            // <div className="hidden md:flex items-center space-x-4">
-            //   <Link to="/customer/profile">
-            //         <Button size="sm" className="solar-gradient text-white"  >
-            //             Hi,{currentUser.customerName}
-            //             {/*  user name want to add here */}
-
-
-            //         </Button>
-            //     </Link>
-            // </div>
-
-
+            </>
           ) : (
-            <>
-              {!isLoginPage ?
+            <div>
+            {!isLoginPage ?(
                 <div className="hidden md:flex items-center space-x-4">
                   <Link to="/login">
                     <Button variant="outline" size="sm" className="flex items-center space-x-2">
@@ -472,10 +460,10 @@ const Navigation = () => {
 
                     </Button>
                   </Link>
-
-          ) : (
-            <>
-              {!isLoginPage ?
+                </div>     
+            ):(
+              <>
+              {!isLoginPage ?(
                 <div className="hidden md:flex items-center space-x-4">
                   <Link to="/login">
                     <Button variant="outline" size="sm" className="flex items-center space-x-2">
@@ -487,31 +475,18 @@ const Navigation = () => {
                   </Link>
 
                 </div>
-                :
+              ):(
                 <div className="hidden md:flex items-center space-x-4">
-                </div>}
-            </>
-          )
-          }
-          {/* {openChatSessions.map((chat, index) => ( */}
-            {/* // <h1> hi buddy */}
-               {/* ${console.log("hiii");} */}
+                </div>
+              )}
+              </>
+            )}
+            </div>
+          )}
 
-            {/* // </h1> */}
-
-            {/* // <ChatWindow */}
-            {/* //   key={chat.chatSession_id} */}
-            {/* //   // chat={chat} */}
-            {/* //   //    o} */}
-            {/* //   //   onSendMessage={handleSendMessage} */}
-            {/* //   //   position={getChatPosition(index)} */}
-            {/* //   onClose={() => handleCloseChat(chat.chatSession_id)} */}
-            {/* //   //   onSendMessage={handleSendMessage} */}
-            {/* //   position={getChatPosition(index)} */}
-            {/* // /> */}
-          {/* // ))} */}
-          {/* Mobile Navigation */}
-          {(currentUser) ? (<>
+           {/* Mobile Navigation  */}
+          {(currentUser) ? (
+            <>
             <div className="md:hidden">
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
@@ -552,7 +527,8 @@ const Navigation = () => {
                 </SheetContent>
               </Sheet>
             </div>
-          </>) : (
+            </>
+          ) : (
             <>
               <div className="md:hidden">
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -578,11 +554,14 @@ const Navigation = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-            </>)}
+            </>
+          )}
 
 
         </div>
-      </div>
+        
+        </div>
+      {/* </div> */}
     </nav>
   );
 };
