@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+
 import { useToast } from "@/hooks/use-toast";
 import { X ,Star} from "lucide-react";
 import axios from "axios";
@@ -27,6 +29,7 @@ interface Service {
   description: string;
   price: number;
   category: string;
+  average_rating: number;
   // specifications: string;
   /// rating add pannale
   rating:number;
@@ -83,6 +86,9 @@ const Services = () => {
   const [selectedServices, setSelectedServices] = useState<SelectedServices[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
   const [selectedFormData, setSelectedFormData] = useState<formData[]>([]);
+  const [selectedServiceReviews, setSelectedServiceReviews] = useState([]);
+const [selectedServiceName, setSelectedServiceName] = useState('');
+
 
   const { checkSession } = useAuth();
   useEffect(() => {
@@ -93,6 +99,7 @@ const Services = () => {
       }
     })();
   }, []);
+  
 
 
   const services1 = [
@@ -263,6 +270,17 @@ const Services = () => {
     }
 
   }
+  const handleViewReviews = async (serviceId: number, service:any) => {
+  try {
+    // const response = await fetch(`http://localhost/Git/Project1/Backend/get_reviews.php?service_id=${serviceId}`);
+    // const data = await response.json();
+    setSelectedServiceReviews(service.reviews); // assuming backend sends { reviews: [] }
+    setSelectedServiceName(service.name); // assuming service has a name property
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+  }
+};
+
   // const closeModel = () => {
   //   setIsModalOpen(false);
   //   // setSelectedProduct(null);
@@ -416,7 +434,7 @@ const Services = () => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star size={20} className="text-yellow-500" />
-                      <span className="text-sm font-medium">{service.rating}</span>
+                      <span className="text-sm font-medium">{service.average_rating}</span>
                       {/* </Star> */}
                     </div>
                   </div>
@@ -471,6 +489,36 @@ const Services = () => {
 
                         Request for Contact
                       </Button>
+                       <Dialog>
+  <DialogTrigger asChild>
+    <Button
+      variant="outline"
+      className="text-sm text-blue-600 hover:text-blue-800"
+      onClick={() => handleViewReviews(service.service_id, service)}
+    >
+      View Reviews
+    </Button>
+  </DialogTrigger>
+
+  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
+    </DialogHeader>
+
+    {selectedServiceReviews.length > 0 ? (
+      selectedServiceReviews.map((review, index) => (
+        <div key={index} className="border-b py-3">
+          <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
+          <p className="text-base">{review.comment}</p>
+        </div>
+      ))
+    ) : (
+      <p className="text-muted-foreground">No reviews available.</p>
+    )}
+  </DialogContent>
+</Dialog>
+                     
+
                     </div>
                   </div>
                 </CardContent>
@@ -520,6 +568,8 @@ const Services = () => {
         />
 
       </div>
+     
+
       <Footer />
     </div>
   );
