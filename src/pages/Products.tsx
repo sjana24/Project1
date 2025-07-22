@@ -28,7 +28,7 @@ interface Product {
   price: number;
   category: string;
   specifications: string;
-  average_rating:number;
+  average_rating: number;
   /// rating add pannale
   images: string; // this is a JSON string (array in string)
   is_approved: number;
@@ -255,10 +255,16 @@ const Products = () => {
                     </CardDescription>
                     <div className="text-xs text-muted-foreground mt-2">
                       <div className="flex items-center space-x-1">
-                        <Star size={20} className="text-yellow-500" />
-                        <span className="text-sm font-medium">{product.average_rating}</span>
-                        {/* </Star> */}
+                        {product.average_rating != null ? (
+                          <>
+                            <Star size={20} className="text-yellow-500" />
+                            <span className="text-sm font-medium">{product.average_rating}</span>
+                          </>
+                        ) : (
+                          <span className="text-sm font-medium">New Product</span>
+                        )}
                       </div>
+
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -355,15 +361,15 @@ const Products = () => {
               <div className="w-full md:w-1/2 p-6 space-y-4 overflow-y-auto">
                 <h2 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h2>
                 <Badge variant="default" className="mt-1 bg-blue-300">
-                          {/* {service.category} */}
-                    <p className="text-sm text-muted-foreground">{selectedProduct.category} </p>
-                        </Badge>
+                  {/* {service.category} */}
+                  <p className="text-sm text-muted-foreground">{selectedProduct.category} </p>
+                </Badge>
                 {/* <p className="text-sm text-muted-foreground">{selectedProduct.category} */}
-                  {/* <div className="flex items-center space-x-1"> */}
-                    {/* <Star size={20} className="text-yellow-500" /> */}
-                    {/* <span className="text-sm font-medium">{service.rating}</span> */}
-                    {/* </Star> */}
-                  {/* </div> */}
+                {/* <div className="flex items-center space-x-1"> */}
+                {/* <Star size={20} className="text-yellow-500" /> */}
+                {/* <span className="text-sm font-medium">{service.rating}</span> */}
+                {/* </Star> */}
+                {/* </div> */}
                 {/* </p> */}
                 <div className="text-gray-600 text-sm">
                   <strong>Provider:</strong> {selectedProduct.provider_name}
