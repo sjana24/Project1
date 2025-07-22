@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { useEffect,useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "react-router-dom";
+import { Sun, Zap, Users, BookOpen, MessageSquare, Briefcase, Star, ArrowRight, CheckCircle } from "lucide-react";
 
 interface User {
   id: number;
@@ -34,6 +35,44 @@ const Index = () => {
           fetchUser();
         }
       }, [currentUser, checkSession]);
+       const features = [
+    {
+      icon: Sun,
+      title: "Trusted Solar Products",
+      description: "High-quality solar panels, batteries, and inverters from certified manufacturers.",
+      link: "/products"
+    },
+    {
+      icon: Zap,
+      title: "Expert Services",
+      description: "Professional installation, maintenance, and consultation services.",
+      link: "/services"
+    },
+    {
+      icon: Users,
+      title: "Certified Agents",
+      description: "Connect with experienced solar energy professionals in your area.",
+      link: "/agents"
+    },
+    {
+      icon: BookOpen,
+      title: "Expert Blogs",
+      description: "Stay informed with the latest solar energy insights and trends.",
+      link: "/blog"
+    },
+    {
+      icon: MessageSquare,
+      title: "Q&A Forum",
+      description: "Get answers from solar experts and community members.",
+      link: "/forum"
+    },
+    {
+      icon: Briefcase,
+      title: "Career Opportunities",
+      description: "Explore exciting job opportunities in the solar energy industry.",
+      link: "/jobs"
+    }
+  ];
 
     const testimonials = [
         {
@@ -113,6 +152,44 @@ const Index = () => {
                 </div>
             </section>
 
+             {/* Features Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+              Everything You Need for Solar
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              From products to services, experts to community - we're your complete solar energy platform.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to={feature.link}>
+                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white transition-colors">
+                      Learn More
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
             {/* CTA Section */}
             <section className="py-20">
@@ -149,6 +226,7 @@ const Index = () => {
                     </div>
                 </div>
             </section>
+            
             <Footer />
         </div>
 

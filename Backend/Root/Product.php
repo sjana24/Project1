@@ -373,13 +373,13 @@ WHERE
         return $count > 0;
     }
 
-    public function addProduct($product_id, $provider_id, $name, $description, $price, $category, $images, $specifications)
+    public function addProduct( $provider_id, $name, $description, $price, $category, $images, $specifications)
     {
   
 
 
 
-        $this->product_id = $product_id;
+        // $this->product_id = $product_id;
         $this->provider_id = $provider_id;
         $this->name = $name;
         $this->description = $description;
@@ -401,19 +401,19 @@ WHERE
 
             try {
                 $sql = "INSERT INTO product (
-                    product_id, provider_id, name, description, price,
-                    category, images, specifications, is_approved, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+                     provider_id, name, description, price,
+                    category, images, specifications, created_at, updated_at
+                ) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
 
                 $stmt = $this->conn->prepare($sql);
 
                 // $created_at = date("Y-m-d H:i:s");
                 // $created_at = NOW();
                 // $updated_at = $created_at;
-                $is_approved = $this->is_approved ?? '1'; // fallback to 'pending' if not set
+                // $is_approved =  '0'; // fallback to 'pending' if not set
 
                 $stmt->execute([
-                    $this->product_id,
+                    // $this->product_id,
                     $this->provider_id,
                     $this->name,
                     $this->description,
@@ -422,7 +422,7 @@ WHERE
                     // $this->images,
                     implode(',', $this->images),
                     $this->specifications,
-                    $is_approved,
+                    // $is_approved,
                     // $created_at,
                     // $updated_at
                 ]);
