@@ -47,7 +47,46 @@ class Service
             $stmt->execute();
             $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($services) {
+             if ($services) {
+            foreach ($services as &$service) {
+    $service_id = $service['service_id'];
+
+    // Fetch individual reviews
+    $reviewSql = "
+        SELECT 
+            r.review_id,
+            r.customer_id,
+            r.rating,
+            r.comment,
+            r.created_at,
+            u.username AS reviewer_name
+        FROM service_review r
+        JOIN user u ON r.customer_id = u.user_id
+        WHERE r.service_id = :service_id
+        ORDER BY r.created_at DESC
+    ";
+    $reviewStmt = $this->conn->prepare($reviewSql);
+    $reviewStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+    $reviewStmt->execute();
+    $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch average rating
+    $avgRatingSql = "
+        SELECT ROUND(AVG(rating), 1) AS average_rating
+        FROM service_review
+        WHERE service_id = :service_id
+    ";
+    $avgStmt = $this->conn->prepare($avgRatingSql);
+    $avgStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+    $avgStmt->execute();
+    $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Attach to service array
+    $service['reviews'] = $reviews;
+    $service['average_rating'] = $avgRating['average_rating'] ?? null;
+}
+
+            
                 return [
                     'success' => true,
                     'services' => $services,
@@ -56,7 +95,7 @@ class Service
             } else {
                 return [
                     'success' => false,
-                    'message' => 'No products found.'
+                    'message' => 'No services found.'
                 ];
             }
         } catch (PDOException $e) {

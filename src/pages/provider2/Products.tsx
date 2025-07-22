@@ -21,6 +21,15 @@ export interface Product {
   is_approved:boolean;
   createdAt: string;
 }
+// export interface formData{
+//    product_id:number;
+//     name: string;
+//     description: string;
+//     price: number;
+//     category: '',
+//     specification: '',
+//     images: ,
+// }
 
 export default function Products() {
   // const { products, addProduct, updateProduct, deleteProduct } = useDashboardStore();
@@ -41,7 +50,7 @@ export default function Products() {
     price: 0,
     category: '',
     specification: '',
-    images: '',
+    images: [] as File[],
   });
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllProductProvider.php",
@@ -120,7 +129,7 @@ export default function Products() {
       price: 0,
       category: '',
       specification: '',
-      images: '',
+      images: [],
     });
     setEditingProduct(null);
     setIsModalOpen(false);
@@ -135,7 +144,12 @@ export default function Products() {
       price: product.price,
       category: product.category,
       specification: product.specification,
-      images: product.images,
+      images : [product.images],
+    //   images: Array.isArray(product.images)
+    // ? product.images
+    // : typeof product.images === 'string'
+    //   ? JSON.parse(product.images || '[]') // or .split(',') if it's comma-separated
+    //   : [],
     });
     setIsModalOpen(true);
   };
@@ -314,9 +328,10 @@ export default function Products() {
                   onChange={(e) => {
                     const files = e.target.files;
                     if (files) {
+                        const fileArray = Array.from(files);
                       // const imageArray = Array.from(files).map((file) => URL.createObjectURL(file));
-                      // setFormData({ ...formData, images:e.target.value});
-                      setSelectedImages(Array.from(files));
+                      setFormData({ ...formData, images:fileArray});
+                      setSelectedImages(fileArray);
                     }
                   }}
 
