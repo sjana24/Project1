@@ -179,11 +179,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             <Input placeholder="Google Map Link" value={formData.locationLink} onChange={e => handleChange("locationLink", e.target.value)} />
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
-            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
-          </div>
+          
 
           {/* <div>
             <label className="block mb-1 text-sm font-medium">Service Type *</label>
@@ -208,6 +204,11 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
                 <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
               </div>
               <div>
+            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
+            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
+            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+          </div>
+              <div>
                 <label className="block mb-1 text-sm font-medium">Preferred kW Capacity</label>
                 <Input placeholder="Capacity" value={formData.capacity} onChange={e => handleChange("capacity", e.target.value)} />
               </div>
@@ -221,9 +222,19 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
                 <Input placeholder="Current Address" value={formData.oldAddress} onChange={e => handleChange("oldAddress", e.target.value)} />
               </div>
               <div>
+            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) (Current Address)*</label>
+            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
+            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+          </div>
+              <div>
                 <label className="block mb-1 text-sm font-medium">New Address</label>
                 <Input placeholder="New Address" value={formData.newAddress} onChange={e => handleChange("newAddress", e.target.value)} />
               </div>
+              <div>
+            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m)(New Address) *</label>
+            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
+            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+          </div>
             </>
           )}
 
@@ -235,9 +246,15 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
           )}
 
           <div>
+             <div>
+            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
+            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
+            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+          </div>
             <label className="block mb-1 text-sm font-medium">Preferred Date</label>
             <Input type="date" value={formData.preferredDate} onChange={e => handleChange("preferredDate", e.target.value)} />
           </div>
+         
 
           <Button
             onClick={handleSubmit}
