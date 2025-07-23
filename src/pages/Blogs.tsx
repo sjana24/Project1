@@ -45,9 +45,8 @@ const mockBlogs = [
     readTime: 3,
     category: "lifestyle",
     tags: ["eco", "green", "living"],
-  }
+  },
   {
-    {
   id: 5,
   title: "Community Solar Projects: Powering Neighborhoods Together",
   excerpt: "Learn how community solar programs allow individuals to benefit from solar power without installing panels on their own homes.",
@@ -56,7 +55,6 @@ const mockBlogs = [
   readTime: 4,
   category: "community",
   tags: ["solar", "community", "home"],
-}
   }
 
 ];
