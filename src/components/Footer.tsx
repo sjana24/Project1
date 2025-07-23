@@ -37,16 +37,16 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
             <div className="space-y-2">
-              <Link to="/products" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/products" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Products
               </Link>
-              <Link to="/services" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/services" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Services
               </Link>
-              <Link to="/jobs" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/jobs" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Find Jobs
               </Link>
-              <Link to="/blogs" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/blogs" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Expert Blog
               </Link>
             </div>
@@ -56,13 +56,13 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Support</h3>
             <div className="space-y-2">
-              <Link to="/forum" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/forum" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Q&A Forum
               </Link>
-              <Link to="/contacts" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/contacts" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Contact Us
               </Link>
-              <Link to="/jobs" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/jobs" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Careers
               </Link>
              
