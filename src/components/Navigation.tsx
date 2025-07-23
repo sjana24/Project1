@@ -6,6 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 import { User, ShoppingCart, Bell, Menu, LogOut } from 'lucide-react';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+ DialogDescription,
+} from "@/components/ui/dialog";
 
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -82,6 +90,8 @@ const Navigation = () => {
   const [isOpenNotify, setIsOpenNotify] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   //  const [openChats, setOpenChats] = useState<string[]>([]);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   const cartCount = useCartStore((state) => state.cartCount);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -304,7 +314,7 @@ const Navigation = () => {
   // const addToCartItems = items.length;
   return (
 
-
+   <>
     <nav className="sticky top-0 z-50 glass-effect border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -387,12 +397,12 @@ const Navigation = () => {
                             </p>
                           </div>
                           <Button
-  size="sm"
-  className="w-full sm:w-auto bg-[#26B170] hover:bg-[#21965F] text-white px-3 py-1 text-xs transition-colors"
-  onClick={() => handleNotificationView(notification)}
->
-  Open Chat
-</Button>
+                            size="sm"
+                            className="w-full sm:w-auto bg-[#26B170] hover:bg-[#21965F] text-white px-3 py-1 text-xs transition-colors"
+                            onClick={() => handleNotificationView(notification)}
+                          >
+                            Open Chat
+                          </Button>
 
                         </div>
                       </div>
@@ -409,123 +419,123 @@ const Navigation = () => {
 
           {(currentUser) ? (
             <>
-            <div className="hidden md:block">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  asChild
-                // className="sm:pointer-events-none"
-                >
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      {/* You can add an avatar icon or initials here */}
-                      {/* <span className="text-white font-bold">{currentUser.name.charAt(0)}</span> */}
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="hidden md:inline-block text-sm font-medium">
-                      Hi, {currentUser.name}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate('/customer/profile')}>
-                    Edit Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      sessionStorage.removeItem("currentUser");
-                      logout();
-                      navigate("/");
-                      setCurrentUser(null);
-                    }}
-                    className="text-red-600"
+              <div className="hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    asChild
+                  // className="sm:pointer-events-none"
                   >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            </>
-          ) : (
-            <div>
-            {!isLoginPage ?(
-                <div className="hidden md:flex items-center space-x-4">
-                  <Link to="/login">
-                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
-
-                      <span>Login/Register</span>
-
-
+                    <Button variant="ghost" className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        {/* You can add an avatar icon or initials here */}
+                        {/* <span className="text-white font-bold">{currentUser.name.charAt(0)}</span> */}
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="hidden md:inline-block text-sm font-medium">
+                        Hi, {currentUser.name}
+                      </span>
                     </Button>
-                  </Link>
-                </div>     
-            ):(
-              <>
-              {!isLoginPage ?(
-                <div className="hidden md:flex items-center space-x-4">
-                  <Link to="/login">
-                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  </DropdownMenuTrigger>
 
-                      <span>Login/Register</span>
-
-
-                    </Button>
-                  </Link>
-
-                </div>
-              ):(
-                <div className="hidden md:flex items-center space-x-4">
-                </div>
-              )}
-              </>
-            )}
-            </div>
-          )}
-          
-           {/* Mobile Navigation  */}
-          {(currentUser) ? (
-            <>
-            <div className="md:hidden">
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-
-                    <Menu className="h-4 w-4" />
-
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-64">
-                  <div className="flex flex-col space-y-4 mt-8">
-                    <NavLinks mobile />
-
-
-                    <div className="pt-4 border-t space-y-2">
-                      <Link to="/customer/profile">
-                        <Button size="sm" className="solar-gradient text-white"  >
-                          Hi,{currentUser.name}
-
-
-                        </Button>
-                      </Link>
-                    </div>
-
-                    <Button size="sm"
-                      // onClick={logout}
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
+                      Edit Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
                       onClick={() => {
-                        // sessionStorage.removeItem("currentUser");
+                        sessionStorage.removeItem("currentUser");
                         logout();
                         navigate("/");
                         setCurrentUser(null);
                       }}
-                      className="bg-white-300 text-black justify-start space-x-2">
-                      <LogOut /><span >Logout</span>
-                    </Button>
+                      className="text-red-600"
+                    >
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </>
+          ) : (
+            <div>
+              {!isLoginPage ? (
+                <div className="hidden md:flex items-center space-x-4">
+                  <Link to="/login">
+                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
 
-                  </div>
-                </SheetContent>
-              </Sheet>
+                      <span>Login/Register</span>
+
+
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {!isLoginPage ? (
+                    <div className="hidden md:flex items-center space-x-4">
+                      <Link to="/login">
+                        <Button variant="outline" size="sm" className="flex items-center space-x-2">
+
+                          <span>Login/Register</span>
+
+
+                        </Button>
+                      </Link>
+
+                    </div>
+                  ) : (
+                    <div className="hidden md:flex items-center space-x-4">
+                    </div>
+                  )}
+                </>
+              )}
             </div>
+          )}
+
+          {/* Mobile Navigation  */}
+          {(currentUser) ? (
+            <>
+              <div className="md:hidden">
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+
+                      <Menu className="h-4 w-4" />
+
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-64">
+                    <div className="flex flex-col space-y-4 mt-8">
+                      <NavLinks mobile />
+
+
+                      <div className="pt-4 border-t space-y-2">
+                        <Link to="/customer/profile">
+                          <Button size="sm" className="solar-gradient text-white"  >
+                            Hi,{currentUser.name}
+
+
+                          </Button>
+                        </Link>
+                      </div>
+
+                      <Button size="sm"
+                        // onClick={logout}
+                        onClick={() => {
+                          // sessionStorage.removeItem("currentUser");
+                          logout();
+                          navigate("/");
+                          setCurrentUser(null);
+                        }}
+                        className="bg-white-300 text-black justify-start space-x-2">
+                        <LogOut /><span >Logout</span>
+                      </Button>
+
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </>
           ) : (
             <>
@@ -558,10 +568,62 @@ const Navigation = () => {
 
 
         </div>
-        
-        </div>
+
+      </div>
       {/* </div> */}
     </nav>
+
+<Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Edit Profile</DialogTitle>
+      <DialogDescription>Update your account details below.</DialogDescription>
+    </DialogHeader>
+
+    <div className="space-y-4 py-4">
+      <div>
+        <label className="block text-sm font-medium">Name</label>
+        <input
+          type="text"
+          defaultValue={currentUser?.name}
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Email</label>
+        <input
+          type="email"
+          defaultValue={currentUser?.email}
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Mobile Number</label>
+        <input
+          type="text"
+          placeholder="Enter mobile number"
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Password</label>
+        <input
+          type="password"
+          placeholder="Enter new password"
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+    </div>
+
+    <DialogFooter>
+      <Button variant="outline" onClick={() => setIsProfileModalOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={() => setIsProfileModalOpen(false)}>Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+</>
   );
 };
 export default Navigation;

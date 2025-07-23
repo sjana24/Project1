@@ -28,6 +28,12 @@ const CartPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
     const { setCartItemsCount, updateCartCount, cartUpdated } = useCartStore();
+    const [address, setAddress] = useState({
+        province: '',
+        district: '',
+        street: '',
+    });
+
 
     // const item1s: item[] = [
     //     {
@@ -247,7 +253,33 @@ const CartPage = () => {
                             </button>
                         </div>
                     </div>
-
+                    {/* Address Box */}
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Address</h2>
+                        <div className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Province"
+                                value={address.province}
+                                onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                                className="w-full border rounded-md px-4 py-2 text-sm"
+                            />
+                            <input
+                                type="text"
+                                placeholder="District"
+                                value={address.district}
+                                onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                                className="w-full border rounded-md px-4 py-2 text-sm"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Street"
+                                value={address.street}
+                                onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                                className="w-full border rounded-md px-4 py-2 text-sm"
+                            />
+                        </div>
+                    </div>
                     {/* Order Summary */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
@@ -255,7 +287,7 @@ const CartPage = () => {
                                 Order Summary
                             </h2>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 mb-6">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
                                     <span>Rs {subtotal.toFixed(2)}</span>
@@ -272,17 +304,27 @@ const CartPage = () => {
                                 </div>
                             </div>
 
+
+
+                            {/* Proceed Button */}
                             <button
-                                disabled={selectedItems.length === 0}
-                                onClick={() => handleClick()}
-                                className={`w-full py-3 rounded-lg mt-6 font-semibold transition-colors ${selectedItems.length === 0
+                                disabled={
+                                    selectedItems.length === 0 ||
+                                    !address.province.trim() ||
+                                    !address.district.trim() ||
+                                    !address.street.trim()
+                                }
+                                onClick={handleClick}
+                                className={`w-full py-3 rounded-lg mt-4 font-semibold transition-colors ${selectedItems.length === 0 ||
+                                    !address.province.trim() ||
+                                    !address.district.trim() ||
+                                    !address.street.trim()
                                     ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                                     : "bg-[#26B170] text-white hover:bg-[#26B170]"
                                     }`}
                             >
                                 Proceed to Checkout
                             </button>
-
 
                             {!currentUser && (
                                 <p className="text-sm text-gray-600 text-center mt-4">
@@ -295,7 +337,9 @@ const CartPage = () => {
                             )}
                         </div>
                     </div>
-                </div>
+
+
+                </div >
             ) : (
                 <div className="container mx-auto px-4 py-16">
                     <div className="text-center">
