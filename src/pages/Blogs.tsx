@@ -47,7 +47,18 @@ const mockBlogs = [
     readTime: 3,
     category: "lifestyle",
     tags: ["eco", "green", "living"],
+  },
+  {
+  id: 5,
+  title: "Community Solar Projects: Powering Neighborhoods Together",
+  excerpt: "Learn how community solar programs allow individuals to benefit from solar power without installing panels on their own homes.",
+  //image: "/images/community-solar.jpg",
+  publishedAt: "2025-07-02",
+  readTime: 4,
+  category: "community",
+  tags: ["solar", "community", "home"],
   }
+
 ];
 
 const Blogs: React.FC = () => {
