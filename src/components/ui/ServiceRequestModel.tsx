@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +53,7 @@ interface ServiceRequestModalProps {
   selectedService: String;
 }
 
-const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, onSubmit,selectedService }) => {
+const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, onSubmit, selectedService }) => {
   const [formData, setFormData] = useState<any>({
     fullName: "",
     phone: "",
@@ -64,7 +64,9 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
     zip: "",
     locationLink: "",
     roofHeight: "",
-    serviceType: "installation",
+    roofHeightNew: "",
+    roofHeightCurrent: "",
+    serviceType: "",
     roofType: "",
     roofSize: "",
     capacity: "",
@@ -75,11 +77,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
     preferredDate: "",
     preferredTime: "",
   });
-  //  useEffect(() => {
-  //   console.log(selectedService.category);
-        
 
-  // });
 
   const [errors, setErrors] = useState<any>({});
 
@@ -129,132 +127,174 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
             {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium">Email *</label>
-            <Input placeholder="Email" type="email" value={formData.email} onChange={e => handleChange("email", e.target.value)} />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-          </div>
 
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="block mb-1 text-sm font-medium">Province *</label>
-              <Select value={formData.province} onValueChange={v => {
-                handleChange("province", v);
-                handleChange("city", "");
-              }}>
-                <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
-                <SelectContent>
-                  {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
-            </div>
-            <div className="flex-1">
-              <label className="block mb-1 text-sm font-medium">City *</label>
-              <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
-                <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
-                <SelectContent>
-                  {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-            </div>
-          </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium">Address *</label>
-            <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
-            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium">ZIP Code</label>
-            <Input placeholder="ZIP Code" value={formData.zip} onChange={e => handleChange("zip", e.target.value)} />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium">Google Map Link (optional)</label>
-            <Input placeholder="Google Map Link" value={formData.locationLink} onChange={e => handleChange("locationLink", e.target.value)} />
-          </div>
-
-          
-
-          {/* <div>
-            <label className="block mb-1 text-sm font-medium">Service Type *</label>
-            <Select value={formData.serviceType} onValueChange={v => handleChange("serviceType", v)}>
-              <SelectTrigger><SelectValue placeholder="Select Service Type" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="installation">Installation</SelectItem>
-                <SelectItem value="relocation">Relocation</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-
-        {selectedService === "installation" && (
+          {selectedService === "installation" && (
             <>
               <div>
-                <label className="block mb-1 text-sm font-medium">Roof Type</label>
-                <Input placeholder="Roof Type" value={formData.roofType} onChange={e => handleChange("roofType", e.target.value)} />
+                <label className="block mb-1 text-sm font-medium">No & Stress Name *</label>
+                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium">Roof Size (m²)</label>
-                <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">Province *</label>
+                    <Select value={formData.province} onValueChange={v => {
+                      handleChange("province", v);
+                      handleChange("city", "");
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                      <SelectContent>
+                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">City *</label>
+                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
+                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                      <SelectContent>
+                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                  </div>
+                </div>
+
               </div>
+             
               <div>
-            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
-            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
-          </div>
+                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
+                <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
+                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+              </div>
               <div>
                 <label className="block mb-1 text-sm font-medium">Preferred kW Capacity</label>
                 <Input placeholder="Capacity" value={formData.capacity} onChange={e => handleChange("capacity", e.target.value)} />
               </div>
+               <div>
+                <label className="block mb-1 text-sm font-medium">Roof Size (m²)</label>
+                <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
+              </div>
             </>
           )}
 
-       {selectedService  === "relocation" && (
+          {selectedService === "relocation" && (
             <>
+            <div>
+                <label className="block mb-1 text-sm font-medium">No & Stress Name (Current Address)*</label>
+                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              </div>
+              <div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">Province (Current Address)*</label>
+                    <Select value={formData.province} onValueChange={v => {
+                      handleChange("province", v);
+                      handleChange("city", "");
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                      <SelectContent>
+                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">City (Current Address)*</label>
+                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
+                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                      <SelectContent>
+                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                  </div>
+                </div>
+                
+
+              </div>
+             
+              
               <div>
                 <label className="block mb-1 text-sm font-medium">Current Address</label>
                 <Input placeholder="Current Address" value={formData.oldAddress} onChange={e => handleChange("oldAddress", e.target.value)} />
               </div>
               <div>
-            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) (Current Address)*</label>
-            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
-          </div>
-              <div>
-                <label className="block mb-1 text-sm font-medium">New Address</label>
-                <Input placeholder="New Address" value={formData.newAddress} onChange={e => handleChange("newAddress", e.target.value)} />
+                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) (Current Address)*</label>
+                <Input placeholder="Roof Height" type="number" value={formData.roofHeightCurrent} onChange={e => handleChange("roofHeightCurrent", e.target.value)} />
+                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeightCurrent}</p>}
               </div>
               <div>
-            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m)(New Address) *</label>
-            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
-          </div>
+                <label className="block mb-1 text-sm font-medium">No & Stress Name (New Address) *</label>
+                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              </div>
+              <div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">Province (New Address) *</label>
+                    <Select value={formData.province} onValueChange={v => {
+                      handleChange("province", v);
+                      handleChange("city", "");
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                      <SelectContent>
+                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block mb-1 text-sm font-medium">City(New Address) *</label>
+                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
+                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                      <SelectContent>
+                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                  </div>
+
+                </div>
+                
+              </div>       
+              <div>
+                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m)(New Address) *</label>
+                <Input placeholder="Roof Height" type="number" value={formData.roofHeightNew} onChange={e => handleChange("roofHeightNew", e.target.value)} />
+                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeightNew}</p>}
+              </div>
+               <div>
+                <label className="block mb-1 text-sm font-medium">Roof Size (m²)</label>
+                <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
+              </div>
             </>
           )}
 
-       {selectedService === "maintenance" && (
+          {selectedService === "maintenance" && (
+            <>
             <div>
               <label className="block mb-1 text-sm font-medium">Describe the issue</label>
               <Textarea placeholder="Describe the issue" value={formData.problem} onChange={e => handleChange("problem", e.target.value)} />
             </div>
+            </>
           )}
 
           <div>
-             <div>
-            <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
-            <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-            {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
-          </div>
+            
             <label className="block mb-1 text-sm font-medium">Preferred Date</label>
             <Input type="date" value={formData.preferredDate} onChange={e => handleChange("preferredDate", e.target.value)} />
           </div>
-         
+
 
           <Button
             onClick={handleSubmit}

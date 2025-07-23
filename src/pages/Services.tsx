@@ -60,6 +60,8 @@ interface SelectedServices {
   problem: string;
   province: string;
   roofHeight: string;
+  roofHeightCurrent: string;
+  roofHeightNew: string;
   roofSize: string;
   roofType: string;
   profile_image:string;
@@ -102,99 +104,99 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
   
 
 
-  const services1 = [
-    {
-      id: 1,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 2,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 3,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 4,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 5,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 6,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      email: "contact@solartechpro.com",
-      img: "one.jpeg",
-    },
+  // const services1 = [
+  //   {
+  //     id: 1,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     email: "contact@solartechpro.com",
+  //     img: "one.jpeg",
+  //   },
 
-  ]
+  // ]
 
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
