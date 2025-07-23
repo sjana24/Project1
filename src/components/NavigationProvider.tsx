@@ -190,7 +190,7 @@ const NavigationProvider = () => {
                         <>
                             {!isLoginProviderPage ?
                                 <div className="hidden md:flex items-center space-x-4">
-                                    <Link to="/provider/login   ">
+                                    <Link to="/login   ">
                                         <Button variant="outline" size="sm" className="flex items-center space-x-2">
 
                                             <span>Login/Register</span>
@@ -247,7 +247,7 @@ const NavigationProvider = () => {
                                             <div className="pt-4 border-t space-y-2">
                                                 <Link to="/login" onClick={() => setIsOpen(false)}>
                                                     <Button variant="outline" className="w-full">
-                                                        Login/Register
+                                                        Login/Regist
                                                     </Button>
                                                 </Link>
 

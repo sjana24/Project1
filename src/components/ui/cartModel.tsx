@@ -9,24 +9,34 @@ interface CartModalProps {
 }
 
 export interface item {
-    image: string;
+    images: string;
     name: string;
     price: number;
     productId: number;
     providerId: number;
     quantity: number;
     userId: number;
+    unit_price:number;
 }
 
 const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | null>(null);
 
     const subtotal = selectedItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+        (total, item) => total + item.unit_price * item.quantity,
         0
     );
     const deliveryFee = 310;
     const total = subtotal + deliveryFee;
+
+    const confirmPayment =()=>{
+        if(!paymentMethod){
+        console.log("hi");}
+        else{
+            console.log(" doi");
+        }
+
+    }
 
 
     return (
@@ -36,18 +46,18 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                 <div className="fixed inset-0 bg-black opacity-30" />
 
 
-                    {/* Close Button */}
-                    <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Close Button */}
+                <div className="relative bg-white rounded-lg w-full max-w-5xl shadow-lg z-10 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
 
-                        <div className="absolute top-3 right-3">
-                            <button
-                                onClick={onClose}
-                                className="text-gray-500 hover:text-gray-800 transition"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+                    <div className="absolute top-3 right-3">
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-800 transition"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
 
                     {/* Left: Item Details */}
                     <div className="lg:col-span-2 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
@@ -55,15 +65,15 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                         {selectedItems.map((item) => (
                             <div key={item.productId} className="flex items-center gap-4 border-b pb-4">
                                 <img
-                                    src={item.image}
+                                    src={`http://localhost/Git/Project1/Backend/${item.images}`}
                                     alt={item.name}
                                     className="w-20 h-20 object-cover rounded-lg border"
                                 />
                                 <div className="flex-1">
-                                    <h3 className="text-md font-semibold">{item.name}</h3>
+                                    <h3 className="text-md font-semibold">{item.unit_price}</h3>
                                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                     <p className="text-sm font-medium text-gray-900">
-                                        Rs {(item.price * item.quantity).toFixed(2)}
+                                        Rs {(item.unit_price * item.quantity).toFixed(2)}
                                     </p>
                                 </div>
                             </div>
@@ -133,12 +143,19 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                         </div>
 
                         <button
-                            onClick={() => alert("Payment confirmed")}
-                            className="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded"
-                            disabled={!paymentMethod}
+                            
+                            onClick={() => {
+                                // alert("Payment confirmed");
+                                confirmPayment();
+                            }}
+                            className="w-full mt-6 bg-[#26B170] text-white font-semibold py-2 px-4 rounded"
+                            // disabled={!paymentMethod}
                         >
                             Confirm & Pay
                         </button>
+
+
+
                     </div>
                 </div>
             </div>

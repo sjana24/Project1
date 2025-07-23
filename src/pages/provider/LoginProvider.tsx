@@ -73,7 +73,7 @@ const LoginProvider = () => {
         
                 setIsLoading(true);
                 try {
-                    const res = await axios.post("http://localhost/Git/Project1/Backend/Provider/LoginProvider.php", loginData);
+                    const res = await axios.post("http://localhost/Git/Project1/Backend/LoginProvider.php", loginData);
                     // console.log("Login successful:");
                     // navigate("/");
         
@@ -87,7 +87,7 @@ const LoginProvider = () => {
                         
                         // localStorage.setItem('currentUser', JSON.stringify(foundUser));
                         const loginUser: currentProvider = {
-                            providerId: res.data.userID,
+                            providerId: res.data.provider_id,
                             providerName: res.data.userName,
         
                         };

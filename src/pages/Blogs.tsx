@@ -13,7 +13,9 @@ const mockBlogs = [
     //image: "/images/solar-benefits.jpg",
     publishedAt: "2025-07-10",
     readTime: 4,
+
     category: "residential", 
+
     tags: ["solar", "sustainability", "home"],
   },
   {
@@ -168,4 +170,6 @@ const Blogs: React.FC = () => {
   );
 };
 
+
 export default Blogs;
+

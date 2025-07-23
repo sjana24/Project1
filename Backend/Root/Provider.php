@@ -1,7 +1,7 @@
 <?php 
 require_once 'dbCon.php';
 
-abstract class Provider{
+class Provider{
     protected $provider_id;
     protected $name;
     protected $email;
@@ -29,7 +29,7 @@ abstract class Provider{
         $this->password=$password;
 
         try{
-            $sql="SELECT provider_id,password,approval_status FROM service_provider WHERE email=?";
+            $sql="SELECT provider_id,password FROM service_provider WHERE email=?";
             $stmt=$this->conn->prepare($sql);
             $stmt->bindParam(1,$this->email);
             $stmt->execute();

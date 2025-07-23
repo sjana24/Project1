@@ -1,16 +1,20 @@
 
 import { Link } from "react-router-dom";
+import { Mail,Phone ,Sun} from "lucide-react";
 
 
 const Footer = () => {
+
+  const mobile_number="+1 (555) 123-4567";
+  const email="contact@solax.com";
   return (
-    <footer className="bg-secondary border-t">
+    <footer className="bg-[#b2d8d8] border-t">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              {/* <Sun className="h-8 w-8 text-primary" /> */}
+             
               <span className="font-bold text-xl text-foreground">SolaX</span>
             </div>
             <p className="text-muted-foreground mb-4">
@@ -19,12 +23,12 @@ const Footer = () => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-muted-foreground">
-                {/* <Mail className="h-4 w-4" /> */}
-                <span>contact@solax.com</span>
+                <Mail className="h-4 w-4" />
+                <span>{email}</span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
-                {/* <Phone className="h-4 w-4" /> */}
-                <span>+1 (555) 123-4567</span>
+                <Phone className="h-4 w-4" />
+                <span>{mobile_number}</span>
               </div>
             </div>
           </div>
@@ -39,10 +43,10 @@ const Footer = () => {
               <Link to="/services" className="block text-muted-foreground hover:text-primary transition-colors">
                 Services
               </Link>
-              <Link to="/agents" className="block text-muted-foreground hover:text-primary transition-colors">
-                Find Agents
+              <Link to="/jobs" className="block text-muted-foreground hover:text-primary transition-colors">
+                Find Jobs
               </Link>
-              <Link to="/blog" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/blogs" className="block text-muted-foreground hover:text-primary transition-colors">
                 Expert Blog
               </Link>
             </div>
@@ -55,15 +59,13 @@ const Footer = () => {
               <Link to="/forum" className="block text-muted-foreground hover:text-primary transition-colors">
                 Q&A Forum
               </Link>
-              <Link to="/contact" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/contacts" className="block text-muted-foreground hover:text-primary transition-colors">
                 Contact Us
               </Link>
               <Link to="/jobs" className="block text-muted-foreground hover:text-primary transition-colors">
                 Careers
               </Link>
-              <Link to="/admin" className="block text-muted-foreground hover:text-primary transition-colors">
-                Partner Portal
-              </Link>
+             
             </div>
           </div>
         </div>

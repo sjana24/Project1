@@ -2,17 +2,23 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CartModal from "@/components/ui/cartModel";
+import axios from "axios";
+import { create } from 'zustand'
+import { useCartStore } from "@/store/useCartStore";
 
 export interface item {
-    image: string;
+    item_id: number,
+    images: string;
     name: string;
     price: number;
     productId: number;
     providerId: number;
     quantity: number;
+    total_price: number;
     userId: number;
+    unit_price: number;
 }
 
 const CartPage = () => {
@@ -20,36 +26,66 @@ const CartPage = () => {
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [selectAll, setSelectAll] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [cartItems, setCartItems] = useState<item[]>([]);
+    const { setCartItemsCount, updateCartCount, cartUpdated } = useCartStore();
 
-    const items: item[] = [
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 1,
-            providerId: 1,
-            quantity: 1,
-            userId: 1,
-        },
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 2,
-            providerId: 2,
-            quantity: 2,
-            userId: 2,
-        },
-        {
-            image: "one.jpeg",
-            name: "Sample Product",
-            price: 12345,
-            productId: 3,
-            providerId: 3,
-            quantity: 3,
-            userId: 3,
-        },
-    ];
+    // const item1s: item[] = [
+    //     {
+    //         image: "one.jpeg",
+    //         name: "Sample Product",
+    //         price: 12345,
+    //         productId: 1,
+    //         providerId: 1,
+    //         quantity: 1,
+    //         userId: 1,
+    //         total_price:1,
+    //         unit_price:2,
+    //     },
+    // {
+    //     image: "one.jpeg",
+    //     name: "Sample Product",
+    //     price: 12345,
+    //     productId: 2,
+    //     providerId: 2,
+    //     quantity: 2,
+    //     userId: 2,
+    // },
+    // {
+    //     image: "one.jpeg",
+    //     name: "Sample Product",
+    //     price: 12345,
+    //     productId: 3,
+    //     providerId: 3,
+    //     quantity: 3,
+    //     userId: 3,
+    // },
+    // ];
+    useEffect(() => {
+        //   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
+        setCartItems([]);
+
+        //   if (!currentUser) return; // Safeguard in case there's no user
+
+        axios
+            .get("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
+                withCredentials: true
+            })
+            .then((response) => {
+                const data = response.data;
+                if (data.success) {
+                    console.log("Data received:", data);
+                    setCartItemsCount(data.items);
+                    updateCartCount();
+                    setCartItems(data.items);
+                } else {
+                    console.log("Failed to load items:", data);
+                }
+            })
+            .catch((err) => {
+                console.error("Error fetching cart items:", err);
+            });
+    }, [cartUpdated]); // Add currentUser as dependency if it can change
+
 
     const handleQuantityChange = (
         productId: number,
@@ -67,21 +103,21 @@ const CartPage = () => {
         }
     };
 
-    const handleItemSelect = (productId: number, checked: boolean) => {
+    const handleItemSelect = (item_id: number, checked: boolean) => {
         if (checked) {
-            setSelectedItems((prev) => [...prev, productId]);
+            setSelectedItems((prev) => [...prev, item_id]);
         } else {
-            setSelectedItems((prev) => prev.filter((id) => id !== productId));
+            setSelectedItems((prev) => prev.filter((id) => id !== item_id));
             setSelectAll(false);
         }
     };
 
-    const selectedCartItems = items.filter((item) =>
-        selectedItems.includes(item.productId)
+    const selectedCartItems = cartItems.filter((item) =>
+        selectedItems.includes(item.item_id)
     );
 
     const subtotal = selectedCartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) => sum + item.unit_price * item.quantity,
         0
     );
     const handleClick = () => {
@@ -98,7 +134,7 @@ const CartPage = () => {
     return (
         <div className="min-h-screen">
             <Navigation />
-            {items.length !== 0 ? (
+            {cartItems.length !== 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 py-8">
                     <div className="lg:col-span-2">
                         <div className="flex items-center mb-4">
@@ -108,7 +144,7 @@ const CartPage = () => {
                                 onChange={(e) => {
                                     const checked = e.target.checked;
                                     setSelectAll(checked);
-                                    setSelectedItems(checked ? items.map((i) => i.productId) : []);
+                                    setSelectedItems(checked ? cartItems.map((i) => i.item_id) : []);
                                 }}
                                 className="mr-2"
                             />
@@ -116,22 +152,23 @@ const CartPage = () => {
                         </div>
 
                         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                            {items.map((item) => (
+                            {cartItems.map((item) => (
                                 <div
-                                    key={item.productId}
+                                    key={item.item_id}
                                     className="flex items-center p-6 border-b border-gray-200 last:border-b-0"
                                 >
                                     <input
                                         type="checkbox"
                                         className="mr-4"
-                                        checked={selectedItems.includes(item.productId)}
+                                        checked={selectedItems.includes(item.item_id)}
                                         onChange={(e) =>
-                                            handleItemSelect(item.productId, e.target.checked)
+                                            handleItemSelect(item.item_id, e.target.checked)
                                         }
                                     />
 
                                     <img
-                                        src={item.image}
+                                        // src={item.image}
+                                        src={`http://localhost/Git/Project1/Backend/${item.images}`}
                                         alt={item.name}
                                         className="w-24 h-24 object-cover rounded-lg"
                                     />
@@ -140,8 +177,8 @@ const CartPage = () => {
                                         <h3 className="text-lg font-semibold text-gray-900">
                                             {item.name}
                                         </h3>
-                                        <p className="text-blue-600 font-semibold mt-1">
-                                            Rs {item.price}
+                                        <p className="text-[#26B170] font-semibold mt-1">
+                                            Rs {item.unit_price}
                                         </p>
                                     </div>
 
@@ -176,14 +213,14 @@ const CartPage = () => {
                                             </button>
                                         </div>
 
-                                        <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                        <button className="p-2 text-[#26B170] hover:bg-red-50 rounded-lg transition-colors">
                                             <Trash2 className="h-5 w-5" />
                                         </button>
                                     </div>
 
                                     <div className="ml-4 text-right">
                                         <p className="text-lg font-semibold text-gray-900">
-                                            Rs {(item.price * item.quantity).toFixed(2)}
+                                            Rs {(item.unit_price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
                                 </div>
@@ -193,7 +230,7 @@ const CartPage = () => {
                         <div className="mt-6 flex justify-between">
                             <Link
                                 to="/products"
-                                className="text-blue-600 hover:text-blue-800 font-medium"
+                                className="text-[#26B170] hover:text-blue-800 font-medium"
                             >
                                 ← Continue Shopping
                             </Link>
@@ -204,7 +241,7 @@ const CartPage = () => {
                                         description: "All items have been removed from your cart.",
                                     });
                                 }}
-                                className="text-red-600 hover:text-red-800 font-medium"
+                                className="text-[#26B170] hover:text-[#26B170] font-medium"
                             >
                                 Clear Cart
                             </button>
@@ -238,13 +275,14 @@ const CartPage = () => {
                             <button
                                 disabled={selectedItems.length === 0}
                                 onClick={() => handleClick()}
-                                className={`w-full py-3 rounded-lg transition-colors mt-6 font-semibold ${selectedItems.length === 0
+                                className={`w-full py-3 rounded-lg mt-6 font-semibold transition-colors ${selectedItems.length === 0
                                     ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                    : "solar-gradient text-white hover:bg-blue-700"
+                                    : "bg-[#26B170] text-white hover:bg-[#26B170]"
                                     }`}
                             >
                                 Proceed to Checkout
                             </button>
+
 
                             {!currentUser && (
                                 <p className="text-sm text-gray-600 text-center mt-4">
@@ -270,10 +308,11 @@ const CartPage = () => {
                         </p>
                         <Link
                             to="/products"
-                            className="solar-gradient text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                            className="bg-[#26B170] text-white px-6 py-3 rounded-lg hover:bg-[#26B170]"
                         >
                             Continue Shopping
                         </Link>
+
                     </div>
                 </div>
             )}
