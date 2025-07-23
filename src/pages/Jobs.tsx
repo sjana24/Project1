@@ -264,14 +264,14 @@ if (formData.resume) {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge className="bg-primary/10 text-primary border-primary/20">
+                          <Badge className="bg-green-200 text-green-700 border-green-200">
                             {job.job_type}
                           </Badge>
                           <Badge variant="outline">
                             {job.requirements}
                           </Badge>
                         </div>
-                        <CardTitle className="text-2xl mb-2 group-hover:text-primary transition-colors">
+                        <CardTitle className="text-2xl mb-2 group-hover:text-green-700 transition-colors">
                           {job.title}
                         </CardTitle>
                         <div className="flex items-center space-x-4 text-muted-foreground mb-4">
