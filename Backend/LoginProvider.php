@@ -15,12 +15,16 @@ $password = htmlspecialchars(strip_tags($data['password']));
 
 $providerLogin=new Provider();
 
-$loginRes=$customerLogin->Login($email,$password);
+$loginRes=$providerLogin->Login($email,$password);
+// echo $loginRes['success'];
+// http_response_code(200);
 
 if ($loginRes['success']) {
     http_response_code(200);
+    
     echo json_encode($loginRes);
 } else {
+    
     echo json_encode($loginRes);
 }
 
