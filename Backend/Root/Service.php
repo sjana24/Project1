@@ -20,27 +20,35 @@ class Service
     protected $created_at;
     protected $updated_at;
 
-    protected  $fullName;
-    protected  $phone;
-    protected  $email;
-    protected  $province;
-    protected  $city;
-    protected  $address;
-    protected  $zip;
-    protected  $locationLink;
-    protected  $roofHeight;
-    protected  $roofHeightCurrent;
-    protected  $roofHeightNew;
-    protected  $serviceType;
-    protected  $roofType;
-    protected  $roofSize;
-    protected  $capacity;
-    protected  $battery;
-    protected  $oldAddress;
-    protected  $newAddress;
-    protected  $problem;
-    protected  $preferredDate;
-    protected  $preferredTime;
+    protected $fullName;
+    protected $phone;
+    // protected $email;
+    // protected $province;
+    // protected $city;
+    // protected $address;
+    // protected $zip;
+    // protected $locationLink;
+
+    protected $fullAddressInstallation;
+    protected $fullAddressOld;
+    protected $fullAddressNew;
+    protected $fullAddressMaintainance;
+    protected $roofSizeInstallation;
+    protected $roofHeightInstallation;
+
+    protected $roofHeight;
+    protected $roofHeightNew;
+    protected $roofHeightOld;
+    protected $serviceType;
+    protected $roofType;
+    protected $roofSize;
+    protected $capacity;
+    protected $battery;
+    protected $oldAddress;
+    protected $newAddress;
+    protected $problem;
+    protected $preferredDate;
+    // protected $preferredTime;
 
     public function __construct()
     {
@@ -207,26 +215,36 @@ class Service
 
     public function insertServiceRequest($customer_id, $sanitizedData, $serviceDataFetch)
     {
-        $this->fullName = $sanitizedData['fullName'] ?? '';
-        $this->phone = $sanitizedData['phone'] ?? '';
-        $this->email = $sanitizedData['email'] ?? '';
-        $this->province = $sanitizedData['province'] ?? '';
-        $this->city = $sanitizedData['city'] ?? '';
-        $this->address = $sanitizedData['address'] ?? '';
-        $this->zip = $sanitizedData['zip'] ?? '';
-        $this->locationLink = $sanitizedData['locationLink'] ?? '';
-        $this->roofHeight = $sanitizedData['roofHeight'] ?? '';
-        $this->roofHeightCurrent = $sanitizedData['roofHeightCurrent'] ?? '';
-        $this->roofHeightNew = $sanitizedData['roofHeightNew'] ?? '';
-        // $this->serviceType = $sanitizedData['serviceType'] ?? '';
-        $this->roofType = $sanitizedData['roofType'] ?? '';
-        $this->roofSize = $sanitizedData['roofSize'] ?? '';
-        $this->capacity = $sanitizedData['capacity'] ?? '';
-        $this->battery = $sanitizedData['battery'] ?? '';
-        $this->oldAddress = $sanitizedData['oldAddress'] ?? '';
-        $this->newAddress = $sanitizedData['newAddress'] ?? '';
-        $this->problem = $sanitizedData['problem'] ?? '';
-        $this->preferredDate = $sanitizedData['preferredDate'] ?? '';
+        $this->fullName                = $sanitizedData['fullName'] ?? '';
+        $this->phone                   = $sanitizedData['phone'] ?? '';
+        // $this->email                = $sanitizedData['email'] ?? '';
+        // $this->province             = $sanitizedData['province'] ?? '';
+        // $this->city                 = $sanitizedData['city'] ?? '';
+        // $this->address              = $sanitizedData['address'] ?? '';
+        $this->fullAddressInstallation = $sanitizedData['fullAddressInstallation'] ?? '';
+        $this->fullAddressOld          = $sanitizedData['fullAddressOldRelocation'] ?? '';
+        $this->fullAddressNew          = $sanitizedData['fullAddressNewRelocation'] ?? '';
+        $this->fullAddressMaintainance = $sanitizedData['fullAddressMaintainance'] ?? '';
+        // $this->zip                 = $sanitizedData['zip'] ?? '';
+        // $this->locationLink        = $sanitizedData['locationLink'] ?? '';
+        $this->roofHeight              = $sanitizedData['roofHeightInstallation'] ?? '';
+        $this->roofSizeInstallation                = $sanitizedData['roofSizeInstallation'] ?? '';
+
+         $this->roofHeightInstallation                = $sanitizedData['roofHeightInstallation'] ?? '';
+        $this->roofHeightOld           = $sanitizedData['fullHeightOldRelocation'] ?? '';
+        $this->roofHeightNew           = $sanitizedData['fullHeightNewRelocation'] ?? '';
+
+        $this->serviceType             = $sanitizedData['serviceType'] ?? '';
+        $this->roofType                = $sanitizedData['roofType'] ?? '';
+        $this->roofSize                = $sanitizedData['roofSize'] ?? '';
+        $this->capacity                = $sanitizedData['capacity'] ?? '';
+        $this->battery                 = $sanitizedData['battery'] ?? '';
+        $this->oldAddress              = $sanitizedData['oldAddress'] ?? '';
+        $this->newAddress              = $sanitizedData['newAddress'] ?? '';
+        $this->problem                 = $sanitizedData['problem'] ?? '';
+        $this->preferredDate           = $sanitizedData['preferredDate'] ?? '';
+        // $this->preferredTime       = $sanitizedData['preferredTime'] ?? '';
+
         // $this->preferredTime = $sanitizedData['preferredTime'] ?? '';
         // Assuming $customer_id is the ID of the customer making the request
         // and $serviceDataFetch contains the service details
@@ -267,73 +285,75 @@ class Service
             // echo "Inserting service request: ";
             // echo "$this->customer_id, $this->service_id, $this->serviceType";
             // echo "Inserting service request: end";
-            else{
-            $sql = "INSERT INTO service_request (
+            else {
+                $sql = "INSERT INTO service_request (
                     customer_id, service_id, request_date, status, payment_status, created_at, updated_at,service_type
                 ) VALUES (?, ?, NOW(), 'pending', 'pending', NOW(), NOW(),?)";
 
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([
-                (int)$this->customer_id,
-                // (int)$this->provider_id,
-                (int)$this->service_id,
-                $this->serviceType,
-            ]);
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([
+                    (int)$this->customer_id,
+                    // (int)$this->provider_id,
+                    (int)$this->service_id,
+                    $this->serviceType,
+                ]);
 
-            $request_id = $this->conn->lastInsertId(); // get the inserted request_id
+                $request_id = $this->conn->lastInsertId(); // get the inserted request_id
 
-            // 2. Based on serviceType, insert into the corresponding table
-            switch (strtolower($this->serviceType)) {
-                case 'installation':
-                    $installationSql = "INSERT INTO installation_request (
-                                        request_id, installation_address, roof_height
-                                    ) VALUES (?, ?, ?)";
-                    $stmt = $this->conn->prepare($installationSql);
-                    $stmt->execute([
-                        $request_id,
-                        $this->address ?? '',
-                        $this->roofHeight ?? null
-                    ]);
-                    break;
+                // 2. Based on serviceType, insert into the corresponding table
+                switch (strtolower($this->serviceType)) {
+                    case 'installation':
+                        $installationSql = "INSERT INTO installation_request (
+                                        request_id, installation_address, roof_height,roof_size
+                                    ) VALUES (?, ?, ?,?)";
+                        $stmt = $this->conn->prepare($installationSql);
+                        $stmt->execute([
+                            $request_id,
+                            $this->fullAddressInstallation ?? '',
+                            (int)$this->roofHeightInstallation ?? null,
+                            (int)$this->roofSizeInstallation ?? null
+                        ]);
+                        break;
 
-                case 'maintenance':
-                    $maintenanceSql = "INSERT INTO maintenance_request_details (
+                    case 'maintenance':
+                        $maintenanceSql = "INSERT INTO maintenance_request_details (
                                         request_id, device_condition, service_notes, last_maintenance_date, roof_height
                                     ) VALUES (?, ?, ?, ?, ?)";
-                    $stmt = $this->conn->prepare($maintenanceSql);
-                    $stmt->execute([
-                        $request_id,
-                        $extraData['device_condition'] ?? '',
-                        $extraData['service_notes'] ?? '',
-                        $extraData['last_maintenance_date'] ?? null,
-                        $extraData['roofHeight'] ?? null
-                    ]);
-                    break;
+                        $stmt = $this->conn->prepare($maintenanceSql);
+                        $stmt->execute([
+                            $request_id,
+                            $extraData['device_condition'] ?? '',
+                            $extraData['service_notes'] ?? '',
+                            $extraData['last_maintenance_date'] ?? null,
+                            $extraData['roofHeight'] ?? null
+                        ]);
+                        break;
 
-                case 'relocation':
-                    $relocatedSql = "INSERT INTO relocated_request (
+                    case 'relocation':
+                        $relocatedSql = "INSERT INTO relocated_request (
                                      request_id, current_address, new_address, current_roof_height, new_roof_height
                                  ) VALUES (?, ?, ?, ?, ?)";
-                    $stmt = $this->conn->prepare($relocatedSql);
-                    $stmt->execute([
-                        $request_id,
-                        $this->oldAddress ?? '',
-                        $this->newAddress ?? '',
-                        (int)$this->roofHeightCurrent ?? null,
-                        (int)$this->roofHeightNew ?? null
-                    ]);
-                    break;
+                        $stmt = $this->conn->prepare($relocatedSql);
+                        $stmt->execute([
+                            $request_id,
+                            $this->fullAddressOld ?? '',
+                            $this->fullAddressNew ?? '',
+                            (int)$this->roofHeightOld ?? null,
+                            (int)$this->roofHeightNew ?? null
+                        ]);
+                        break;
 
-                default:
-                    throw new Exception("Unsupported service type: $this->serviceType");
+                    default:
+                        throw new Exception("Unsupported service type: $this->serviceType");
+                }
+
+                return [
+                    "success" => true,
+                    "message" => "Service request inserted successfully",
+                    "request_id" => $request_id
+                ];
             }
-
-            return [
-                "success" => true,
-                "message" => "Service request inserted successfully",
-                "request_id" => $request_id
-            ];
-        }} catch (PDOException $e) {
+        } catch (PDOException $e) {
             return [
                 "success" => false,
                 "message" => "Database error: " . $e->getMessage()

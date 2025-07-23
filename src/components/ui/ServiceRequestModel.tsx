@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Service {
@@ -54,29 +55,47 @@ interface ServiceRequestModalProps {
 }
 
 const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, onSubmit, selectedService }) => {
+const { toast } = useToast();
+  
   const [formData, setFormData] = useState<any>({
     fullName: "",
     phone: "",
-    email: "",
-    province: "",
-    city: "",
-    address: "",
-    zip: "",
-    locationLink: "",
-    roofHeight: "",
-    roofHeightNew: "",
-    roofHeightCurrent: "",
-    serviceType: "",
-    roofType: "",
-    roofSize: "",
-    capacity: "",
-    battery: "no",
-    oldAddress: "",
-    newAddress: "",
-    problem: "",
     preferredDate: "",
-    preferredTime: "",
+
+    // Installation
+    installationAddress: "",
+    installationCity: "",
+    installationProvince: "",
+    installationZip: "",
+    installationRoofHeight: "",
+    installationCapacity: "",
+    installationRoofSize: "",
+
+    // Relocation - Current
+    relocationOldAddress: "",
+    relocationOldCity: "",
+    relocationOldProvince: "",
+    relocationOldZip: "",
+    relocationRoofHeightOld: "",
+
+    // Relocation - New
+    relocationNewAddress: "",
+    relocationNewCity: "",
+    relocationNewProvince: "",
+    relocationNewZip: "",
+    relocationRoofHeightNew: "",
+    relocationRoofSize: "",
+
+    // Maintenance
+    maintenanceProblem: "",
+    maintenanceAddress: "",
+    maintenanceCity: "",
+    maintenanceProvince: "",
+    maintenanceZip: "",
+    maintainanceRoofHeight:""
+    
   });
+
 
 
   const [errors, setErrors] = useState<any>({});
@@ -86,20 +105,81 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
     setErrors(prev => ({ ...prev, [key]: "" }));
   };
 
+  // const validate = () => {
+  //   const requiredFields = ["fullName", "phone", "province", "city", "address", "roofHeight"];
+  //   const newErrors: any = {};
+  //   requiredFields.forEach(field => {
+  //     if (!formData[field]) newErrors[field] = "This field is required.";
+  //   });
+  //   return newErrors;
+  // };
   const validate = () => {
-    const requiredFields = ["fullName", "phone", "email", "province", "city", "address", "roofHeight"];
     const newErrors: any = {};
-    requiredFields.forEach(field => {
-      if (!formData[field]) newErrors[field] = "This field is required.";
-    });
+
+    // Common required fields
+    if (!formData.fullName) newErrors.fullName = "Full name is required.";
+    if (!formData.phone) newErrors.phone = "Phone is required.";
+
+    // INSTALLATION VALIDATION
+    if (selectedService === "installation") {
+      if (!formData.installationAddress) newErrors.installationAddress = "Address is required.";
+      if (!formData.installationCity) newErrors.installationCity = "City is required.";
+      if (!formData.installationProvince) newErrors.installationProvince = "Province is required.";
+      if (!formData.installationZip) newErrors.installationZip = "Zip code is required.";
+      if (!formData.installationRoofHeight) newErrors.installationRoofHeight = "Roof height is required.";
+      if (!formData.installationCapacity) newErrors.installationCapacity = "Preferred capacity is required.";
+      if (!formData.installationRoofSize) newErrors.installationRoofSize = "Roof size is required.";
+    }
+
+    // RELOCATION VALIDATION
+    if (selectedService === "relocation") {
+      // Current Address
+      if (!formData.relocationOldAddress) newErrors.relocationOldAddress = "Current address is required.";
+      if (!formData.relocationOldCity) newErrors.relocationOldCity = "Current city is required.";
+      if (!formData.relocationOldProvince) newErrors.relocationOldProvince = "Current province is required.";
+      if (!formData.relocationOldZip) newErrors.relocationOldZip = "Current zip code is required.";
+      if (!formData.relocationRoofHeightOld) newErrors.relocationRoofHeightOld = "Current roof height is required.";
+      // if (!formData.relocationRoofCurrentRoofHeightHeightrelocationRoofHeightOld = "Current roof height is required.";
+
+      // New Address
+      if (!formData.relocationNewAddress) newErrors.relocationNewAddress = "New address is required.";
+      if (!formData.relocationNewCity) newErrors.relocationNewCity = "New city is required.";
+      if (!formData.relocationNewProvince) newErrors.relocationNewProvince = "New province is required.";
+      // if (!formData.relocationCurrentAddress) newErrors.relocationCurrentAddress = "Current address is required.";
+      // if (!formData.relocationCurrentCity) newErrors.relocationCurrentCity = "Current city is required.";
+      // if (!formData.relocationCurrentProvince) newErrors.relocationCurrentProvince = "Current province is required.";
+      if (!formData.relocationNewZip) newErrors.relocationNewZip = "New zip code is required.";
+      if (!formData.relocationRoofHeightNew) newErrors.relocationRoofHeightNew = "New roof height is required.";
+
+      if (!formData.relocationRoofSize) newErrors.relocationRoofSize = "Roof size is required.";
+    }
+
+    // MAINTENANCE VALIDATION
+    if (selectedService === "maintenance") {
+      if (!formData.maintenanceProblem) newErrors.maintenanceProblem = "Problem description is required.";
+      if (!formData.maintenanceAddress) newErrors.maintenanceAddress = "Address is required.";
+      if (!formData.maintenanceCity) newErrors.maintenanceCity = "City is required.";
+      if (!formData.maintenanceProvince) newErrors.maintenanceProvince = "Province is required.";
+      if (!formData.maintenanceZip) newErrors.maintenanceZip = "Zip code is required.";
+      if (!formData.maintainanceRoofHeight) newErrors.maintenanceRoofHeight = "Roof Height code is required.";
+    }
+
     return newErrors;
   };
 
+
   const handleSubmit = () => {
     const validationErrors = validate();
-    // console.log(selectedService[0].category);
+    console.log(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      toast({
+        title: "Enter all requird fields",
+        description: "You must be fill all requied field.",
+        variant: "destructive", // optional styling
+
+      });
+      console.log("Validation errors:", validationErrors);
       return;
     }
     onSubmit(formData);
@@ -108,6 +188,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
 
   if (!isOpen) return null;
 
+  
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
       <div className="bg-white w-full max-w-2xl rounded-xl p-6 overflow-y-auto max-h-[90vh] relative">
@@ -117,184 +198,243 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
 
           <div>
             <label className="block mb-1 text-sm font-medium">Full Name *</label>
-            <Input placeholder="Full Name" value={formData.fullName} onChange={e => handleChange("fullName", e.target.value)} />
+            <Input placeholder="Full Name" value={formData.fullName} onChange={e => handleChange("fullName", e.target.value)} required />
             {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
           </div>
 
           <div>
             <label className="block mb-1 text-sm font-medium">Phone *</label>
-            <Input placeholder="Phone" type="tel" value={formData.phone} onChange={e => handleChange("phone", e.target.value)} />
+            <Input placeholder="Phone" type="tel" value={formData.phone} onChange={e => handleChange("phone", e.target.value)} required />
             {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
-
-
 
           {selectedService === "installation" && (
             <>
               <div>
-                <label className="block mb-1 text-sm font-medium">No & Stress Name *</label>
-                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
-                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                <label className="block mb-1 text-sm font-medium">Street Address *</label>
+                <Input placeholder="Street" value={formData.installationAddress} onChange={e => handleChange("installationAddress", e.target.value)} required />
+                {errors.installationAddress && <p className="text-red-500 text-sm mt-1">{errors.installationAddress}</p>}
               </div>
-              <div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">Province *</label>
-                    <Select value={formData.province} onValueChange={v => {
-                      handleChange("province", v);
-                      handleChange("city", "");
-                    }}>
-                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
-                      <SelectContent>
-                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
-                  </div>
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">City *</label>
-                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
-                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
-                      <SelectContent>
-                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-                  </div>
-                </div>
 
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">Province *</label>
+                  <Select value={formData.installationProvince} onValueChange={v => {
+                    handleChange("installationProvince", v);
+                    handleChange("installationCity", "");
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                    <SelectContent>
+                      {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.installationProvince && <p className="text-red-500 text-sm mt-1">{errors.installationProvince}</p>}
+                </div>
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">City *</label>
+                  <Select value={formData.installationCity} onValueChange={v => handleChange("installationCity", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                    <SelectContent>
+                      {(citiesByProvince[formData.installationProvince?.replace(/\s/g, "")] || []).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.installationCity && <p className="text-red-500 text-sm mt-1">{errors.installationCity}</p>}
+                </div>
               </div>
-             
+
               <div>
-                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) *</label>
-                <Input placeholder="Roof Height" type="number" value={formData.roofHeight} onChange={e => handleChange("roofHeight", e.target.value)} />
-                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeight}</p>}
+                <label className="block mb-1 text-sm font-medium">Zip Code *</label>
+                <Input placeholder="Zip" value={formData.installationZip} onChange={e => handleChange("installationZip", e.target.value)} required />
+                {errors.installationZip && <p className="text-red-500 text-sm mt-1">{errors.installationZip}</p>}
               </div>
+
               <div>
-                <label className="block mb-1 text-sm font-medium">Preferred kW Capacity</label>
-                <Input placeholder="Capacity" value={formData.capacity} onChange={e => handleChange("capacity", e.target.value)} />
+                <label className="block mb-1 text-sm font-medium">Roof Height (m) *</label>
+                <Input type="number" placeholder="Roof Height" value={formData.installationRoofHeight} onChange={e => handleChange("installationRoofHeight", e.target.value)} required />
+                {errors.installationRoofHeight && <p className="text-red-500 text-sm mt-1">{errors.installationRoofHeight}</p>}
               </div>
-               <div>
-                <label className="block mb-1 text-sm font-medium">Roof Size (m²)</label>
-                <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Preferred kW Capacity *</label>
+                <Input placeholder="Capacity" value={formData.installationCapacity} onChange={e => handleChange("installationCapacity", e.target.value)} required />
+                {errors.installationCapacity && <p className="text-red-500 text-sm mt-1">{errors.installationCapacity}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Roof Size (m²) *</label>
+                <Input placeholder="Roof Size" value={formData.installationRoofSize} onChange={e => handleChange("installationRoofSize", e.target.value)} required />
+                {errors.installationRoofSize && <p className="text-red-500 text-sm mt-1">{errors.installationRoofSize}</p>}
               </div>
             </>
           )}
-
           {selectedService === "relocation" && (
             <>
-            <div>
-                <label className="block mb-1 text-sm font-medium">No & Stress Name (Current Address)*</label>
-                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
-                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-              </div>
+              {/* Current Address */}
               <div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">Province (Current Address)*</label>
-                    <Select value={formData.province} onValueChange={v => {
-                      handleChange("province", v);
-                      handleChange("city", "");
-                    }}>
-                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
-                      <SelectContent>
-                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
-                  </div>
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">City (Current Address)*</label>
-                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
-                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
-                      <SelectContent>
-                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-                  </div>
-                </div>
-                
+                <label className="block mb-1 text-sm font-medium">Current Street Address *</label>
+                <Input placeholder="Street" value={formData.relocationOldAddress} onChange={e => handleChange("relocationOldAddress", e.target.value)} required />
+                {errors.relocationOldAddress && <p className="text-red-500 text-sm mt-1">{errors.relocationOldAddress}</p>}
+              </div>
 
-              </div>
-             
-              
-              <div>
-                <label className="block mb-1 text-sm font-medium">Current Address</label>
-                <Input placeholder="Current Address" value={formData.oldAddress} onChange={e => handleChange("oldAddress", e.target.value)} />
-              </div>
-              <div>
-                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m) (Current Address)*</label>
-                <Input placeholder="Roof Height" type="number" value={formData.roofHeightCurrent} onChange={e => handleChange("roofHeightCurrent", e.target.value)} />
-                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeightCurrent}</p>}
-              </div>
-              <div>
-                <label className="block mb-1 text-sm font-medium">No & Stress Name (New Address) *</label>
-                <Input placeholder="Address" value={formData.address} onChange={e => handleChange("address", e.target.value)} />
-                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-              </div>
-              <div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">Province (New Address) *</label>
-                    <Select value={formData.province} onValueChange={v => {
-                      handleChange("province", v);
-                      handleChange("city", "");
-                    }}>
-                      <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
-                      <SelectContent>
-                        {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
-                  </div>
-                  <div className="flex-1">
-                    <label className="block mb-1 text-sm font-medium">City(New Address) *</label>
-                    <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
-                      <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
-                      <SelectContent>
-                        {(citiesByProvince[formData.province.replace(/\s/g, "")] || []).map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-                  </div>
-
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">Current Province *</label>
+                  <Select value={formData.relocationOldProvince} onValueChange={v => {
+                    handleChange("relocationOldProvince", v);
+                    handleChange("relocationOldCity", "");
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                    <SelectContent>
+                      {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.relocationOldProvince && <p className="text-red-500 text-sm mt-1">{errors.relocationOldProvince}</p>}
                 </div>
-                
-              </div>       
-              <div>
-                <label className="block mb-1 text-sm font-medium">Approx. Roof Height from Floor (m)(New Address) *</label>
-                <Input placeholder="Roof Height" type="number" value={formData.roofHeightNew} onChange={e => handleChange("roofHeightNew", e.target.value)} />
-                {errors.roofHeight && <p className="text-red-500 text-sm mt-1">{errors.roofHeightNew}</p>}
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">Current City *</label>
+                  <Select value={formData.relocationOldCity} onValueChange={v => handleChange("relocationOldCity", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                    <SelectContent>
+                      {(citiesByProvince[formData.relocationOldProvince?.replace(/\s/g, "")] || []).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.relocationOldCity && <p className="text-red-500 text-sm mt-1">{errors.relocationOldCity}</p>}
+                </div>
               </div>
-               <div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Current Zip Code *</label>
+                <Input placeholder="Zip" value={formData.relocationOldZip} onChange={e => handleChange("relocationOldZip", e.target.value)} required />
+                {errors.relocationOldZip && <p className="text-red-500 text-sm mt-1">{errors.relocationOldZip}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Roof Height at Current Address (m) *</label>
+                <Input type="number" placeholder="Roof Height" value={formData.relocationRoofHeightOld} onChange={e => handleChange("relocationRoofHeightOld", e.target.value)} required />
+                {errors.relocationRoofHeightOld && <p className="text-red-500 text-sm mt-1">{errors.relocationRoofHeightOld}</p>}
+              </div>
+
+              {/* New Address */}
+              <div>
+                <label className="block mb-1 text-sm font-medium">New Street Address *</label>
+                <Input placeholder="Street" value={formData.relocationNewAddress} onChange={e => handleChange("relocationNewAddress", e.target.value)} required />
+                {errors.relocationNewAddress && <p className="text-red-500 text-sm mt-1">{errors.relocationNewAddress}</p>}
+              </div>
+
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">New Province *</label>
+                  <Select value={formData.relocationNewProvince} onValueChange={v => {
+                    handleChange("relocationNewProvince", v);
+                    handleChange("relocationNewCity", "");
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                    <SelectContent>
+                      {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.relocationNewProvince && <p className="text-red-500 text-sm mt-1">{errors.relocationNewProvince}</p>}
+                </div>
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">New City *</label>
+                  <Select value={formData.relocationNewCity} onValueChange={v => handleChange("relocationNewCity", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                    <SelectContent>
+                      {(citiesByProvince[formData.relocationNewProvince?.replace(/\s/g, "")] || []).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.relocationNewCity && <p className="text-red-500 text-sm mt-1">{errors.relocationNewCity}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">New Zip Code *</label>
+                <Input placeholder="Zip" value={formData.relocationNewZip} onChange={e => handleChange("relocationNewZip", e.target.value)} required />
+                {errors.relocationNewZip && <p className="text-red-500 text-sm mt-1">{errors.relocationNewZip}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Roof Height at New Address (m) *</label>
+                <Input type="number" placeholder="Roof Height" value={formData.relocationRoofHeightNew} onChange={e => handleChange("relocationRoofHeightNew", e.target.value)} required />
+                {errors.relocationRoofHeightNew && <p className="text-red-500 text-sm mt-1">{errors.relocationRoofHeightNew}</p>}
+              </div>
+
+              <div>
                 <label className="block mb-1 text-sm font-medium">Roof Size (m²)</label>
-                <Input placeholder="Roof Size" value={formData.roofSize} onChange={e => handleChange("roofSize", e.target.value)} />
+                <Input placeholder="Roof Size" value={formData.relocationRoofSize} onChange={e => handleChange("relocationRoofSize", e.target.value)} />
+                {errors.relocationRoofSize && <p className="text-red-500 text-sm mt-1">{errors.relocationRoofSize}</p>}
               </div>
             </>
           )}
-
           {selectedService === "maintenance" && (
             <>
-            <div>
-              <label className="block mb-1 text-sm font-medium">Describe the issue</label>
-              <Textarea placeholder="Describe the issue" value={formData.problem} onChange={e => handleChange("problem", e.target.value)} />
-            </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Street Address *</label>
+                <Input placeholder="Street" value={formData.maintenanceAddress} onChange={e => handleChange("maintenanceAddress", e.target.value)} required />
+                {errors.maintenanceAddress && <p className="text-red-500 text-sm mt-1">{errors.maintenanceAddress}</p>}
+              </div>
+
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">Province *</label>
+                  <Select value={formData.maintenanceProvince} onValueChange={v => {
+                    handleChange("maintenanceProvince", v);
+                    handleChange("maintenanceCity", "");
+                  }}>
+                    <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                    <SelectContent>
+                      {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.maintenanceProvince && <p className="text-red-500 text-sm mt-1">{errors.maintenanceProvince}</p>}
+                </div>
+                <div className="flex-1">
+                  <label className="block mb-1 text-sm font-medium">City *</label>
+                  <Select value={formData.maintenanceCity} onValueChange={v => handleChange("maintenanceCity", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                    <SelectContent>
+                      {(citiesByProvince[formData.maintenanceProvince?.replace(/\s/g, "")] || []).map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.maintenanceCity && <p className="text-red-500 text-sm mt-1">{errors.maintenanceCity}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Zip Code *</label>
+                <Input placeholder="Zip" value={formData.maintenanceZip} onChange={e => handleChange("maintenanceZip", e.target.value)} required />
+                {errors.maintenanceZip && <p className="text-red-500 text-sm mt-1">{errors.maintenanceZip}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Roof Height (m) *</label>
+                <Input type="number" placeholder="Roof Height" value={formData.maintenanceRoofHeight} onChange={e => handleChange("maintenanceRoofHeight", e.target.value)} required />
+                {errors.maintenanceRoofHeight && <p className="text-red-500 text-sm mt-1">{errors.maintenanceRoofHeight}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm font-medium">Describe the issue *</label>
+                <Textarea placeholder="Describe the issue" value={formData.maintenanceProblem} onChange={e => handleChange("maintenanceProblem", e.target.value)} />
+                {errors.maintenanceProblem && <p className="text-red-500 text-sm mt-1">{errors.maintenanceProblem}</p>}
+              </div>
             </>
           )}
 
+
+
+
           <div>
-            
             <label className="block mb-1 text-sm font-medium">Preferred Date</label>
             <Input type="date" value={formData.preferredDate} onChange={e => handleChange("preferredDate", e.target.value)} />
           </div>
-
 
           <Button
             onClick={handleSubmit}
@@ -307,6 +447,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
       </div>
     </div>
   );
+
 };
 
 export default ServiceRequestModal;
