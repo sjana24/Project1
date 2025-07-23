@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 import { useToast } from "@/hooks/use-toast";
-import { X ,Star} from "lucide-react";
+import { X, Star } from "lucide-react";
 import axios from "axios";
 import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,7 +24,7 @@ interface Service {
   service_id: number;
   provider_id: number;
   provider_name: string;
-  company_name:string;
+  company_name: string;
   name: string;
   description: string;
   price: number;
@@ -32,13 +32,13 @@ interface Service {
   average_rating: number;
   // specifications: string;
   /// rating add pannale
-  rating:number;
-  company_image:string;
+  rating: number;
+  company_image: string;
   images: string; // this is a JSON string (array in string)
   is_approved: number;
   created_at: string;
   updated_at: string;
-  reviews:string[];
+  reviews: string[];
   // success?: boolean;
 
 
@@ -60,10 +60,12 @@ interface SelectedServices {
   problem: string;
   province: string;
   roofHeight: string;
+  roofHeightCurrent: string;
+  roofHeightNew: string;
   roofSize: string;
   roofType: string;
-  profile_image:string;
-  serviceType: "installation" | "relocate" |"maintainance";
+  profile_image: string;
+  serviceType: "installation" | "relocate" | "maintainance";
   zip: string;
 }
 interface formData {
@@ -87,7 +89,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
   const [selectedFormData, setSelectedFormData] = useState<formData[]>([]);
   const [selectedServiceReviews, setSelectedServiceReviews] = useState([]);
-const [selectedServiceName, setSelectedServiceName] = useState('');
+  const [selectedServiceName, setSelectedServiceName] = useState('');
 
 
   const { checkSession } = useAuth();
@@ -99,102 +101,102 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
       }
     })();
   }, []);
-  
 
 
-  const services1 = [
-    {
-      id: 1,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 2,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 3,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 4,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 5,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      img: "one.jpeg",
-      email: "contact@solartechpro.com"
-    },
-    {
-      id: 6,
-      name: "Solar Panel Installation",
-      provider: "SolarTech Pro",
-      description: "Professional residential and commercial solar panel installation with warranty",
-      price: 100,
-      priceUnit: "per panel",
-      rating: 4.9,
-      image: "/placeholder.svg",
-      category: "installation",
-      features: ["Free consultation", "25-year warranty", "Same-day installation"],
-      phone: "+1 (555) 123-4567",
-      email: "contact@solartechpro.com",
-      img: "one.jpeg",
-    },
 
-  ]
+  // const services1 = [
+  //   {
+  //     id: 1,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     img: "one.jpeg",
+  //     email: "contact@solartechpro.com"
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Solar Panel Installation",
+  //     provider: "SolarTech Pro",
+  //     description: "Professional residential and commercial solar panel installation with warranty",
+  //     price: 100,
+  //     priceUnit: "per panel",
+  //     rating: 4.9,
+  //     image: "/placeholder.svg",
+  //     category: "installation",
+  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
+  //     phone: "+1 (555) 123-4567",
+  //     email: "contact@solartechpro.com",
+  //     img: "one.jpeg",
+  //   },
+
+  // ]
 
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
@@ -270,16 +272,16 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
     }
 
   }
-  const handleViewReviews = async (serviceId: number, service:any) => {
-  try {
-    // const response = await fetch(`http://localhost/Git/Project1/Backend/get_reviews.php?service_id=${serviceId}`);
-    // const data = await response.json();
-    setSelectedServiceReviews(service.reviews); // assuming backend sends { reviews: [] }
-    setSelectedServiceName(service.name); // assuming service has a name property
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-  }
-};
+  const handleViewReviews = async (serviceId: number, service: any) => {
+    try {
+      // const response = await fetch(`http://localhost/Git/Project1/Backend/get_reviews.php?service_id=${serviceId}`);
+      // const data = await response.json();
+      setSelectedServiceReviews(service.reviews); // assuming backend sends { reviews: [] }
+      setSelectedServiceName(service.name); // assuming service has a name property
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  };
 
   // const closeModel = () => {
   //   setIsModalOpen(false);
@@ -418,24 +420,35 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         {/*  */}
-                        <img 
-                        src={`http://localhost/Git/Project1/Backend/${service.company_image.split(',')[0]}`}
-                        alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
+                        <img
+                          src={`http://localhost/Git/Project1/Backend/${service.company_image.split(',')[0]}`}
+                          alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
                       </div>
                       <div>
                         <CardTitle className="text-xl">{service.company_name}</CardTitle>
                         <p className="text-sm text-muted-foreground font-medium">{service.provider_name}</p>
                         <div className="">
-                        <Badge variant="default" className="mt-1 bg-blue-300">
-                          {service.category}
-                        </Badge>
+                          <Badge variant="default" className="mt-1 bg-blue-300">
+                            {service.category}
+                          </Badge>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Star size={20} className="text-yellow-500" />
-                      <span className="text-sm font-medium">{service.average_rating}</span>
+                      {/* <Star size={20} className="text-yellow-500" />
+                      <span className="text-sm font-medium">
+                        {service.average_rating}
+                        </span>
                       {/* </Star> */}
+
+                      {service.average_rating != null ? (
+                        <>
+                          <Star size={20} className="text-yellow-500" />
+                          <span className="text-sm font-medium">{service.average_rating}</span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-medium">New Service</span>
+                      )}
                     </div>
                   </div>
                   <CardDescription className="text-muted-foreground mb-4">
@@ -489,35 +502,35 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
 
                         Request for Contact
                       </Button>
-                       <Dialog>
-  <DialogTrigger asChild>
-    <Button
-      variant="outline"
-      className="text-sm text-blue-600 hover:text-blue-800"
-      onClick={() => handleViewReviews(service.service_id, service)}
-    >
-      View Reviews
-    </Button>
-  </DialogTrigger>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                            onClick={() => handleViewReviews(service.service_id, service)}
+                          >
+                            View Reviews
+                          </Button>
+                        </DialogTrigger>
 
-  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-    <DialogHeader>
-      <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
-    </DialogHeader>
+                        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
+                          </DialogHeader>
 
-    {selectedServiceReviews.length > 0 ? (
-      selectedServiceReviews.map((review, index) => (
-        <div key={index} className="border-b py-3">
-          <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
-          <p className="text-base">{review.comment}</p>
-        </div>
-      ))
-    ) : (
-      <p className="text-muted-foreground">No reviews available.</p>
-    )}
-  </DialogContent>
-</Dialog>
-                     
+                          {selectedServiceReviews.length > 0 ? (
+                            selectedServiceReviews.map((review, index) => (
+                              <div key={index} className="border-b py-3">
+                                <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
+                                <p className="text-base">{review.comment}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-muted-foreground">No reviews available.</p>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+
 
                     </div>
                   </div>
@@ -568,7 +581,7 @@ const [selectedServiceName, setSelectedServiceName] = useState('');
         />
 
       </div>
-     
+
 
       <Footer />
     </div>
