@@ -169,7 +169,7 @@ const Index = () => {
               <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                    <feature.icon className="h-6 w-6 text-green-600" />
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                   <CardDescription className="text-muted-foreground">
@@ -178,7 +178,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <Link to={feature.link}>
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Button variant="outline" className="w-full group-hover:bg-green-500 group-hover:text-white transition-colors">
                       Learn More
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

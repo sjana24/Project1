@@ -717,7 +717,7 @@ const Login = () => {
                         </>
                       )}
 
-                      <Button type="submit" className="w-full solar-gradient text-white">
+                      <Button type="submit" className="w-full bg-[#26B170] text-white hover:bg-[#26B170]">
                         Create Account
                       </Button>
                     </form>

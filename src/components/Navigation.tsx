@@ -267,7 +267,7 @@ const Navigation = () => {
           to={item.path}
           className={`${mobile ? "block py-2 px-4" : "inline-block"
 
-            } text-foreground hover:text-primary transition-colors duration-200 ${location.pathname === item.path ? "text-primary font-semibold" : ""
+            } text-foreground hover:text-green-700 transition-colors duration-200 ${location.pathname === item.path ? "text-green-700 font-semibold" : ""
 
             }`}
           onClick={() => mobile && setIsOpen(false)}
@@ -333,7 +333,7 @@ const Navigation = () => {
               <>
                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button ><ShoppingCart />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                    <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
 
                       {cartCount > 9 ? '9+' : cartCount}
 
@@ -344,7 +344,7 @@ const Navigation = () => {
 
                 <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}><Bell />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                    <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
 
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
