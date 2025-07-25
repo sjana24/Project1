@@ -76,7 +76,8 @@ JOIN
 JOIN 
     user u ON sp.user_id = u.user_id
 WHERE 
-    p.is_approved = :is_approved";
+    p.is_approved = :is_approved
+    ";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
         $stmt->execute();
