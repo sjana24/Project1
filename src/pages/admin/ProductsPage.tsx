@@ -103,9 +103,9 @@ const ProductsPage = () => {
         { withCredentials: true });
       // console.log("Registration successful:");
        if (res.data.success) {
-        console.log("account created successful ");
+        console.log("status updarted  ");
         toast({
-          title: "Account Created!",
+          title: "product status updated!",
           description: "Successful",
         });
         // navigate (0);
