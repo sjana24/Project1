@@ -6,6 +6,12 @@ interface CartModalProps {
     isOpen: boolean;
     onClose: () => void;
     selectedItems: item[];
+    formData: string;
+}
+export interface address {
+    province: string;
+    city: string;
+    street: string;
 }
 
 export interface item {
@@ -16,11 +22,16 @@ export interface item {
     providerId: number;
     quantity: number;
     userId: number;
-    unit_price:number;
+    unit_price: number;
 }
 
-const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
+const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps) => {
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | null>(null);
+    const [cardData, setCardData] = useState({
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+});
 
     const subtotal = selectedItems.reduce(
         (total, item) => total + item.unit_price * item.quantity,
@@ -29,13 +40,33 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
     const deliveryFee = 310;
     const total = subtotal + deliveryFee;
 
-    const confirmPayment =()=>{
-        if(!paymentMethod){
-        console.log("hi");}
-        else{
+    const confirmPayment = () => {
+        if (!paymentMethod) {
+            console.log("hi");
+        }
+        else {
             console.log(" doi");
         }
 
+    }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCardData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+         setErrors(prev => ({ ...prev, [name]: "" }));
+    };
+    
+      const [errors, setErrors] = useState<any>({});
+    const validate = () => {
+    const newErrors: any = {};
+
+    // Common required fields
+    if (!cardData.cardNumber) newErrors.cardNumber = "Card Number is required.";
+    if (!cardData.expiry) newErrors.expiry = "Expiry date is required.";
+    if (!cardData.cvv) newErrors.cvv = "CVV is required.";
+    return newErrors;
     }
 
 
@@ -78,6 +109,14 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                                 </div>
                             </div>
                         ))}
+                        <div className="flex items-center gap-4 border-b pb-4">
+                            <p><b>Address : </b>
+                                <span className="font-semibold">
+                                    {formData}
+                                </span>
+                            </p>
+
+                        </div>
                         <div>
                             <h3 className="font-semibold text-gray-700 mb-2">Choose Payment Method</h3>
                             <div className="flex gap-4">
@@ -103,20 +142,33 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                                 <div className="mt-4 space-y-2">
                                     <input
                                         type="text"
+                                        name="cardNumber"
+                                        value={cardData.cardNumber}
+                                        onChange={handleChange}
                                         placeholder="Card Number"
-                                        className="w-full border px-4 py-2 rounded"
+                                        className="w-full border px-4 py-2 rounded mb-2"
+                                        required
                                     />
+                                    {errors.CardNumber && <p className="text-red-500 text-sm mt-1">{errors.CardNumber}</p>}
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
+                                            name="expiry"
+                                            value={cardData.expiry}
+                                            onChange={handleChange}
                                             placeholder="Expiry (MM/YY)"
                                             className="w-1/2 border px-4 py-2 rounded"
                                         />
+                                        {errors.expiry && <p className="text-red-500 text-sm mt-1">{errors.expiry}</p>}
                                         <input
                                             type="text"
+                                            name="cvv"
+                                            value={cardData.cvv}
+                                            onChange={handleChange}
                                             placeholder="CVV"
                                             className="w-1/2 border px-4 py-2 rounded"
                                         />
+                                        {errors.cvv && <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>}
                                     </div>
                                 </div>
                             )}
@@ -143,13 +195,25 @@ const CartModal = ({ isOpen, onClose, selectedItems }: CartModalProps) => {
                         </div>
 
                         <button
-                            
+
                             onClick={() => {
                                 // alert("Payment confirmed");
                                 confirmPayment();
                             }}
-                            className="w-full mt-6 bg-[#26B170] text-white font-semibold py-2 px-4 rounded"
-                            // disabled={!paymentMethod}
+                            className={`w-full mt-6  font-semibold py-2 px-4 rounded
+                                 ${!paymentMethod  
+                                  
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-[#26B170] text-white hover:bg-[#26B170]"
+                                }
+                            `}
+                            disabled={
+                                !paymentMethod
+                                //  ||
+                                // (paymentMethod === "card" &&
+                                //     (!cardData.cardNumber || !cardData.expiry || !cardData.cvv))
+                            }
+
                         >
                             Confirm & Pay
                         </button>

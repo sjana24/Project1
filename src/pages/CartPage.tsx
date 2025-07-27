@@ -7,6 +7,8 @@ import CartModal from "@/components/ui/cartModel";
 import axios from "axios";
 import { create } from 'zustand'
 import { useCartStore } from "@/store/useCartStore";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { add } from "date-fns";
 
 export interface item {
     item_id: number,
@@ -28,11 +30,9 @@ const CartPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cartItems, setCartItems] = useState<item[]>([]);
     const { setCartItemsCount, updateCartCount, cartUpdated } = useCartStore();
-    const [address, setAddress] = useState({
-        province: '',
-        district: '',
-        street: '',
-    });
+    const [address, setAddress] = useState(
+       "address"
+    );
 
 
     // const item1s: item[] = [
@@ -66,6 +66,28 @@ const CartPage = () => {
     //     userId: 3,
     // },
     // ];
+    const provinces = [
+        { value: "Central", label: "Central Province" },
+        { value: "Eastern", label: "Eastern Province" },
+        { value: "North Central", label: "North Central Province" },
+        { value: "Northern", label: "Northern Province" },
+        { value: "North Western", label: "North Western Province" },
+        { value: "Sabaragamuwa", label: "Sabaragamuwa Province" },
+        { value: "Southern", label: "Southern Province" },
+        { value: "Uva", label: "Uva Province" },
+        { value: "Western", label: "Western Province" },
+    ];
+    const citiesByProvince: Record<string, string[]> = {
+        Western: ["Colombo", "Gampaha", "Kalutara"],
+        Central: ["Kandy", "Matale", "Nuwara Eliya"],
+        Southern: ["Galle", "Matara", "Hambantota"],
+        Eastern: ["Trincomalee", "Batticaloa", "Ampara"],
+        Northern: ["Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya"],
+        NorthCentral: ["Anuradhapura", "Polonnaruwa"],
+        NorthWestern: ["Kurunegala", "Puttalam"],
+        Uva: ["Badulla", "Monaragala"],
+        Sabaragamuwa: ["Ratnapura", "Kegalle"]
+    };
     useEffect(() => {
         //   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
         setCartItems([]);
@@ -91,6 +113,18 @@ const CartPage = () => {
                 console.error("Error fetching cart items:", err);
             });
     }, [cartUpdated]); // Add currentUser as dependency if it can change
+
+    const [formData, setFormData] = useState<any>({
+        province: "",
+        city: "",
+        street: "",
+
+
+    });
+
+
+
+    const [errors, setErrors] = useState<any>({});
 
 
     const handleQuantityChange = (
@@ -126,8 +160,19 @@ const CartPage = () => {
         (sum, item) => sum + item.unit_price * item.quantity,
         0
     );
+    const handleChange = (key: string, value: string) => {
+        console.log(` key: ${key}, value: ${value} `);
+        setFormData(prev => ({ ...prev, [key]: value }));
+        setErrors(prev => ({ ...prev, [key]: "" }));
+    };
     const handleClick = () => {
         console.log("hi this is me");
+        console.log("Selected items:", selectedCartItems);
+        console.log("Form data:", formData);
+        const addressData = `${formData.street}, ${formData.province}, ${formData.city}`;
+        console.log("Address data:", addressData);
+        // setAddress({address:addressData});
+         setAddress(addressData);
         //   setSelectedProduct(product);
         setIsModalOpen(true);
         // navigate("/emo");
@@ -254,7 +299,7 @@ const CartPage = () => {
                         </div>
                     </div>
                     {/* Address Box */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
+                    {/* <div className="bg-white rounded-lg shadow-md p-6">
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Address</h2>
                         <div className="space-y-4">
                             <input
@@ -279,10 +324,66 @@ const CartPage = () => {
                                 className="w-full border rounded-md px-4 py-2 text-sm"
                             />
                         </div>
-                    </div>
+                    </div> */}
+
                     {/* Order Summary */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <div className="lg:col-span-1 p-4 ">
+                        <div className="bg-white rounded-lg shadow-md p-4 ">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Address</h2>
+                            <div className="space-y-4">
+                                  <input
+                                    type="text"
+                                    placeholder="Street"
+                                    value={formData.street}
+                                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                                    className="w-full border rounded-md px-4 py-2 text-sm"
+                                />
+                                <div className="flex gap-2">
+                                    
+                                    <div className="flex-1">
+                                        <label className="block mb-1 text-sm font-medium">Province *</label>
+                                        <Select value={formData.province} onValueChange={v => {
+                                            handleChange("province", v);
+                                            handleChange("city", "");
+                                        }}>
+                                            <SelectTrigger><SelectValue placeholder="Select Province" /></SelectTrigger>
+                                            <SelectContent>
+                                                {provinces.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.installationProvince && <p className="text-red-500 text-sm mt-1">{errors.installationProvince}</p>}
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block mb-1 text-sm font-medium">City *</label>
+                                        <Select value={formData.city} onValueChange={v => handleChange("city", v)}>
+                                            <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                                            <SelectContent>
+                                                {(citiesByProvince[formData.province?.replace(/\s/g, "")] || []).map(c => (
+                                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.installationCity && <p className="text-red-500 text-sm mt-1">{errors.installationCity}</p>}
+                                    </div>
+                                </div>
+                                {/* <input
+                                    type="text"
+                                    placeholder="Province"
+                                    value={address.province}
+                                    onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                                    className="w-full border rounded-md px-4 py-2 text-sm"
+                                /> */}
+                                {/* <input
+                                    type="text"
+                                    placeholder="District"
+                                    value={address.district}
+                                    onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                                    className="w-full border rounded-md px-4 py-2 text-sm"
+                                /> */}
+                              
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-md p-6 sticky top-24 m-5">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">
                                 Order Summary
                             </h2>
@@ -310,15 +411,17 @@ const CartPage = () => {
                             <button
                                 disabled={
                                     selectedItems.length === 0 ||
-                                    !address.province.trim() ||
-                                    !address.district.trim() ||
-                                    !address.street.trim()
+                                    !formData.province.trim() ||
+                                    !formData.city.trim()|| 
+                                    !formData.street.trim()
                                 }
                                 onClick={handleClick}
-                                className={`w-full py-3 rounded-lg mt-4 font-semibold transition-colors ${selectedItems.length === 0 ||
-                                    !address.province.trim() ||
-                                    !address.district.trim() ||
-                                    !address.street.trim()
+                                className={`w-full py-3 rounded-lg mt-4 font-semibold transition-colors 
+                                    ${
+                                    selectedItems.length === 0 ||
+                                    !formData.province.trim() ||
+                                    !formData.city.trim() ||
+                                    !formData.street.trim()
                                     ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                                     : "bg-[#26B170] text-white hover:bg-[#26B170]"
                                     }`}
@@ -387,6 +490,7 @@ const CartPage = () => {
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 selectedItems={selectedCartItems}
+                formData={address}
             />
         </div >
     );
