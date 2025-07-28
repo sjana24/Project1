@@ -547,4 +547,33 @@ class Service
             ];
         }
     }
+    public function deleteService($service_id, $provider_id)
+    {
+        $this->service_id = (int)$service_id;
+        $this->provider_id = (int)$provider_id;
+
+        // try {
+        //     $sql = "DELETE FROM service WHERE service_id = :service_id AND provider_id = :provider_id";
+        //     $stmt = $this->conn->prepare($sql);
+        //     $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
+        //     $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+
+        //     if ($stmt->execute()) {
+        //         return [
+        //             "success" => true,
+        //             "message" => "Service deleted successfully."
+        //         ];
+        //     } else {
+        //         return [
+        //             "success" => false,
+        //             "message" => "Failed to delete service."
+        //         ];
+        //     }
+        // } catch (PDOException $e) {
+        //     return [
+        //         "success" => false,
+        //         "message" => "Error deleting service: " . $e->getMessage()
+        //     ];
+        // }
+    }
 }

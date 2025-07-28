@@ -26,7 +26,7 @@ if (isset($_SESSION['user'])) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['formData'];
         $service_id = $data['service_id'];
-       
+
         $updateService = new Service();
 
         // $service_id = isset($array['service_id']) ? htmlspecialchars(strip_tags($array['service_id'])) : '';
@@ -40,18 +40,17 @@ if (isset($_SESSION['user'])) {
         // $visible = isset($array['visible']) ? (bool)$array['visible'] : false;
         $visible = 1; // Assuming visible is always set to 1 for now
 
-     echo $service_id;
-echo $user_id;
-echo $name;
-echo $description;
-echo $price;
-echo $type;
-echo $status;
-echo $visible;
-            echo (`$service_id, $user_id, $name, $description, $price, $type, $status,$visible`);
-            $response = $updateService->updateService($service_id, $user_id, $name, $description, $price, $type, $status,$visible);
-            echo json_encode($response);
-            echo ("1");
-        
+        echo $service_id;
+        echo $user_id;
+        echo $name;
+        echo $description;
+        echo $price;
+        echo $type;
+        echo $status;
+        echo $visible;
+        echo (`$service_id, $user_id, $name, $description, $price, $type, $status,$visible`);
+        $response = $updateService->updateService($service_id, $user_id, $name, $description, $price, $type, $status, $visible);
+        echo json_encode($response);
+        echo ("1");
     }
 }

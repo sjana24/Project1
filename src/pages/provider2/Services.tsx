@@ -210,13 +210,25 @@ export default function Services() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php")
-    toast({
-      title: 'Service Deleted',
-      description: 'Service has been deleted successfully.',
-      variant: 'destructive',
-    });
+  const handleDelete = async (service_id: number) => {
+   
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php", {service_id:service_id }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Service Deleted',
+          description: 'Service has been deleted successfully.',
+        });
+      }
+      else {
+        toast({
+          title: 'Service Deleted failure',
+          description: 'Service has been deleted failure.',
+          variant: "destructive"
+        });
+
+      }
   };
 
   return (
