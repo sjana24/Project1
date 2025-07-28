@@ -29,9 +29,9 @@ export default function Services() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-    const [loading, setLoading] = useState(true);
-      const [services, setServices] = useState<Service[]>([]);
-  
+  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>([]);
+
   // const services=[];
   const [formData, setFormData] = useState({
     name: '',
@@ -49,11 +49,11 @@ export default function Services() {
     'Design',
     'Energy Audit'
   ];
-   useEffect(()=>{
-     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
-     {
-    withCredentials:true
-    })
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
+      {
+        withCredentials: true
+      })
       .then(response => {
         const data = response.data;
         if (response.data.success) {
@@ -75,28 +75,55 @@ export default function Services() {
       });
 
 
-  },[]);
+  }, []);
 
   const filteredServices = services.filter(service =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingService) {
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/editProviderService.php", { formData }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Service Updated',
+          description: 'Service has been updated successfully.',
+        });
+      }
+      else{
+        toast({
+          title: 'Service Updated failure',
+          description: 'Service has been updated failure.',
+          variant:"destructive"
+        });
+
+      }
+
       // updateService(editingService.id, formData);
-      toast({
-        title: 'Service Updated',
-        description: 'Service has been updated successfully.',
-      });
+
     } else {
       // addService(formData);
-      toast({
+      const response =await axios.post("http://localhost/Git/Project1/Backend/addProviderService.php", { formData }, { withCredentials: true })
+      
+       if (response.data.success) {
+        toast({
         title: 'Service Added',
         description: 'New service has been added successfully.',
       });
+      }
+      else{
+        toast({
+          title: 'Service Addeded failure',
+          description: 'Service has been added failure.',
+          variant:"destructive"
+        });
+
+      }
     }
 
     setFormData({
@@ -122,8 +149,8 @@ export default function Services() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    // deleteService(id);
+  const handleDelete = async(id: number) => {
+    const response=await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php")
     toast({
       title: 'Service Deleted',
       description: 'Service has been deleted successfully.',
@@ -138,7 +165,7 @@ export default function Services() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
           <p className="text-gray-500 dark:text-gray-400">Manage your solar services and offerings</p>
         </div>
-        
+
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-green-500 hover:bg-green-600">
@@ -179,7 +206,7 @@ export default function Services() {
                   </Select>
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -189,7 +216,7 @@ export default function Services() {
                   required
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="price">Price (Rs.)</Label>
@@ -214,7 +241,7 @@ export default function Services() {
                   </Select>
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                   Cancel
