@@ -1,4 +1,4 @@
-import React, { useState ,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Calendar, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,14 +19,14 @@ export interface Job {
   // expiryDate: string;
   // createdAt: string;
 
-  job_id:number;
-  title:string;
-  description:string;
-  requirements:string;
-  location:string;
-  job_type:string;
-  salary_range:string;
-  is_approved:boolean;
+  job_id: number;
+  title: string;
+  description: string;
+  requirements: string;
+  location: string;
+  job_type: string;
+  salary_range: string;
+  is_approved: boolean;
   posting_date;
   expiry_date;
 }
@@ -36,34 +36,34 @@ export default function Jobs() {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-    const [jobs, setJobs] = useState<Job []>([]);
-     const [loading, setLoading] = useState(true);
-  
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+
 
   // const jobs=[];
-   useEffect(() => {
-        axios.get("http://localhost/Git/Project1/Backend/GetAllJobsProvider.php",{withCredentials:true})
-          .then(response => {
-            const data = response.data;
-            if (response.data.success) {
-              console.log("data got");
-    
-              setJobs(data.jobs);
-            }
-            else {
-              // setError('Failed to load products.');
-              console.log(response.data);
-              console.log(" sorry we cant get ur products");
-            }
-            setLoading(false);
-          })
-    
-          .catch(err => {
-            // setError('Something went wrong.');
-            setLoading(false);
-          });
-    
-      }, []);
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllJobsProvider.php", { withCredentials: true })
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
+
+          setJobs(data.jobs);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur products");
+        }
+        setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        setLoading(false);
+      });
+
+  }, []);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -72,25 +72,51 @@ export default function Jobs() {
     expiryDate: '',
   });
 
-  const sortedJobs = [...jobs].sort((a, b) => 
+  const sortedJobs = [...jobs].sort((a, b) =>
     new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
   );
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingJob) {
-      const response= await axios.post("http://localhost/Git/Project1/Backend/updateJobsProvider.php",{},{withCredentials:true});
-      toast({
-        title: 'Job Updated',
-        description: 'Job posting has been updated successfully.',
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/updateJobsProvider.php", {formData:formData,job_id:editingJob.job_id}, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Job Updated',
+          description: 'Job posting has been updated successfully.',
+        });
+      }
+      else {
+        toast({
+        title: 'Job Updated failed',
+        description: 'Job posting has been updated failed.',
+        variant: 'destructive',
       });
+
+      }
+
+
     } else {
-      const response= await axios.post("http://localhost/Git/Project1/Backend/addJobsProvider.php",{},{withCredentials:true});
-      toast({
+      const response = await axios.post("http://localhost/Git/Project1/Backend/addJobsProvider.php", {formData:formData}, { withCredentials: true });
+      if (response.data.success) {
+        toast({
         title: 'Job Posted',
         description: 'New job posting has been created successfully.',
       });
+      }
+      else {
+        toast({
+        title: 'Job Posted failed',
+        description: 'New job posting has been created failed.',
+        variant: 'destructive',
+      });
+
+      }
+      
+      
     }
 
     setFormData({
@@ -134,7 +160,7 @@ export default function Jobs() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Job Postings</h1>
           <p className="text-gray-500 dark:text-gray-400">Manage your job openings and hiring</p>
         </div>
-        
+
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-green-500 hover:bg-green-600">
@@ -158,7 +184,7 @@ export default function Jobs() {
                   required
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Job Description</Label>
                 <Textarea
@@ -169,7 +195,7 @@ export default function Jobs() {
                   required
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="salary">Monthly Salary (Rs.)</Label>
@@ -192,7 +218,7 @@ export default function Jobs() {
                   />
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                   Cancel
