@@ -76,17 +76,17 @@ export default function Jobs() {
     new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     
     if (editingJob) {
-      // updateJob(editingJob.id, formData);
+      const response= await axios.post("http://localhost/Git/Project1/Backend/updateJobsProvider.php",{},{withCredentials:true});
       toast({
         title: 'Job Updated',
         description: 'Job posting has been updated successfully.',
       });
     } else {
-      // addJob(formData);
+      const response= await axios.post("http://localhost/Git/Project1/Backend/addJobsProvider.php",{},{withCredentials:true});
       toast({
         title: 'Job Posted',
         description: 'New job posting has been created successfully.',
