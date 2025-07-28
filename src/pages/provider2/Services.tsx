@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Eye, EyeOff } from 'lucide-react';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { useDashboardStore, Service } from '@/store/dashboardStore';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +22,8 @@ export interface Service {
   description: string;
   price: number;
   type: string;
+  visible: boolean;
+  // category: 'installation' | 'maintainace' | 'relocation';
   status: 'Active' | 'Inactive';
   createdAt: string;
 }
@@ -29,14 +34,15 @@ export default function Services() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-    const [loading, setLoading] = useState(true);
-      const [services, setServices] = useState<Service[]>([]);
-  
+  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>([]);
+
   // const services=[];
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: 0,
+    // category:'',
     type: '',
     status: 'Active' as 'Active' | 'Inactive',
   });
@@ -45,15 +51,14 @@ export default function Services() {
     'Installation',
     'Maintenance',
     'Repair',
-    'Consultation',
-    'Design',
-    'Energy Audit'
+    'Relocation',
+
   ];
-   useEffect(()=>{
-     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
-     {
-    withCredentials:true
-    })
+  useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
+      {
+        withCredentials: true
+      })
       .then(response => {
         const data = response.data;
         if (response.data.success) {
@@ -75,28 +80,55 @@ export default function Services() {
       });
 
 
-  },[]);
+  }, []);
 
   const filteredServices = services.filter(service =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingService) {
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/updateProviderService.php", {formData: formData,service_id: editingService.service_id }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Service Updated',
+          description: 'Service has been updated successfully.',
+        });
+      }
+      else {
+        toast({
+          title: 'Service Updated failure',
+          description: 'Service has been updated failure.',
+          variant: "destructive"
+        });
+
+      }
+
       // updateService(editingService.id, formData);
-      toast({
-        title: 'Service Updated',
-        description: 'Service has been updated successfully.',
-      });
+
     } else {
       // addService(formData);
-      toast({
-        title: 'Service Added',
-        description: 'New service has been added successfully.',
-      });
+      const response = await axios.post("http://localhost/Git/Project1/Backend/addProviderService.php", { formData }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Service Added',
+          description: 'New service has been added successfully.',
+        });
+      }
+      else {
+        toast({
+          title: 'Service Addeded failure',
+          description: 'Service has been added failure.',
+          variant: "destructive"
+        });
+
+      }
     }
 
     setFormData({
@@ -104,10 +136,65 @@ export default function Services() {
       description: '',
       price: 0,
       type: '',
+      // category:'',
       status: 'Active',
     });
     setEditingService(null);
     setIsModalOpen(false);
+  };
+  const updateServiceStatus = async(serviceGet:Service, visible: Service['visible']) => {
+    const updatedServices = services.map(service => {
+      if (service.service_id === serviceGet.service_id) {
+       
+        return { ...service, visible };
+      }
+      return service;
+    });
+
+    setServices(updatedServices);
+    // setFiltereServices(updatedServices);
+    
+   try {
+      const res = await axios.post("http://localhost/Git/Project1/Backend/updateProviderServiceStatus.php", 
+        {
+        service_id: serviceGet.service_id,
+        visible: visible ? 1 : 0, // send as int to PHP
+      }, 
+        { withCredentials: true });
+      // console.log("Registration successful:");
+       if (res.data.success) {
+        console.log("status updarted  ");
+        toast({
+          title: "service status updated!",
+          description: "Successful",
+        });
+        // navigate (0);
+
+
+     
+      }
+      else {
+        console.log(res.data);
+        toast({
+          title: "Sign up failed",
+          description: "Email already used use another email",
+          variant: "destructive",
+        });
+        console.log(" error in login"); // show error message from PHP
+
+      }
+
+
+    } catch (err) {
+      console.error("Error registering user:", err);
+    } finally {
+      // setIsLoading(false);
+    }
+
+    
+  };
+  const updateServicetVisibility = (service:Service, is_approved: boolean) => {
+    updateServiceStatus(service, is_approved ? true : false);
   };
 
   const handleEdit = (service: Service) => {
@@ -117,18 +204,31 @@ export default function Services() {
       description: service.description,
       price: service.price,
       type: service.type,
+      // category:service.category,
       status: service.status,
     });
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    // deleteService(id);
-    toast({
-      title: 'Service Deleted',
-      description: 'Service has been deleted successfully.',
-      variant: 'destructive',
-    });
+  const handleDelete = async (service_id: number) => {
+   
+
+      const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php", {service_id:service_id }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
+          title: 'Service Deleted',
+          description: 'Service has been deleted successfully.',
+        });
+      }
+      else {
+        toast({
+          title: 'Service Deleted failure',
+          description: 'Service has been deleted failure.',
+          variant: "destructive"
+        });
+
+      }
   };
 
   return (
@@ -138,7 +238,7 @@ export default function Services() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
           <p className="text-gray-500 dark:text-gray-400">Manage your solar services and offerings</p>
         </div>
-        
+
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-green-500 hover:bg-green-600">
@@ -179,7 +279,7 @@ export default function Services() {
                   </Select>
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -189,7 +289,7 @@ export default function Services() {
                   required
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="price">Price (Rs.)</Label>
@@ -214,7 +314,7 @@ export default function Services() {
                   </Select>
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                   Cancel
@@ -256,6 +356,28 @@ export default function Services() {
                     </Badge>
                   </div>
                 </div>
+                {/* <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleVisibility(service.service_id)}
+                >
+                  {service.visible ? (
+                    <Eye className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  )}
+                </Button> */}
+                <div className="flex items-center space-x-2">
+
+                  <Switch
+                    checked={service.visible} // assuming product has an `is_visible` boolean field
+                    onCheckedChange={(checked) => updateServicetVisibility(service, checked)}
+                  />
+                  <span className="text-sm text-gray-700">
+                    {service.visible ? "Visible" : "Hidden"}
+                  </span>
+                </div>
+
                 <div className="flex space-x-1">
                   <Button
                     variant="ghost"
