@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Eye, EyeOff } from 'lucide-react';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { useDashboardStore, Service } from '@/store/dashboardStore';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +22,8 @@ export interface Service {
   description: string;
   price: number;
   type: string;
+  visible: boolean;
+  // category: 'installation' | 'maintainace' | 'relocation';
   status: 'Active' | 'Inactive';
   createdAt: string;
 }
@@ -37,6 +42,7 @@ export default function Services() {
     name: '',
     description: '',
     price: 0,
+    // category:'',
     type: '',
     status: 'Active' as 'Active' | 'Inactive',
   });
@@ -45,9 +51,8 @@ export default function Services() {
     'Installation',
     'Maintenance',
     'Repair',
-    'Consultation',
-    'Design',
-    'Energy Audit'
+    'Relocation',
+
   ];
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
@@ -87,7 +92,7 @@ export default function Services() {
 
     if (editingService) {
 
-      const response = await axios.post("http://localhost/Git/Project1/Backend/editProviderService.php", { formData }, { withCredentials: true });
+      const response = await axios.post("http://localhost/Git/Project1/Backend/updateProviderService.php", {formData: formData,service_id: editingService.service_id }, { withCredentials: true });
 
       if (response.data.success) {
         toast({
@@ -95,11 +100,11 @@ export default function Services() {
           description: 'Service has been updated successfully.',
         });
       }
-      else{
+      else {
         toast({
           title: 'Service Updated failure',
           description: 'Service has been updated failure.',
-          variant:"destructive"
+          variant: "destructive"
         });
 
       }
@@ -108,19 +113,19 @@ export default function Services() {
 
     } else {
       // addService(formData);
-      const response =await axios.post("http://localhost/Git/Project1/Backend/addProviderService.php", { formData }, { withCredentials: true })
-      
-       if (response.data.success) {
+      const response = await axios.post("http://localhost/Git/Project1/Backend/addProviderService.php", { formData }, { withCredentials: true });
+
+      if (response.data.success) {
         toast({
-        title: 'Service Added',
-        description: 'New service has been added successfully.',
-      });
+          title: 'Service Added',
+          description: 'New service has been added successfully.',
+        });
       }
-      else{
+      else {
         toast({
           title: 'Service Addeded failure',
           description: 'Service has been added failure.',
-          variant:"destructive"
+          variant: "destructive"
         });
 
       }
@@ -131,10 +136,65 @@ export default function Services() {
       description: '',
       price: 0,
       type: '',
+      // category:'',
       status: 'Active',
     });
     setEditingService(null);
     setIsModalOpen(false);
+  };
+  const updateServiceStatus = async(serviceGet:Service, visible: Service['visible']) => {
+    const updatedServices = services.map(service => {
+      if (service.service_id === serviceGet.service_id) {
+       
+        return { ...service, visible };
+      }
+      return service;
+    });
+
+    setServices(updatedServices);
+    // setFiltereServices(updatedServices);
+    
+   try {
+      const res = await axios.post("http://localhost/Git/Project1/Backend/updateProviderServiceStatus.php", 
+        {
+        service_id: serviceGet.service_id,
+        visible: visible ? 1 : 0, // send as int to PHP
+      }, 
+        { withCredentials: true });
+      // console.log("Registration successful:");
+       if (res.data.success) {
+        console.log("status updarted  ");
+        toast({
+          title: "service status updated!",
+          description: "Successful",
+        });
+        // navigate (0);
+
+
+     
+      }
+      else {
+        console.log(res.data);
+        toast({
+          title: "Sign up failed",
+          description: "Email already used use another email",
+          variant: "destructive",
+        });
+        console.log(" error in login"); // show error message from PHP
+
+      }
+
+
+    } catch (err) {
+      console.error("Error registering user:", err);
+    } finally {
+      // setIsLoading(false);
+    }
+
+    
+  };
+  const updateServicetVisibility = (service:Service, is_approved: boolean) => {
+    updateServiceStatus(service, is_approved ? true : false);
   };
 
   const handleEdit = (service: Service) => {
@@ -144,13 +204,14 @@ export default function Services() {
       description: service.description,
       price: service.price,
       type: service.type,
+      // category:service.category,
       status: service.status,
     });
     setIsModalOpen(true);
   };
 
-  const handleDelete = async(id: number) => {
-    const response=await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php")
+  const handleDelete = async (id: number) => {
+    const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderService.php")
     toast({
       title: 'Service Deleted',
       description: 'Service has been deleted successfully.',
@@ -283,6 +344,28 @@ export default function Services() {
                     </Badge>
                   </div>
                 </div>
+                {/* <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleVisibility(service.service_id)}
+                >
+                  {service.visible ? (
+                    <Eye className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  )}
+                </Button> */}
+                <div className="flex items-center space-x-2">
+
+                  <Switch
+                    checked={service.visible} // assuming product has an `is_visible` boolean field
+                    onCheckedChange={(checked) => updateServicetVisibility(service, checked)}
+                  />
+                  <span className="text-sm text-gray-700">
+                    {service.visible ? "Visible" : "Hidden"}
+                  </span>
+                </div>
+
                 <div className="flex space-x-1">
                   <Button
                     variant="ghost"

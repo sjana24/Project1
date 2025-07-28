@@ -50,6 +50,13 @@ class Service
     protected $preferredDate;
     // protected $preferredTime;
 
+    // protected $name;
+    // protected $description;
+    // protected $price;
+    protected $type;
+    protected $visible;
+    // protected $status;
+
     public function __construct()
     {
         $dbObj = new Database;
@@ -230,7 +237,7 @@ class Service
         $this->roofHeight              = $sanitizedData['roofHeightInstallation'] ?? '';
         $this->roofSizeInstallation                = $sanitizedData['roofSizeInstallation'] ?? '';
 
-         $this->roofHeightInstallation                = $sanitizedData['roofHeightInstallation'] ?? '';
+        $this->roofHeightInstallation                = $sanitizedData['roofHeightInstallation'] ?? '';
         $this->roofHeightOld           = $sanitizedData['fullHeightOldRelocation'] ?? '';
         $this->roofHeightNew           = $sanitizedData['fullHeightNewRelocation'] ?? '';
 
@@ -375,10 +382,169 @@ class Service
     //     http_response_code(500);
     //     echo json_encode(["message" => "Failed to insert request. " . $e->getMessage()]);
     // }
+    public function isExistingService($provider_id, $name, $type)
+    {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM service 
+                WHERE provider_id = ? AND name = ? AND category = ?";
 
-    
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                (int)$provider_id,
+                htmlspecialchars(strip_tags($name)),
+                htmlspecialchars(strip_tags($type))
+            ]);
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
+        } catch (PDOException $e) {
+            // You can log the error here if needed
+            return false;
+        }
+    }
 
 
+    public function insertService($provider_id, $name, $description, $price, $type, $status, $visible)
+    {
+        $this->name        = $name;
+        $this->description = $description;
+        $this->price       = $price;
+        $this->type        = $type;
+        $this->status      = $status;
+        $this->visible      = 1;
+        $this->provider_id = (int)$provider_id;
+
+        $count = $this->isExistingService($this->provider_id, $this->name, $this->type);
+
+        try {
+            // Check for existing service before inserting
+            if ($count > 0) {
+                return [
+                    "success" => false,
+                    "message" => "Service already exists with the same name and category for this provider."
+                ];
+            }
 
 
+            // Insert into `service` table
+            $sql = "INSERT INTO service (
+                    provider_id, name, description, price, category, is_approved,visible, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                $this->provider_id,
+                $this->name,
+                $this->description,
+                $this->price,
+                $this->type,
+                $this->status,
+                $this->visible
+            ]);
+
+            $service_id = $this->conn->lastInsertId();
+
+            return [
+                "success" => true,
+                "message" => "Service inserted successfully.",
+                "service_id" => $service_id
+            ];
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Database error: " . $e->getMessage()
+            ];
+        } catch (Exception $e) {
+            return [
+                "success" => false,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
+    public function updateService($service_id, $provider_id, $name, $description, $price, $type, $status, $visible)
+    {
+        $this->service_id   = $service_id;
+        $this->provider_id  = (int)$provider_id;
+        $this->name         = $name;
+        $this->description  = $description;
+        $this->price        = $price;
+        $this->type         = $type;
+        $this->status       = $status;
+        $this->visible      = $visible;
+
+
+        try {
+
+
+            // Update the service
+            $sqlUpdate = "UPDATE service SET
+                        name = ?,
+                        description = ?,
+                        price = ?,
+                        category = ?,
+                        is_approved = ?,
+                        visible=?,
+                        updated_at = NOW()
+                      WHERE service_id = ? AND provider_id = ?";
+
+            $stmt = $this->conn->prepare($sqlUpdate);
+            $stmt->execute([
+                $this->name,
+                $this->description,
+                $this->price,
+                $this->type,
+                $this->status,
+                $this->visible,
+                $this->service_id,
+                $this->provider_id
+            ]);
+
+            return [
+                "success" => true,
+                "message" => "Service updated successfully."
+            ];
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Database error: " . $e->getMessage()
+            ];
+        } catch (Exception $e) {
+            return [
+                "success" => false,
+                "message" => $e->getMessage()
+            ];
+        }
+    }
+    public function updateServiceStatus($service_id, $visible)
+    {
+        $this->service_id = (int)$service_id;
+        $this->visible = (bool)$visible;
+
+        try {
+            $sql = "UPDATE service 
+                SET visible = :visible, updated_at = NOW() 
+                WHERE service_id = :service_id";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':visible', $this->visible, PDO::PARAM_BOOL);
+            $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Service visibility status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update service visibility status."
+                ];
+            }
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Error updating service visibility: " . $e->getMessage()
+            ];
+        }
+    }
 }
