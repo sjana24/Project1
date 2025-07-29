@@ -214,6 +214,19 @@ WHERE
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($products) {
+                foreach ($products as &$product) {
+                $reviewSql = "SELECT review_id, customer_id, product_id, rating, comment, created_at, updated_at, is_approved 
+                              FROM review 
+                              WHERE product_id = :product_id";
+                
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':product_id', $product['product_id']);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Attach reviews to the service
+                $product['reviews'] = $reviews;
+            }
                 return [
                     'success' => true,
                     'products' => $products,
