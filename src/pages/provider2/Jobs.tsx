@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Calendar, Briefcase } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Briefcase, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,10 +25,16 @@ export interface Job {
   requirements: string;
   location: string;
   job_type: string;
-  salary_range: string;
+  salary_range: number;
+  minSalary:number;
+  maxSalary:number;
   is_approved: boolean;
+  // requirements: '',
+  benefits: string;
   posting_date;
   expiry_date;
+  // location: '',
+  // job_type:string,
 }
 
 export default function Jobs() {
@@ -37,6 +43,9 @@ export default function Jobs() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
+  // const [selectedJob, setSelectedJob] = useState<Job[]>([]);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
   const [loading, setLoading] = useState(true);
 
 
@@ -70,6 +79,12 @@ export default function Jobs() {
     description: '',
     salary: 0,
     expiryDate: '',
+    requirements: '',
+    benefits: '',
+    location: '',
+    minSalary: 0,
+    maxSalary: 0,
+    job_type: ''
   });
 
   const sortedJobs = [...jobs].sort((a, b) =>
@@ -81,7 +96,7 @@ export default function Jobs() {
 
     if (editingJob) {
 
-      const response = await axios.post("http://localhost/Git/Project1/Backend/updateJobsProvider.php", {formData:formData,job_id:editingJob.job_id}, { withCredentials: true });
+      const response = await axios.post("http://localhost/Git/Project1/Backend/updateJobsProvider.php", { formData: formData, job_id: editingJob.job_id }, { withCredentials: true });
 
       if (response.data.success) {
         toast({
@@ -91,32 +106,32 @@ export default function Jobs() {
       }
       else {
         toast({
-        title: 'Job Updated failed',
-        description: 'Job posting has been updated failed.',
-        variant: 'destructive',
-      });
+          title: 'Job Updated failed',
+          description: 'Job posting has been updated failed.',
+          variant: 'destructive',
+        });
 
       }
 
 
     } else {
-      const response = await axios.post("http://localhost/Git/Project1/Backend/addJobsProvider.php", {formData:formData}, { withCredentials: true });
+      const response = await axios.post("http://localhost/Git/Project1/Backend/addJobsProvider.php", { formData: formData }, { withCredentials: true });
       if (response.data.success) {
         toast({
-        title: 'Job Posted',
-        description: 'New job posting has been created successfully.',
-      });
+          title: 'Job Posted',
+          description: 'New job posting has been created successfully.',
+        });
       }
       else {
         toast({
-        title: 'Job Posted failed',
-        description: 'New job posting has been created failed.',
-        variant: 'destructive',
-      });
+          title: 'Job Posted failed',
+          description: 'New job posting has been created failed.',
+          variant: 'destructive',
+        });
 
       }
-      
-      
+
+
     }
 
     setFormData({
@@ -124,6 +139,12 @@ export default function Jobs() {
       description: '',
       salary: 0,
       expiryDate: '',
+      requirements: '',
+      benefits: '',
+      location: '',
+      minSalary:0,
+      maxSalary:0,
+      job_type: '',
     });
     setEditingJob(null);
     setIsModalOpen(false);
@@ -134,7 +155,13 @@ export default function Jobs() {
     setFormData({
       title: job.title,
       description: job.description,
-      salary: job.salary,
+      salary: job.salary_range,
+      requirements: job.requirements,
+      benefits: job.benefits,
+      location: job.location,
+      minSalary:job.maxSalary,
+      maxSalary:job.minSalary,
+      job_type: job.job_type,
       expiryDate: job.expiry_date.split('T')[0], // Format for date input
     });
     setIsModalOpen(true);
@@ -152,6 +179,7 @@ export default function Jobs() {
   const isExpired = (date: string) => {
     return new Date(date) < new Date();
   };
+  // const selected
 
   return (
     <div className="space-y-6">
@@ -195,18 +223,114 @@ export default function Jobs() {
                   required
                 />
               </div>
+              <div>
+                <Label htmlFor="requirements">Job Requirements</Label>
+                <Textarea
+                  id="requirements"
+                  value={formData.requirements}
+                  onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                  rows={4}
+                  required
+                />
+              </div>
 
+              <div>
+                <Label htmlFor="benefits">Job Benefits</Label>
+                <Textarea
+                  id="benefits"
+                  value={formData.benefits}
+                  onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
+                  rows={4}
+                  required
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="salary">Monthly Salary (Rs.)</Label>
-                  <Input
-                    id="salary"
-                    type="number"
-                    value={formData.salary}
-                    onChange={(e) => setFormData({ ...formData, salary: Number(e.target.value) })}
+                  <Label htmlFor="location">Job Location</Label>
+                  <select
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md p-2"
                     required
-                  />
+                  >
+                    <option value="">Select District</option>
+                    <option value="Colombo">Colombo</option>
+                    <option value="Gampaha">Gampaha</option>
+                    <option value="Kalutara">Kalutara</option>
+                    <option value="Kandy">Kandy</option>
+                    <option value="Matale">Matale</option>
+                    <option value="Nuwara Eliya">Nuwara Eliya</option>
+                    <option value="Galle">Galle</option>
+                    <option value="Matara">Matara</option>
+                    <option value="Hambantota">Hambantota</option>
+                    <option value="Jaffna">Jaffna</option>
+                    <option value="Kilinochchi">Kilinochchi</option>
+                    <option value="Mannar">Mannar</option>
+                    <option value="Vavuniya">Vavuniya</option>
+                    <option value="Mullaitivu">Mullaitivu</option>
+                    <option value="Batticaloa">Batticaloa</option>
+                    <option value="Ampara">Ampara</option>
+                    <option value="Trincomalee">Trincomalee</option>
+                    <option value="Kurunegala">Kurunegala</option>
+                    <option value="Puttalam">Puttalam</option>
+                    <option value="Anuradhapura">Anuradhapura</option>
+                    <option value="Polonnaruwa">Polonnaruwa</option>
+                    <option value="Badulla">Badulla</option>
+                    <option value="Monaragala">Monaragala</option>
+                    <option value="Ratnapura">Ratnapura</option>
+                    <option value="Kegalle">Kegalle</option>
+                  </select>
                 </div>
+
+                <div>
+                  <Label htmlFor="jobType">Job Type</Label>
+                  <select
+                    id="jobType"
+                    value={formData.job_type}
+                    onChange={(e) => setFormData({ ...formData, job_type: e.target.value })}
+                    className="w-full border border-gray-300 rounded-md p-2"
+                    required
+                  >
+                    <option value="">Select Type</option>
+                    <option value="Full Time">Full Time</option>
+                    <option value="Part Time">Part Time</option>
+                  </select>
+                </div>
+              </div>
+
+
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="minSalary">Minimum Salary (Rs.)</Label>
+                    <Input
+                      id="minSalary"
+                      type="number"
+                      value={formData.minSalary}
+                      onChange={(e) =>
+                        setFormData({ ...formData, minSalary: Number(e.target.value) })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maxSalary">Maximum Salary (Rs.)</Label>
+                    <Input
+                      id="maxSalary"
+                      type="number"
+                      value={formData.maxSalary}
+                      onChange={(e) =>
+                        setFormData({ ...formData, maxSalary: Number(e.target.value) })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="expiryDate">Application Deadline</Label>
                   <Input
@@ -293,16 +417,35 @@ export default function Jobs() {
                       </Badge>
 
                       <Badge variant={!(job.is_approved) ? 'destructive' : 'secondary'}>
-                        {(job.is_approved) ? 'Approveld' : 'Rejected'}
+                        {(job.is_approved) ? 'Approveld' : 'Waiting'}
                       </Badge>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
                       {job.description}
                     </p>
+                    {/* <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                      <div>
+                        <h4 className="font-semibold mb-1">Requirements:</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {job.requirements?.split('\n').map((req, idx) => (
+                            <li key={idx}>{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Benefits:</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {job.benefits?.split('\n').map((benefit, idx) => (
+                            <li key={idx}>{benefit}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div> */}
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Salary:</span>
-                        {/* <p className="font-bold text-green-600">Rs. {job.salary.toLocaleString()}/month</p> */}
+                        <p className="font-bold text-green-600">Rs. {job.salary_range.toLocaleString()}/month</p>
                       </div>
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Deadline:</span>
@@ -333,6 +476,93 @@ export default function Jobs() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedJob(job)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>Job Details</DialogTitle>
+                        </DialogHeader>
+
+                        {selectedJob && (
+                          <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Title</label>
+                                <p className="text-lg font-semibold">{selectedJob.title}</p>
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Status</label>
+                                <Badge variant={isExpired(selectedJob.expiry_date) ? 'destructive' : 'default'}>
+                                  {isExpired(selectedJob.expiry_date) ? 'Expired' : 'Active'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Location</label>
+                                <p>{selectedJob.location}</p>
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Type</label>
+                                <p>{selectedJob.job_type}</p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Description</label>
+                              <p className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                {selectedJob.description}
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Salary</label>
+                                <p className="font-semibold text-green-600">Rs. {selectedJob.salary_range}/month</p>
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Application Deadline</label>
+                                <p>{new Date(selectedJob.expiry_date).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Requirements</label>
+                              <ul className="list-disc list-inside mt-1 space-y-1">
+                                {selectedJob.requirements?.split('\n').map((req, idx) => (
+                                  <li key={idx}>{req}</li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Benefits</label>
+                              <ul className="list-disc list-inside mt-1 space-y-1">
+                                {selectedJob.benefits?.split('\n').map((benefit, idx) => (
+                                  <li key={idx}>{benefit}</li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Posted On</label>
+                              <p>{new Date(selectedJob.posting_date).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+
                   </div>
                 </div>
               </CardContent>
