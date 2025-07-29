@@ -7,8 +7,8 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-// echo "hi";
-require_once "./Root/Service.php";
+echo "hi";
+require_once "./Root/Job.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
@@ -25,11 +25,11 @@ if (isset($_SESSION['user'])) {
     if ("service_provider" === $user_role) {
         
         $data = json_decode(file_get_contents("php://input"), true);
-        $service_id = $data['service_id'];
-        $deleteService = new Service();
-        echo $service_id;
+        $job_id = $data['job_id'];
+        $deleteJob = new Job();
+        echo $job_id;
      
-        $response = $deleteService->deleteService($service_id, $user_id);
+        $response = $deleteJob->$deleteJob($job_id, $user_id);
         echo json_encode($response);
 
     

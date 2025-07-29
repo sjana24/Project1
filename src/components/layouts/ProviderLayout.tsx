@@ -31,7 +31,10 @@ const navigation = [
 //   { name: 'Blogs', href: '/', icon: FileText },
   { name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
    { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
-//   { name: 'Settings', href: '/', icon: Settings },
+
+  { name: 'Product Orders', href: '/service_provider/orders', icon: Bell },
+   { name: 'Ongoing Projects', href: '/service_provider/projects', icon: Bell },
+  { name: 'Job  Request', href: '/service_provider/JobRequest', icon: Settings },
 ];
 
 interface ProviderLayoutProps {

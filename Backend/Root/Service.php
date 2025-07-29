@@ -176,37 +176,83 @@ class Service
         }
     }
 
+    // public function getAllServicesProvider($provider_id)
+    // {
+
+    //     try {
+    //         $sql = "SELECT * FROM service WHERE  provider_id=:provider_id";
+    //         $stmt = $this->conn->prepare($sql);
+    //         $stmt->bindParam(':provider_id', $provider_id);
+    //         $stmt->execute();
+    //         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //         if ($services) {
+    //             return [
+    //                 'success' => true,
+    //                 'services' => $services,
+    //                 'message' => 'Services fetched successfully.'
+    //             ];
+    //         } else {
+    //             return [
+    //                 'success' => false,
+    //                 'message' => 'No services found.'
+    //             ];
+    //         }
+    //     } catch (PDOException $e) {
+    //         http_response_code(500);
+    //         echo json_encode(["message" => "failed get all services. " . $e->getMessage()]);
+    //         return [
+    //             'success' => false,
+    //             'message' => 'Failed to fetch services. ' . $e->getMessage()
+    //         ];
+    //     }
+    // }
     public function getAllServicesProvider($provider_id)
-    {
+{
+    try {
+        $sql = "SELECT * FROM service WHERE provider_id = :provider_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':provider_id', $provider_id);
+        $stmt->execute();
+        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        try {
-            $sql = "SELECT * FROM service WHERE  provider_id=:provider_id";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':provider_id', $provider_id);
-            $stmt->execute();
-            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($services) {
+            // Now fetch reviews for each service
+            foreach ($services as &$service) {
+                $reviewSql = "SELECT review_id, customer_id, service_id, rating, comment, created_at, updated_at, is_approved 
+                              FROM service_review 
+                              WHERE service_id = :service_id";
+                
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':service_id', $service['service_id']);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($services) {
-                return [
-                    'success' => true,
-                    'services' => $services,
-                    'message' => 'Services fetched successfully.'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No services found.'
-                ];
+                // Attach reviews to the service
+                $service['reviews'] = $reviews;
             }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "failed get all services. " . $e->getMessage()]);
+
+            return [
+                'success' => true,
+                'services' => $services,
+                'message' => 'Services and reviews fetched successfully.'
+            ];
+        } else {
             return [
                 'success' => false,
-                'message' => 'Failed to fetch services. ' . $e->getMessage()
+                'message' => 'No services found.'
             ];
         }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Failed to get services. " . $e->getMessage()]);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch services. ' . $e->getMessage()
+        ];
     }
+}
+
 
     public function isExistingServiceRequest($customer_id, $service_id, $service_type)
     {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Search, Package } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package,Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -477,6 +477,94 @@ export default function Products() {
                 </div>
               </div>
             </CardHeader>
+                                <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          // onClick={() => setSelectedJob(job)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>Job Details</DialogTitle>
+                        </DialogHeader>
+
+                        {
+                        1 
+                        && (
+                          <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Title</label>
+                                {/* <p className="text-lg font-semibold">{selectedJob.title}</p> */}
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Status</label>
+                                {/* <Badge variant={isExpired(selectedJob.expiry_date) ? 'destructive' : 'default'}>
+                                  {isExpired(selectedJob.expiry_date) ? 'Expired' : 'Active'}
+                                </Badge> */}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Location</label>
+                                {/* <p>{selectedJob.location}</p> */}
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Type</label>
+                                {/* <p>{selectedJob.job_type}</p> */}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Description</label>
+                              <p className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                {/* {selectedJob.description} */}
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Salary</label>
+                                {/* <p className="font-semibold text-green-600">Rs. {selectedJob.salary_range}/month</p> */}
+                              </div>
+                              <div>
+                                <label className="font-medium text-gray-500 dark:text-gray-400">Application Deadline</label>
+                                {/* <p>{new Date(selectedJob.expiry_date).toLocaleDateString()}</p> */}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Requirements</label>
+                              <ul className="list-disc list-inside mt-1 space-y-1">
+                                {/* {selectedJob.requirements?.split('\n').map((req, idx) => ( */}
+                                  {/* <li key={idx}>{req}</li> */}
+                                {/* ))} */}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Benefits</label>
+                              <ul className="list-disc list-inside mt-1 space-y-1">
+                                {/* {selectedJob.benefits?.split('\n').map((benefit, idx) => (
+                                  <li key={idx}>{benefit}</li>
+                                ))} */}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <label className="font-medium text-gray-500 dark:text-gray-400">Posted On</label>
+                              {/* <p>{new Date(selectedJob.posting_date).toLocaleDateString()}</p> */}
+                            </div>
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
 
             <CardContent className="space-y-3">
               {/* ✅ Product Image */}
