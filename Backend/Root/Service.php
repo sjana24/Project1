@@ -614,11 +614,12 @@ LEFT JOIN installation_request ir ON sr.request_id = ir.request_id
 LEFT JOIN maintenance_request_details mr ON sr.request_id = mr.request_id
 LEFT JOIN relocated_request rr ON sr.request_id = rr.request_id
 
-WHERE s.provider_id = :provider_id
+WHERE s.provider_id = :provider_id AND sr.status =:status
 
 ";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':provider_id', $provider_id);
+            $stmt->bindParam(':status', 'pending');
             $stmt->execute();
             $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -648,7 +649,7 @@ WHERE s.provider_id = :provider_id
 {
     try {
         $finalResults = [];
-
+        $status = 'pending'; // You can change this to any status you want to filter by
         // Step 1: Get all service requests for the given provider with related user, customer, and service info
         $sql = "SELECT 
                     sr.*,
@@ -664,10 +665,11 @@ WHERE s.provider_id = :provider_id
                 JOIN customer c ON sr.customer_id = c.customer_id
                 JOIN user u ON c.user_id = u.user_id
                 JOIN service s ON sr.service_id = s.service_id
-                WHERE s.provider_id = :provider_id";
+                WHERE s.provider_id = :provider_id  AND sr.status =:status";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':provider_id', $provider_id);
+        $stmt->bindParam(':status', $status);
         $stmt->execute();
         $serviceRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
