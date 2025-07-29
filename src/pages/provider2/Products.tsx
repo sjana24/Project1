@@ -18,7 +18,7 @@ export interface Product {
   images: string;
   category: string;
   specification: string;
-  is_approved:boolean;
+  is_approved: boolean;
   createdAt: string;
 }
 // export interface formData{
@@ -144,23 +144,37 @@ export default function Products() {
       price: product.price,
       category: product.category,
       specification: product.specification,
-      images : [product.images],
-    //   images: Array.isArray(product.images)
-    // ? product.images
-    // : typeof product.images === 'string'
-    //   ? JSON.parse(product.images || '[]') // or .split(',') if it's comma-separated
-    //   : [],
+      images: [product.images],
+      //   images: Array.isArray(product.images)
+      // ? product.images
+      // : typeof product.images === 'string'
+      //   ? JSON.parse(product.images || '[]') // or .split(',') if it's comma-separated
+      //   : [],
     });
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async(product_id: number) => {
     // deleteProduct(id);
-    toast({
-      title: 'Product Deleted',
-      description: 'Product has been deleted successfully.',
-      variant: 'destructive',
-    });
+
+    const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderProduct.php", { product_id: product_id }, { withCredentials: true });
+
+    if (response.data.success) {
+      toast({
+        title: 'Product Deleted',
+        description: 'Product has been deleted successfully.',
+        variant: 'destructive',
+      });
+    }
+    else {
+      toast({
+        title: 'Product Deleted failure',
+        description: 'Product has been deleted failure.',
+        variant: "destructive"
+      });
+
+    }
+
   };
 
   return (
@@ -328,9 +342,9 @@ export default function Products() {
                   onChange={(e) => {
                     const files = e.target.files;
                     if (files) {
-                        const fileArray = Array.from(files);
+                      const fileArray = Array.from(files);
                       // const imageArray = Array.from(files).map((file) => URL.createObjectURL(file));
-                      setFormData({ ...formData, images:fileArray});
+                      setFormData({ ...formData, images: fileArray });
                       setSelectedImages(fileArray);
                     }
                   }}
@@ -440,8 +454,8 @@ export default function Products() {
                     {product.category}
                   </Badge>
                   {/* <span className='' */}
-                   <Badge variant={(product.is_approved)?"default":"destructive"} className="mt-1">
-                    {((product.is_approved)?"Enable":"Disable")}
+                  <Badge variant={(product.is_approved) ? "default" : "destructive"} className="mt-1">
+                    {((product.is_approved) ? "Enable" : "Disable")}
                   </Badge>
                 </div>
                 <div className="flex space-x-1">
