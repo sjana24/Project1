@@ -468,7 +468,7 @@ const Services = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-2xl font-bold text-primary">
-                          {service.price === 0 ? "Free" : `$${service.price}`}
+                          {service.price === 0 ? "Free" : `Rs ${service.price}`}
                         </div>
                         <div className="text-sm text-muted-foreground">{service.price}</div>
                       </div>
