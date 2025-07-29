@@ -22,7 +22,7 @@ export interface Service {
   description: string;
   price: number;
   type: string;
-  visible: boolean;
+  is_active: boolean;
   // category: 'installation' | 'maintainace' | 'relocation';
   status: 'Active' | 'Inactive';
   createdAt: string;
@@ -142,11 +142,11 @@ export default function Services() {
     setEditingService(null);
     setIsModalOpen(false);
   };
-  const updateServiceStatus = async(serviceGet:Service, visible: Service['visible']) => {
+  const updateServiceStatus = async(serviceGet:Service, is_active: Service['is_active']) => {
     const updatedServices = services.map(service => {
       if (service.service_id === serviceGet.service_id) {
        
-        return { ...service, visible };
+        return { ...service, is_active };
       }
       return service;
     });
@@ -158,7 +158,7 @@ export default function Services() {
       const res = await axios.post("http://localhost/Git/Project1/Backend/updateProviderServiceStatus.php", 
         {
         service_id: serviceGet.service_id,
-        visible: visible ? 1 : 0, // send as int to PHP
+        is_active: is_active ? 1 : 0, // send as int to PHP
       }, 
         { withCredentials: true });
       // console.log("Registration successful:");
@@ -193,8 +193,8 @@ export default function Services() {
 
     
   };
-  const updateServicetVisibility = (service:Service, is_approved: boolean) => {
-    updateServiceStatus(service, is_approved ? true : false);
+  const updateServicetVisibility = (service:Service, is_active: boolean) => {
+    updateServiceStatus(service, is_active ? true : false);
   };
 
   const handleEdit = (service: Service) => {
@@ -361,7 +361,7 @@ export default function Services() {
                   size="sm"
                   onClick={() => handleToggleVisibility(service.service_id)}
                 >
-                  {service.visible ? (
+                  {service.is_active ? (
                     <Eye className="w-4 h-4 text-green-500" />
                   ) : (
                     <EyeOff className="w-4 h-4 text-gray-400" />
@@ -370,11 +370,11 @@ export default function Services() {
                 <div className="flex items-center space-x-2">
 
                   <Switch
-                    checked={service.visible} // assuming product has an `is_visible` boolean field
+                    checked={service.is_active} // assuming product has an `is_visible` boolean field
                     onCheckedChange={(checked) => updateServicetVisibility(service, checked)}
                   />
                   <span className="text-sm text-gray-700">
-                    {service.visible ? "Visible" : "Hidden"}
+                    {service.is_active ? "Visible" : "Hidden"}
                   </span>
                 </div>
 

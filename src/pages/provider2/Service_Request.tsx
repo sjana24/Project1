@@ -99,7 +99,7 @@ export default function Service_Requests() {
 
   }, []);
   const filteredRequests = requests.filter(request =>
-    statusFilter === 'all' || request.status === statusFilter
+    statusFilter === 'all' || request.service_category === statusFilter
   );
 
   // const handleStatusChange = (id: number, status: Request['status']) => {
@@ -171,10 +171,10 @@ export default function Service_Requests() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="New">New</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="all">All Category</SelectItem>
+              <SelectItem value="installation">Installtion</SelectItem>
+              <SelectItem value="maintenance">Maintenance</SelectItem>
+              <SelectItem value="relocation">Relocation</SelectItem>
             </SelectContent>
           </Select>
         </div>

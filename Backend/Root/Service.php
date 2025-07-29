@@ -522,7 +522,7 @@ class Service
 
         try {
             $sql = "UPDATE service 
-                SET visible = :visible, updated_at = NOW() 
+                SET is_active = :visible, updated_at = NOW() 
                 WHERE service_id = :service_id";
 
             $stmt = $this->conn->prepare($sql);

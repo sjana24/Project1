@@ -25,7 +25,7 @@ if (isset($_SESSION['user'])) {
     if ("service_provider" === $user_role) {
         $data = json_decode(file_get_contents("php://input"), true);
         $service_id = $data['service_id'];
-        $visibleToggle = $data['visible'];
+        $visibleToggle = $data['is_active'];
         $updateService = new Service();
 
         // $service_id = isset($array['service_id']) ? htmlspecialchars(strip_tags($array['service_id'])) : '';
