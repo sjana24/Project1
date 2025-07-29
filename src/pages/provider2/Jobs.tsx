@@ -167,13 +167,26 @@ export default function Jobs() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete =async(job_id: number) => {
     // deleteJob(id);
-    toast({
+    const response = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderJob.php", {job_id:job_id }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast({
       title: 'Job Deleted',
       description: 'Job posting has been deleted successfully.',
       variant: 'destructive',
     });
+      }
+      else {
+        toast({
+          title: 'Job Deleted failure',
+          description: 'Job has been deleted failure.',
+          variant: "destructive"
+        });
+
+      }
+    
   };
 
   const isExpired = (date: string) => {

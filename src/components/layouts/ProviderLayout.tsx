@@ -34,7 +34,7 @@ const navigation = [
 
   { name: 'Product Orders', href: '/service_provider/orders', icon: Bell },
    { name: 'Ongoing Projects', href: '/service_provider/projects', icon: Bell },
-  { name: 'Payment', href: '/service_provider/settings', icon: Settings },
+  { name: 'Job  Request', href: '/service_provider/JobRequest', icon: Settings },
 ];
 
 interface ProviderLayoutProps {
