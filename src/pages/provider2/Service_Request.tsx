@@ -6,13 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useDashboardStore, Request } from '@/store/dashboardStore';
+// import { useDashboardStore, Request } from '@/store/dashboardStore';
 import axios from 'axios';
+
+
+
+export interface Request {
+  request_id: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  service: string;
+  description: string;
+  status: 'New' | 'In Progress' | 'Completed';
+  createdAt: string;
+}
+
+
 export default function Service_Requests() {
-  const { requests, updateRequestStatus } = useDashboardStore();
+  // const { requestStatus, updateRequestStatus } = useDashboardStore();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(true);
-  const [request,setRequest] = useState<Request[]>([]);
+  const [requests,setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
    useEffect(() => {
@@ -22,7 +37,8 @@ export default function Service_Requests() {
         if (response.data.success) {
           console.log("data got");
 
-          setRequest(data.Request);
+          setRequests(data.requests);
+          // setFil
         }
         else {
           // setError('Failed to load products.');
@@ -42,8 +58,8 @@ export default function Service_Requests() {
     statusFilter === 'all' || request.status === statusFilter
   );
 
-  const handleStatusChange = (id: string, status: Request['status']) => {
-    updateRequestStatus(id, status);
+  const handleStatusChange = (id: number, status: Request['status']) => {
+    // updateRequestStatus(id, status);
   };
 
   const getStatusColor = (status: Request['status']) => {
@@ -129,7 +145,7 @@ export default function Service_Requests() {
           </Card>
         ) : (
           filteredRequests.map((request) => (
-            <Card key={request.id} className="hover:shadow-md transition-shadow">
+            <Card key={request.request_id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -161,7 +177,7 @@ export default function Service_Requests() {
                   <div className="flex items-center space-x-2 ml-4">
                     <Select
                       value={request.status}
-                      onValueChange={(value: Request['status']) => handleStatusChange(request.id, value)}
+                      onValueChange={(value: Request['status']) => handleStatusChange(request.request_id, value)}
                     >
                       <SelectTrigger className="w-32">
                         <SelectValue />

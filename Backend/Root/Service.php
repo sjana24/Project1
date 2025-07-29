@@ -576,4 +576,157 @@ class Service
         //     ];
         // }
     }
+    public function getAllServiceRequestsByProvider($provider_id)
+    {
+        try {
+            // $sql = "SELECT * FROM service_request WHERE provider_id = :provider_id";
+            $sql="SELECT 
+    sr.*,
+    -- c.name AS customer_name,
+    -- c.email AS customer_email,
+    -- c.phone AS customer_phone,
+    -- s.name AS service_name,
+    -- s.type AS service_type,
+
+    -- Installation fields
+    ir.*,
+    -- ir.installation_date,
+    -- ir.device_type,
+    -- ir.location AS installation_location,
+
+    -- Maintenance fields
+    mr.*,
+    -- mr.maintenance_date,
+    -- mr.issue_description,
+    -- mr.location AS maintenance_location,
+
+    -- Relocation fields
+    -- rr.relocation_date,
+    -- rr.old_address,
+    -- rr.new_address
+    rr.*
+
+FROM service_request sr
+JOIN service s ON sr.service_id = s.service_id
+JOIN customer c ON sr.customer_id = c.customer_id
+
+LEFT JOIN installation_request ir ON sr.request_id = ir.request_id
+LEFT JOIN maintenance_request_details mr ON sr.request_id = mr.request_id
+LEFT JOIN relocated_request rr ON sr.request_id = rr.request_id
+
+WHERE s.provider_id = :provider_id
+
+";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':provider_id', $provider_id);
+            $stmt->execute();
+            $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($requests) {
+                return [
+                    'success' => true,
+                    'requests' => $requests,
+                    'message' => 'Service requests fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No service requests found for this provider.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Failed to fetch service requests. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch service requests. ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function getServiceRequestsByProvider($provider_id)
+{
+    try {
+        $finalResults = [];
+
+        // Step 1: Get all service requests for the given provider with related user, customer, and service info
+        $sql = "SELECT 
+                    sr.*,
+                    u.username AS customer_name,
+                    u.email AS customer_email,
+                    c.contact_number AS customer_phone,
+                    s.name AS service_name,
+                    s.description AS service_description,
+                    s.price AS service_price,
+                    s.category AS service_category
+                    -- s.type AS service_type
+                FROM service_request sr
+                JOIN customer c ON sr.customer_id = c.customer_id
+                JOIN user u ON c.user_id = u.user_id
+                JOIN service s ON sr.service_id = s.service_id
+                WHERE s.provider_id = :provider_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':provider_id', $provider_id);
+        $stmt->execute();
+        $serviceRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Step 2: Get detailed info from the appropriate table for each service_type
+        foreach ($serviceRequests as $request) {
+            $requestId = $request['request_id'];
+            $type = strtolower($request['service_type']);
+
+            $extraDetails = [];
+
+            switch ($type) {
+                case 'installation':
+                    $detailSql = "SELECT installation_address, roof_height 
+                                  FROM installation_request 
+                                  WHERE request_id = :request_id";
+                    break;
+
+                case 'maintenance':
+                    $detailSql = "SELECT device_condition, service_notes, last_maintenance_date, roof_height 
+                                  FROM maintenance_request_details 
+                                  WHERE request_id = :request_id";
+                    break;
+
+                case 'relocation':
+                    $detailSql = "SELECT current_address, new_address, current_roof_height, new_roof_height 
+                                  FROM relocated_request 
+                                  WHERE request_id = :request_id";
+                    break;
+
+                default:
+                    $detailSql = null;
+            }
+
+            if ($detailSql) {
+                $detailStmt = $this->conn->prepare($detailSql);
+                $detailStmt->bindParam(':request_id', $requestId);
+                $detailStmt->execute();
+                $extraDetails = $detailStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            }
+
+            $finalResults[] = array_merge($request, ['details' => $extraDetails]);
+        }
+
+        return [
+            'success' => true,
+            'requests' => $finalResults,
+            'message' => 'Service requests fetched successfully for provider.'
+        ];
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Error fetching service requests: ' . $e->getMessage()
+        ];
+    }
+}
+
+
+
+
 }

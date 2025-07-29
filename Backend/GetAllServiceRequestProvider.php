@@ -18,9 +18,10 @@
 
         if ("service_provider" === $user_role) {
 
-            // $getAll = new Service();
-            // $response = $getAll->getAllServicesProvider($user_id);
-            //  echo json_encode($response);
+            $getAll = new Service();
+            // $response = $getAll->getAllServiceRequestsByProvider($user_id);
+            $response = $getAll->getServiceRequestsByProvider($user_id);
+             echo json_encode($response);
 
         
         }
@@ -29,9 +30,7 @@
         echo json_encode([
             "add to cart " => false,
             "message" => "tou need to login first",
-            // "user_name" => $_SESSION['user'],
-            // "user_id" => $_SESSION['user']['user_id'],
-            // "user_role" => $_SESSION['user']['user_role'],
+           
         ]);
         error_log("SESSION FETCHED: " . print_r($_SESSION, true));
     }
