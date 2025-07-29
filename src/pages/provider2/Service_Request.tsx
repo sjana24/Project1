@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Eye, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,12 +7,37 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useDashboardStore, Request } from '@/store/dashboardStore';
-
+import axios from 'axios';
 export default function Service_Requests() {
   const { requests, updateRequestStatus } = useDashboardStore();
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [request,setRequest] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
+   useEffect(() => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceRequestProvider.php", { withCredentials: true })
+      .then(response => {
+        const data = response.data;
+        if (response.data.success) {
+          console.log("data got");
+
+          setRequest(data.Request);
+        }
+        else {
+          // setError('Failed to load products.');
+          console.log(response.data);
+          console.log(" sorry we cant get ur requests");
+        }
+        setLoading(false);
+      })
+
+      .catch(err => {
+        // setError('Something went wrong.');
+        setLoading(false);
+      });
+
+  }, []);
   const filteredRequests = requests.filter(request => 
     statusFilter === 'all' || request.status === statusFilter
   );
