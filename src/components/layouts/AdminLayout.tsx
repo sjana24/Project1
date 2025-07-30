@@ -29,7 +29,7 @@ const navigation = [
   { name: 'Providers', href: '/admin/provider', icon: Building2 },
   { name: 'Products', href: '/admin/product', icon: Package },
   { name: 'Services', href: '/admin/service', icon: ShoppingCart },
-  // { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Product Orders', href: '/admin/productOrder', icon: ShoppingCart },
   // { name: 'Reviews', href: '/admin/reviews', icon: Star },
   // { name: 'Jobs', href: '/admin/jobs', icon: Briefcase },
   // { name: 'Blogs', href: '/admin/blogs', icon: FileText },
