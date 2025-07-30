@@ -7,80 +7,74 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Package, Calendar, DollarSign, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 
-const mockOrders=[];
-// // Mock order data - in real app this would come from API
-// const mockOrders = [
-//   {
-//     id: '1',
-//     orderNumber: 'ORD-2024-001',
-//     date: '2024-01-15',
-//     status: 'delivered',
-//     total: 2999.99,
-//     items: [
-//       { name: 'Solar Panel 400W', quantity: 4, price: 599.99 },
-//       { name: 'Solar Inverter 3kW', quantity: 1, price: 799.99 }
-//     ]
-//   },
-//   {
-//     id: '2',
-//     orderNumber: 'ORD-2024-002',
-//     date: '2024-01-20',
-//     status: 'processing',
-//     total: 1499.99,
-//     items: [
-//       { name: 'Battery Storage 10kWh', quantity: 1, price: 1499.99 }
-//     ]
-//   }
-// ];
+const mockOrders: orderItem[] = [
+  {
+    order_id: 101,
+    order_type: 'product',
+    order_date: '2024-07-20',
+    status: 'delivered',
+    payment_status: 'Paid',
+    total_amount: 2999.99,
+    delivery_charge: 150,
+    shipping_address: '123 Main Street, City',
+    image: 'https://via.placeholder.com/100',
+    product_name: 'Solar Panel 400W',
+    quantity: 2,
+    price: 599.99,
+  },
+  {
+    order_id: 102,
+    order_type: 'project',
+    order_date: '2024-07-21',
+    status: 'processing',
+    payment_status: 'Paid',
+    total_amount: 12000,
+    delivery_charge: 0,
+    shipping_address: '',
+    project_title: 'Solar Power Installation - School',
+    project_description: '5kW system for local school with battery backup.',
+  }
+];
+
+
 export interface orderItem {
-  customer_id: number;
-  delivery_charge: number;  
-  order_date: string;
   order_id: number;
-  payment_status: string;
-  shipping_address: string;
+  customer_id?: number; // optional if not always available
+  order_type: 'product' | 'project';
+  order_date: string;
   status: string;
-  total_amount: number;    
+  payment_status: string;
+  total_amount: number;
+  delivery_charge: number;
+  shipping_address: string;
+
+  // Product-only fields
+  image?: string;
+  product_name?: string;
+  quantity?: number;
+  price?: number;
+
+  // Project-only fields
+  project_title?: string;
+  project_description?: string;
 }
-
-
-
 
 const Orders = () => {
   const { user } = useAuth();
-  const [orderItems, setOrderItems] = useState<orderItem[]>([]);
+  const [productOrders, setProductOrders] = useState([]);
+  const [projectOrders, setProjectOrders] = useState([]);
 
   useEffect(() => {
-        //   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
-        setOrderItems([]);
+    const products = mockOrders.filter(order => order.order_type === 'product');
+    const projects = mockOrders.filter(order => order.order_type === 'project');
+    setProductOrders(products);
+    setProjectOrders(projects);
+  }, []);
 
-        //   if (!currentUser) return; // Safeguard in case there's no user
-
-        axios
-            .get("http://localhost/Git/Project1/Backend/GetOrdersCustomer.php", {
-                withCredentials: true
-            })
-            .then((response) => {
-                const data = response.data;
-                if (data.success) {
-                    console.log("Data received:", data);
-                    // setOrderItemsCount(data.items);
-                    // updateCartCount();
-                    setOrderItems(data.orders || []);
-                } else {
-                    console.log("Failed to load items:", data);
-                    setOrderItems([]);
-                }
-            })
-            .catch((err) => {
-                console.error("Error fetching cart items:", err);
-            });
-            
-    },[]); 
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -123,85 +117,72 @@ const Orders = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">My Orders</h1>
-          <p className="text-muted-foreground">
-            Track and manage your solar energy product orders
-          </p>
-        </div>
+          <h1 className="text-3xl font-bold mb-6">My Orders</h1>
 
-        {Array.isArray(orderItems) && orderItems.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <Package className="mx-auto h-24 w-24 text-muted-foreground mb-6" />
-              <h2 className="text-2xl font-semibold mb-4">No Orders Yet</h2>
-              <p className="text-muted-foreground mb-8">
-                You haven't placed any orders yet. Start shopping for solar products!
-              </p>
-              <Button asChild>
-                <Link to="/products">Browse Products</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {orderItems.map((order) => (
-              <Card key={order.order_id}>
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                      <CardTitle className="text-lg">
-                        Order {order.order_id}
-                      </CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {new Date(order.order_date).toLocaleDateString()}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left side: Product Orders */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Product Orders</h2>
+              {productOrders.length === 0 ? (
+                <p className="text-muted-foreground mb-8">No product orders yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {productOrders.map((order) => (
+                    <Card key={order.order_id}>
+                      <CardHeader className="flex flex-row justify-between items-center">
+                        <CardTitle>Order #{order.order_id}</CardTitle>
+                        <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                      </CardHeader>
+                      <CardContent className="flex gap-4">
+                        <img src={order.image} alt={order.product_name} className="w-24 h-24 rounded object-cover" />
+                        <div className="text-sm space-y-2">
+                          <p><strong>{order.product_name}</strong></p>
+                          <p>Quantity: {order.quantity}</p>
+                          <p>Price: ${order.price}</p>
+                          <p>Total: ${order.total_amount}</p>
+                          <p>Payment: {order.payment_status}</p>
+                          <p>Delivery: ${order.delivery_charge}</p>
+                          <p>Address: {order.shipping_address}</p>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          ${order.total_amount}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge 
-                        variant="secondary" 
-                        className={getStatusColor(order.status)}
-                      >
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </Badge>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link to={`/order/${order.order_id}`}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Items Ordered:</h4>
-                    {/* {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span>
-                          {item.name} × {item.quantity}
-                        </span>
-                        <span className="font-medium">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))} */}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Project Orders */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Project Orders</h2>
+              {projectOrders.length === 0 ? (
+                <p className="text-muted-foreground mb-8">No project orders yet.</p>
+              ) : (
+                <div className="space-y-6">
+                  {projectOrders.map((order) => (
+                    <Card key={order.order_id}>
+                      <CardHeader className="flex flex-row justify-between items-center">
+                        <CardTitle>{order.project_title}</CardTitle>
+                        <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                      </CardHeader>
+                      <CardContent className="text-sm space-y-2">
+                        <p><strong>Order ID:</strong> {order.order_id}</p>
+                        <p><strong>Description:</strong> {order.project_description}</p>
+                        <p><strong>Total:</strong> ${order.total_amount}</p>
+                        <p><strong>Payment:</strong> {order.payment_status}</p>
+                        <p><strong>Ordered On:</strong> {new Date(order.order_date).toLocaleDateString()}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+        </div>
       </main>
       <Footer />
     </div>
   );
 };
-
 export default Orders;
