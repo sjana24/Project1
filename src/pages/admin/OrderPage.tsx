@@ -101,7 +101,7 @@ const mockProjectOrders = [
     }
 ];
 
-const ProductOrderPage = () => {
+const OrderPage = () => {
     const [productOrders, setProductOrders] = useState(mockProductOrders);
     const [projectOrders, setProjectOrders] = useState(mockProjectOrders);
     const [searchTerm, setSearchTerm] = useState('');
@@ -495,4 +495,4 @@ const ProductOrderPage = () => {
         </div>
     );
 };
-export default ProductOrderPage;
+export default OrderPage;

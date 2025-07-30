@@ -26,7 +26,7 @@ import ProvidersPage from "./pages/admin/ProvidersPage";
 import ServicesPage from "./pages/admin/ServicesPage";
 import ProductsPage from "./pages/admin/ProductsPage";
 import UsersPage from "./pages/admin/UsersPage";
-import ProductOrderPage from "./pages/admin/ProductOrderPage";
+import OrderPage from "./pages/admin/OrderPage";
 
 import ProviderLayout from "./components/layouts/ProviderLayout";
 import ProviderDashboard from "./pages/provider2/DashboardProvider"
@@ -93,7 +93,7 @@ const App = () => (
                       <Route path="product" element={<ProductsPage />} />
                       <Route path="service" element={<ServicesPage />} />
                       <Route path="user" element={<UsersPage />} />
-                      <Route path="productOrder" element={<ProductOrderPage />} />
+                      <Route path="Order" element={<OrderPage />} />
 
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
