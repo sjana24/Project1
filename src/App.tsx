@@ -38,6 +38,7 @@ import PageNotFound from "./pages/PageNotFound";
 import Service_Request from "./pages/provider2/Service_Request";
 import Chat from "./pages/provider2/Chat";
 import Orders from "./pages/Orders";
+import ProjectOrder from "./pages/provider2/ProjectOrder";
 
 const queryClient = new QueryClient();
 
@@ -93,7 +94,7 @@ const App = () => (
                       <Route path="product" element={<ProductsPage />} />
                       <Route path="service" element={<ServicesPage />} />
                       <Route path="user" element={<UsersPage />} />
-                      <Route path="Order" element={<OrderPage />} />
+                      <Route path="order" element={<OrderPage />} />
 
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
@@ -127,8 +128,10 @@ const App = () => (
                       <Route path="/product" element={<ProductProvider />} />
                       <Route path="/service" element={<ServiceProvider />} />
                       <Route path="/service_req" element={<Service_Request />} />
+                      <Route path="/project_order" element={<ProjectOrder />} />
                       <Route path="/chat" element={<Chat />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
+
                       {/* <Route path="/provider/" element={<Dashboard />} /> */}
                     </Routes>
 
