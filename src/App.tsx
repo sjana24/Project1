@@ -39,6 +39,7 @@ import Service_Request from "./pages/provider2/Service_Request";
 import Chat from "./pages/provider2/Chat";
 import Orders from "./pages/Orders";
 import ProjectOrder from "./pages/provider2/ProjectOrder";
+import ProductOrder from "./pages/provider2/ProductOrder";
 
 const queryClient = new QueryClient();
 
@@ -129,6 +130,7 @@ const App = () => (
                       <Route path="/service" element={<ServiceProvider />} />
                       <Route path="/service_req" element={<Service_Request />} />
                       <Route path="/project_order" element={<ProjectOrder />} />
+                      <Route path="/product_order" element={<ProductOrder />} />
                       <Route path="/chat" element={<Chat />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
