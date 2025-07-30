@@ -144,7 +144,7 @@ export default function Products() {
       price: product.price,
       category: product.category,
       specification: product.specification,
-      images: [product.images],
+      images: [],
       //   images: Array.isArray(product.images)
       // ? product.images
       // : typeof product.images === 'string'
