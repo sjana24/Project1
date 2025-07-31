@@ -41,6 +41,7 @@ import Orders from "./pages/Orders";
 import ProjectOrder from "./pages/provider2/ProjectOrder";
 import ProductOrder from "./pages/provider2/ProductOrder";
 import OnGoing from "./pages/provider2/OnGoing";
+import JobRequest from "./pages/provider2/JobRequest";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +135,7 @@ const App = () => (
                       <Route path="/product_order" element={<ProductOrder />} />
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
+                      <Route path="/JobRequest" element={<JobRequest />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
                       {/* <Route path="/provider/" element={<Dashboard />} /> */}

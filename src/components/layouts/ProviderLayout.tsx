@@ -32,8 +32,8 @@ const navigation = [
   { name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
    { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
 
-  { name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
   { name: 'Product Orders', href: '/service_provider/product_order', icon: Bell },
+  { name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
    { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Bell },
   { name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
 ];
