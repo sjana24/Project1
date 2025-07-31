@@ -180,12 +180,12 @@ const Orders = () => {
                         <img src={order.image} alt={order.product_name} className="w-24 h-24 rounded object-cover" />
                         <div className="text-sm space-y-1">
                           <p><strong>{order.product_name}</strong></p>
-                          <p>Quantity: {order.quantity}</p>
-                          <p>Price: ${order.price}</p>
-                          <p>Total: ${order.total_amount}</p>
-                          <p>Payment: {order.payment_status}</p>
-                          <p>Delivery: ${order.delivery_charge}</p>
-                          <p>Address: {order.shipping_address}</p>
+                          <p><strong>Quantity:</strong> {order.quantity}</p>
+                          <p><strong>Price:</strong> Rs {order.price}</p>
+                          <p><strong>Total:</strong> Rs {order.total_amount}</p>
+                          <p><strong>Payment:</strong> {order.payment_status}</p>
+                          <p><strong>Delivery:</strong> Rs {order.delivery_charge}</p>
+                          <p><strong>Address:</strong> {order.shipping_address}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -221,7 +221,7 @@ const Orders = () => {
                           <CardContent className="text-sm space-y-1">
                             <p><strong>Order ID:</strong> {order.order_id}</p>
                             <p><strong>Description:</strong> {order.project_description}</p>
-                            <p><strong>Total:</strong> ${order.total_amount}</p>
+                            <p><strong>Total:</strong> Rs {order.total_amount}</p>
                             <p><strong>Payment:</strong> {order.payment_status}</p>
                             <p><strong>Ordered On:</strong> {new Date(order.order_date).toLocaleDateString()}</p>
                           </CardContent>
