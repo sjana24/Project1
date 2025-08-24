@@ -26,6 +26,7 @@ import ProvidersPage from "./pages/admin/ProvidersPage";
 import ServicesPage from "./pages/admin/ServicesPage";
 import ProductsPage from "./pages/admin/ProductsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import OrderPage from "./pages/admin/OrderPage";
 
 import ProviderLayout from "./components/layouts/ProviderLayout";
 import ProviderDashboard from "./pages/provider2/DashboardProvider"
@@ -37,6 +38,10 @@ import PageNotFound from "./pages/PageNotFound";
 import Service_Request from "./pages/provider2/Service_Request";
 import Chat from "./pages/provider2/Chat";
 import Orders from "./pages/Orders";
+import ProjectOrder from "./pages/provider2/ProjectOrder";
+import ProductOrder from "./pages/provider2/ProductOrder";
+import OnGoing from "./pages/provider2/OnGoing";
+import JobRequest from "./pages/provider2/JobRequest";
 
 const queryClient = new QueryClient();
 
@@ -92,7 +97,10 @@ const App = () => (
                       <Route path="product" element={<ProductsPage />} />
                       <Route path="service" element={<ServicesPage />} />
                       <Route path="user" element={<UsersPage />} />
+                      <Route path="order" element={<OrderPage />} />
+
                       <Route path="" element={<Navigate to="dashboard" replace />} />
+
                     </Routes>
                     {/* </Route> */}
                   </AdminLayout>
@@ -123,8 +131,13 @@ const App = () => (
                       <Route path="/product" element={<ProductProvider />} />
                       <Route path="/service" element={<ServiceProvider />} />
                       <Route path="/service_req" element={<Service_Request />} />
+                      <Route path="/project_order" element={<ProjectOrder />} />
+                      <Route path="/product_order" element={<ProductOrder />} />
                       <Route path="/chat" element={<Chat />} />
+                      <Route path="/OnGoing_projects" element={<OnGoing />} />
+                      <Route path="/JobRequest" element={<JobRequest />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
+
                       {/* <Route path="/provider/" element={<Dashboard />} /> */}
                     </Routes>
 
