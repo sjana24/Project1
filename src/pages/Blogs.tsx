@@ -26,7 +26,11 @@ const CommentSection: React.FC<{ blogId: number }> = ({ blogId }) => {
   const [comment, setComment] = useState("");
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Comment submitted: ${comment}`);
+    if (!comment.trim()) {
+      alert("Please enter a comment!");
+      return;
+    }
+    alert(`Comment submitted for blog ${blogId}: ${comment}`);
     setComment("");
     setShowCommentForm(false);
   };
@@ -231,7 +235,7 @@ const BlogModal: React.FC<{
           <div className="relative flex gap-2 items-start">
             {/* Like Button */}
             <button
-              onClick={() => alert("Like button clicked!")}
+              onClick={() => alert("You have Liked this Blog!")}
               className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
             >
               <ThumbsUp className="w-5 h-5" />
