@@ -25,6 +25,7 @@ const navigation = [
   { name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
   { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Bell },
   { name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
+    { name: 'Message', href: '/service_provider/MessagePro', icon: Settings },
 ];
 
 interface ProviderLayoutProps {

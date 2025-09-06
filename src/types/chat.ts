@@ -5,9 +5,9 @@ export interface Message {
   chatSession_id: number;
   sender_id: number;
   receiver_id: number;
-  message: string;
+  text: string;
   is_read: number;
-  sent_at: Date;
+  timestamp: Date;
 }
 
 

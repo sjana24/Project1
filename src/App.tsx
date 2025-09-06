@@ -42,6 +42,8 @@ import ProjectOrder from "./pages/provider2/ProjectOrder";
 import ProductOrder from "./pages/provider2/ProductOrder";
 import OnGoing from "./pages/provider2/OnGoing";
 import JobRequest from "./pages/provider2/JobRequest";
+import Message from "./pages/messsage";
+import MessagePro from "./pages/provider2/MessagePro";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +69,7 @@ const App = () => (
             <Route path="/cartpage" element={<CartPage />} />
             <Route path="/customer/profile" element={<DashboardCustomer />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/message" element={<Message />} />
 
             {/* <ProtectedRoute allowedRoles={['admin']}>
       <AdminLayout>
@@ -136,6 +139,7 @@ const App = () => (
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
                       <Route path="/JobRequest" element={<JobRequest />} />
+                      <Route path="/MessagePro" element={<MessagePro />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
                       {/* <Route path="/provider/" element={<Dashboard />} /> */}

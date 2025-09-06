@@ -192,7 +192,7 @@ const Navigation = () => {
 
   const handleNotificationView = (notification: Notification) => {
     // onNotificationClick(notification);
-    // console.log( " this is 137");
+    console.log( " this is 137");
     setIsOpenNotify(false);
     handleNotificationClick(notification);
     // onMarkAsRead(notification.id);
@@ -253,7 +253,7 @@ const Navigation = () => {
 
 
     ...(currentUser ? [{ path: "/orders", label: "Orders" }] : []),
-    // ...(!currentUser ? [{ path: "/provider", label: "Join as provider" }] : []),
+    ...(currentUser ? [{ path: "/message", label: "Message" }] : []),
 
     // ...(currentUser ? [{ path: "/", label: "Notification" }] : []),
 
@@ -307,6 +307,7 @@ const Navigation = () => {
   const handleCloseChat = useCallback((chatId: number) => {
     setOpenChats(prev => prev.filter(id => id !== chatId));
   }, []);
+  
 
 
 
@@ -396,13 +397,18 @@ const Navigation = () => {
                               {new Date(notification.created_at).toLocaleTimeString()}
                             </p>
                           </div>
-                          <Button
+
+                          {notification.title === 'Request Accepted' ? (
+                           <Button
                             size="sm"
                             className="w-full sm:w-auto bg-[#26B170] hover:bg-[#21965F] text-white px-3 py-1 text-xs transition-colors"
                             onClick={() => handleNotificationView(notification)}
                           >
                             Open Chat
                           </Button>
+                          ): null
+                              }
+                          
 
                         </div>
                       </div>

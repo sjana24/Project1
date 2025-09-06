@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { CreditCard, Wallet, X } from "lucide-react";
+import axios from "axios";
 
 interface CartModalProps {
     isOpen: boolean;
@@ -40,11 +41,30 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
     const deliveryFee = 310;
     const total = subtotal + deliveryFee;
 
-    const confirmPayment = () => {
+    const confirmPayment = async() => {
         if (!paymentMethod) {
             console.log("hi");
+
+            
         }
         else {
+                        const validationErrors = validate();
+            
+if (Object.keys(validationErrors).length === 0) {
+    console.log("No errors - validation passed!");
+    // const orderUpdate=await axios.post('http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php', {name:"jana",userCredentials:true});
+     const response = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
+            // customer_id: currentUser.customerId,
+            product_Details: "janakan",
+    
+          },
+            { withCredentials: true }
+          );
+    // Proceed with form submission
+} else {
+    console.log("Validation errors:", errors);
+    // Show errors to user
+}
             console.log(" doi");
         }
 
@@ -59,6 +79,7 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
     };
     
       const [errors, setErrors] = useState<any>({});
+
     const validate = () => {
     const newErrors: any = {};
 
