@@ -21,26 +21,42 @@ class Blog
             $stmt->execute();
             $blog = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $blog;
+            if ($blog) {
+                return $this->formatBlog($blog);
+            }
+            return null;
         } catch (PDOException $e) {
-            // Handle error appropriately
             return null;
         }
     }
-
     // You can add more methods here, like getAllBlogs()
     public function getAllBlogs()
     {
         try {
-            $sql = "SELECT * FROM blog";
+            $sql = "SELECT * FROM blog WHERE status = 'published' ORDER BY created_at DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            return $blogs;
+
+            return array_map([$this, 'formatBlog'], $blogs);
         } catch (PDOException $e) {
-            // Handle error appropriately
             return [];
         }
+    }
+
+
+ private function formatBlog($blog)
+    {
+        return [
+            "blog_id"      => (int)$blog['blog_id'],
+            "title"        => $blog['title'],
+            "excerpt"      => mb_substr(strip_tags($blog['content']), 0, 150) . "...", // Short preview
+            "published_at" => $blog['created_at'],  // map created_at → published_at
+            "updated_at" => $blog['updated_at'],
+            "read_time"    => max(1, ceil(str_word_count(strip_tags($blog['content'])) / 200)), // ~200 words/min
+            "category"     => $blog['category'] ?? "general",
+            "tags"         => "solar,energy,renewable", // hardcoded or later make separate tags table
+            "content"      => $blog['content']
+        ];
     }
 }
