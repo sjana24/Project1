@@ -324,4 +324,234 @@ LIMIT 1
             ];
         }
     }
+
+//     public function getAllChats($user_id)
+//     {
+//         try {
+//         //     $sql = "
+//         //     SELECT 
+//         //         cr.contact_id,
+//         //         cr.customer_id,
+//         //         cr.provider_id,
+//         //         cr.service_id,
+//         //         cr.status,
+//         //         cr.requested_at,
+//         //         u1.username AS customer_name,
+//         //         u2.username AS provider_name,
+//         //         s.name AS service_name
+//         //     FROM contact_request cr
+//         //     JOIN user u1 ON cr.customer_id = u1.user_id
+//         //     JOIN user u2 ON cr.provider_id = u2.user_id
+//         //     JOIN service s ON cr.service_id = s.service_id
+//         //     WHERE cr.customer_id = ? OR cr.provider_id = ?
+//         //     ORDER BY cr.requested_at DESC
+//         // ";
+
+//        $sql=" SELECT 
+//     cr.contact_id,
+//     cr.customer_id,
+//     cr.provider_id,
+//     cr.service_id,
+//     cr.status,
+//     cr.requested_at,
+//     u1.username AS customer_name,
+//     u2.username AS provider_name,
+//     s.name AS service_name,
+//     COALESCE(
+//         JSON_ARRAYAGG(
+//             JSON_OBJECT(
+//                 'message_id', m.message_id,
+//                 'sender_id', m.sender_id,
+//                 'receiver_id', m.receiver_id,
+//                 'message', m.message,
+//                 'is_read', m.is_read,
+//                 'sent_at', m.sent_at
+//             )
+//         ), JSON_ARRAY()
+//     ) AS messages
+// FROM contact_request cr
+// JOIN user u1 ON cr.customer_id = u1.user_id
+// JOIN user u2 ON cr.provider_id = u2.user_id
+// JOIN service s ON cr.service_id = s.service_id
+// LEFT JOIN chat_sessions m ON m.chatSession_id = cr.contact_id
+// WHERE cr.customer_id = ? OR cr.provider_id = ?
+// GROUP BY cr.contact_id
+// ORDER BY cr.requested_at DESC";
+
+//             $stmt = $this->conn->prepare($sql);
+//             $stmt->bindParam(1, $user_id, PDO::PARAM_INT);
+//             $stmt->bindParam(2, $user_id, PDO::PARAM_INT);
+//             $stmt->execute();
+
+//             $chats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//             if ($chats) {
+//                 return [
+//                     'success' => true,
+//                     'chats' => $chats,
+//                     'message' => 'Chats fetched successfully.'
+//                 ];
+//             } else {
+//                 return [
+//                     'success' => false,
+//                     'chats' => [],
+//                     'message' => 'No chats found for this user.'
+//                 ];
+//             }
+//         } catch (PDOException $e) {
+//             http_response_code(500);
+//             return [
+//                 'success' => false,
+//                 'chats' => [],
+//                 'message' => 'Failed to fetch chats. ' . $e->getMessage()
+//             ];
+//         }
+//     }
+
+
+
+
+
+public function getAllChats($user_id)
+{
+    try {
+//         $sql = "
+                 
+//         SELECT 
+//     c.*, 
+//     cu.user_id AS customer_user_id,
+//     cu_user.username AS customer_username,
+//     pr.user_id AS provider_user_id,
+//     pr_user.username AS provider_username
+// FROM conversation c
+// LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+// LEFT JOIN user cu_user ON cu.user_id = cu_user.user_id
+// LEFT JOIN service_provider pr ON c.provider_id = pr.provider_id
+// LEFT JOIN user pr_user ON pr.user_id = pr_user.user_id
+
+// WHERE c.customer_id = ?
+
+
+//         ";
+$sql="
+SELECT 
+    c.conversation_id,
+    c.customer_id,
+    c.provider_id,
+    cu.user_id AS customer_user_id,
+    cu_user.username AS customer_username,
+    pr.user_id AS provider_user_id,
+    pr_user.username AS provider_username,
+    
+    cs.message_id,
+    cs.chatSession_id,
+    cs.sender_id,
+    cs.receiver_id,
+    cs.message,
+    cs.is_read,
+    cs.sent_at
+
+FROM conversation c
+LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+LEFT JOIN user cu_user ON cu.user_id = cu_user.user_id
+LEFT JOIN service_provider pr ON c.provider_id = pr.provider_id
+LEFT JOIN user pr_user ON pr.user_id = pr_user.user_id
+LEFT JOIN chat_sessions cs ON cs.chatSession_id = c.chatSession_id
+
+WHERE c.chatSession_id = ?
+ORDER BY cs.sent_at ASC";
+
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $user_id, PDO::PARAM_INT);
+        // $stmt->bindParam(2, $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $chats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            "success" => true,
+            "chats" => $chats,
+            "message" => count($chats) > 0 ? "Chats fetched successfully." : "No chats found for this user."
+        ];
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "chats" => [],
+            "message" => "Failed to fetch chats. " . $e->getMessage()
+        ];
+    }
+}
+public function getUserConversationsWithMessages($user_id) {
+    try {
+        // 1️⃣ Fetch all conversations where this user is either customer or provider
+        $sql = "
+            SELECT 
+                c.chatSession_id,
+                c.customer_id,
+                c.provider_id,
+                cu.user_id AS customer_user_id,
+                cu_user.username AS customer_username,
+                pr.user_id AS provider_user_id,
+                pr_user.username AS provider_username
+            FROM conversation c
+            LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+            LEFT JOIN user cu_user ON cu.user_id = cu_user.user_id
+            LEFT JOIN service_provider pr ON c.provider_id = pr.provider_id
+            LEFT JOIN user pr_user ON pr.user_id = pr_user.user_id
+            WHERE cu.user_id = ? OR pr.user_id = ?
+            ORDER BY c.chatSession_id DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(2, $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $conversations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2️⃣ For each conversation, fetch its messages
+        foreach ($conversations as &$conv) {
+            $sqlMessages = "
+                SELECT 
+                    message_id, 
+                    chatSession_id, 
+                    sender_id, 
+                    receiver_id, 
+                    message, 
+                    is_read, 
+                    sent_at
+                FROM chat_sessions
+                WHERE chatSession_id = ?
+                ORDER BY sent_at ASC
+            ";
+            $stmtMsg = $this->conn->prepare($sqlMessages);
+            $stmtMsg->bindParam(1, $conv['chatSession_id'], PDO::PARAM_INT);
+            $stmtMsg->execute();
+            $messages = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
+
+            // Attach messages as an array inside conversation
+            $conv['messages'] = $messages;
+        }
+
+        return [
+            "success" => true,
+            "conversations" => $conversations,
+            "message" => count($conversations) > 0 
+                ? "Conversations with messages fetched successfully." 
+                : "No conversations found for this user."
+        ];
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "conversations" => [],
+            "message" => "Failed to fetch conversations. " . $e->getMessage()
+        ];
+    }
+}
+
+
 }

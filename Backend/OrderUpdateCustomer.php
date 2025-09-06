@@ -26,35 +26,15 @@ if (isset($_SESSION['user'])) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['product_Details'];
 
-        // $customerID = isset($data['customer_id']) ? htmlspecialchars(strip_tags($data['customer_id'])) : null;
-
-        $product_id = htmlspecialchars(strip_tags($array['product_id']));
-        $provider_id = htmlspecialchars(strip_tags($array['provider_id']));
-        // echo "$product_id,$provider_id";
-        $addToCart = new Product();
-        $Result = $addToCart->AddToCart($user_id, $product_id, 1);
-
-          if($Result) {
-              http_response_code(200);
-              echo json_encode(array("success"=>true,"message" => "Add to cart successfully."));
-          } else {
-              http_response_code(400);
-              echo json_encode(array("success"=>false,"message" => "Unable to add to cart."));
-          }
+       
     } else {
 
-        // echo " this is not allowed to $user_role";
-        // http_response_code(400);
+        
         
         echo json_encode(array("success"=>false,"message" => "Only for customer not fot $user_role."));
     }
 
-    // echo json_encode([
-    //     "loggedIn" => true,
-    // ]);
-    // error_log("Session: " . print_r($_SESSION, true));
-
-    // echo " hi ";
+   
 } else {
     echo json_encode([
         "add to cart " => false,

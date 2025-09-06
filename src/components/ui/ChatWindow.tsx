@@ -8,12 +8,14 @@ interface ChatWindowProps {
   chat: ChatSession;
   onClose: () => void;
   position: { bottom: number; right: number };
+  sendMessage: (chatSession_id: number, messageText: string) => void;
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   chat,
   onClose,
   position,
+  sendMessage,
 }) => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -24,14 +26,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }, [chat.messages]);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
   }, []);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      // Add your send logic here
+      sendMessage(chat.chatSession_id, newMessage.trim());
       setNewMessage('');
     }
   };
@@ -58,13 +58,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
           }`}
         >
-          <p>{message.message}</p>
+          <p>{message.text}</p>
           <p
             className={`text-xs mt-1 ${
               isUser ? 'text-blue-100' : 'text-gray-400'
             }`}
           >
-            {new Date(message.sent_at).toLocaleTimeString([], {
+            {new Date(message.timestamp).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
             })}
@@ -78,7 +78,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     <>
       {/* Mobile Full Screen Chat */}
       <div className="fixed inset-0 bg-white z-50 flex flex-col animate-slide-in-right block sm:hidden">
-        {/* Mobile Header */}
+        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center">
             <Button
@@ -96,7 +96,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </div>
         </div>
 
-        {/* Mobile Messages */}
+        {/* Messages */}
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
@@ -108,7 +108,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Mobile Input */}
+        {/* Input */}
         <div className="p-4 border-t border-gray-200 bg-white">
           <div className="flex space-x-3">
             <Input
@@ -141,7 +141,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           height: '400px',
         }}
       >
-        {/* Desktop Header */}
+        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
           <div>
             <h3 className="font-semibold text-gray-900">{chat.participantName}</h3>
@@ -157,7 +157,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </Button>
         </div>
 
-        {/* Desktop Messages */}
+        {/* Messages */}
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           {chat.messages.length === 0 ? (
             <div className="text-center text-gray-500 text-sm mt-8">
@@ -169,7 +169,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Desktop Input */}
+        {/* Input */}
         <div className="p-4 border-t border-gray-200 bg-white rounded-b-lg">
           <div className="flex space-x-2">
             <Input
