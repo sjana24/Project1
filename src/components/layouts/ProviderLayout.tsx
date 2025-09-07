@@ -17,15 +17,16 @@ import { Button } from '../ui/button';
 const navigation = [
   { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
   { name: 'Products & Orders', href: '/service_provider/product_order', icon: Package },
-  { name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
+  { name: 'Services & Orders & Requests', href: '/service_provider/service_order', icon: Bell },
+
+  //{ name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
   { name: 'Jobs', href: '/service_provider/job', icon: Briefcase },
-  { name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
+  //{ name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
   { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
-  //{ name: 'Product Orders', href: '/service_provider/product_order', icon: Bell },
-  { name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
+  //{ name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
   { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Bell },
   { name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
-    { name: 'Message', href: '/service_provider/MessagePro', icon: Settings },
+  { name: 'Message', href: '/service_provider/MessagePro', icon: Settings },
 ];
 
 interface ProviderLayoutProps {
