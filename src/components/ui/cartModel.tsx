@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { CreditCard, Wallet, X } from "lucide-react";
 import axios from "axios";
+import { toast } from "./use-toast";
+import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface CartModalProps {
     isOpen: boolean;
@@ -29,10 +32,10 @@ export interface item {
 const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps) => {
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "card" | null>(null);
     const [cardData, setCardData] = useState({
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
-});
+        cardNumber: "",
+        expiry: "",
+        cvv: "",
+    });
 
     const subtotal = selectedItems.reduce(
         (total, item) => total + item.unit_price * item.quantity,
@@ -40,31 +43,50 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
     );
     const deliveryFee = 310;
     const total = subtotal + deliveryFee;
+    const navigate = useNavigate();
 
-    const confirmPayment = async() => {
+    const confirmPayment = async () => {
         if (!paymentMethod) {
             console.log("hi");
 
-            
+
         }
         else {
-                        const validationErrors = validate();
-            
-if (Object.keys(validationErrors).length === 0) {
-    console.log("No errors - validation passed!");
-    // const orderUpdate=await axios.post('http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php', {name:"jana",userCredentials:true});
-     const response = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
-            // customer_id: currentUser.customerId,
-            product_Details: "janakan",
-    
-          },
-            { withCredentials: true }
-          );
-    // Proceed with form submission
-} else {
-    console.log("Validation errors:", errors);
-    // Show errors to user
-}
+            const validationErrors = validate();
+
+            if (Object.keys(validationErrors).length === 0) {
+                console.log("No errors - validation passed!");
+                // const orderUpdate=await axios.post('http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php', {name:"jana",userCredentials:true});
+                const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
+                    // customer_id: currentUser.customerId,
+                    // product_Details: "janakan",
+                    card_details: cardData,
+                    product_Details: selectedItems,
+
+                },
+                    { withCredentials: true }
+                );
+
+                if (!responce.data.success) {
+                    toast({
+                        title: "Order Placed",
+                        description: "Your order placed successfully.",
+                        variant: "default", // optional styling
+                    });
+                     navigate("/");
+                    redirect("/");
+                } else {
+                    toast({
+                        title: "Ordering Failed",
+                        description: responce.data.message || "There was an error submitting your application.",
+                        variant: "destructive", // optional styling
+                    });
+                }
+                // Proceed with form submission
+            } else {
+                console.log("Validation errors:", errors);
+                // Show errors to user
+            }
             console.log(" doi");
         }
 
@@ -75,19 +97,19 @@ if (Object.keys(validationErrors).length === 0) {
             ...prev,
             [name]: value,
         }));
-         setErrors(prev => ({ ...prev, [name]: "" }));
+        setErrors(prev => ({ ...prev, [name]: "" }));
     };
-    
-      const [errors, setErrors] = useState<any>({});
+
+    const [errors, setErrors] = useState<any>({});
 
     const validate = () => {
-    const newErrors: any = {};
+        const newErrors: any = {};
 
-    // Common required fields
-    if (!cardData.cardNumber) newErrors.cardNumber = "Card Number is required.";
-    if (!cardData.expiry) newErrors.expiry = "Expiry date is required.";
-    if (!cardData.cvv) newErrors.cvv = "CVV is required.";
-    return newErrors;
+        // Common required fields
+        if (!cardData.cardNumber) newErrors.cardNumber = "Card Number is required.";
+        if (!cardData.expiry) newErrors.expiry = "Expiry date is required.";
+        if (!cardData.cvv) newErrors.cvv = "CVV is required.";
+        return newErrors;
     }
 
 
@@ -222,8 +244,8 @@ if (Object.keys(validationErrors).length === 0) {
                                 confirmPayment();
                             }}
                             className={`w-full mt-6  font-semibold py-2 px-4 rounded
-                                 ${!paymentMethod  
-                                  
+                                 ${!paymentMethod
+
                                     ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                                     : "bg-[#26B170] text-white hover:bg-[#26B170]"
                                 }

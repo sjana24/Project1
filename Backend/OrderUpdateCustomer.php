@@ -25,6 +25,10 @@ if (isset($_SESSION['user'])) {
     if ("customer" === $user_role) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['product_Details'];
+        $card=$data['card_details'];
+
+        print_r( $array);
+        print_r($card); 
 
        
     } else {

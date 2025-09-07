@@ -127,11 +127,14 @@ const CartPage = () => {
     const [errors, setErrors] = useState<any>({});
 
 
-    const handleQuantityChange = (
+    const handleQuantityChange =async (
         productId: number,
         newQuantity: number,
-        userId: number
+        // userId: number
     ) => {
+          const responce= await axios.post("http://localhost/Git/Project1/Backend/updateAddTocartCount.php",{product_id:productId,quantity:newQuantity}, {
+                withCredentials: true
+            });
         if (newQuantity < 1) {
             console.log("removed");
             toast({
@@ -139,8 +142,12 @@ const CartPage = () => {
                 description: "Item has been removed from your cart.",
             });
         } else {
-            console.log("updated");
+            console.log("updated",newQuantity,"----",productId,"for---",);
+          
+            
+
         }
+        
     };
 
     const handleItemSelect = (item_id: number, checked: boolean) => {
@@ -238,9 +245,9 @@ const CartPage = () => {
                                             <button
                                                 onClick={() =>
                                                     handleQuantityChange(
-                                                        item.productId,
+                                                        item.item_id,
                                                         item.quantity - 1,
-                                                        currentUser?.id
+                                                        // currentUser?.id
                                                     )
                                                 }
                                                 className="p-2 hover:bg-gray-100 transition-colors"
@@ -253,9 +260,9 @@ const CartPage = () => {
                                             <button
                                                 onClick={() =>
                                                     handleQuantityChange(
-                                                        item.productId,
+                                                        item.item_id,
                                                         item.quantity + 1,
-                                                        currentUser?.id
+                                                        // currentUser?.id
                                                     )
                                                 }
                                                 className="p-2 hover:bg-gray-100 transition-colors"
