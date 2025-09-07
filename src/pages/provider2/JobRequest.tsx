@@ -4,20 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Search, 
-  Users, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
-  Mail, 
-  Phone, 
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Calendar
-} from 'lucide-react';
+import { Search, Users, Clock, CheckCircle, XCircle, Eye, Mail, Phone, MapPin, Briefcase, GraduationCap, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Mock job application data
 const mockJobRequests = [
@@ -216,16 +204,17 @@ const JobRequest = () => {
             className="pl-10"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-        >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Job Applications List */}

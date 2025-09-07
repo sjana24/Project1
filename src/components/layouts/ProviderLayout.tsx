@@ -4,29 +4,31 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   Home,
   Package,
-  ShoppingCart,
   Briefcase,
   Bell,
-  Settings,
   LogOut,
   Menu,
   X,
+  MessageSquare,
+  Wrench,
+  Layers,
+  Edit 
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
   { name: 'Products & Orders', href: '/service_provider/product_order', icon: Package },
-  { name: 'Services & Orders & Requests', href: '/service_provider/service_order', icon: Bell },
+  { name: 'Services & Orders & Requests', href: '/service_provider/service_order', icon: Wrench },
 
   //{ name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
-  { name: 'Jobs', href: '/service_provider/job', icon: Briefcase },
+  { name: 'Jobs & Requests', href: '/service_provider/job_request', icon: Briefcase },
   //{ name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
   { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
   //{ name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
-  { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Bell },
-  { name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
-  { name: 'Message', href: '/service_provider/MessagePro', icon: Settings },
+  { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Layers },
+  //{ name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
+  { name: 'Message', href: '/service_provider/MessagePro', icon: MessageSquare },
 ];
 
 interface ProviderLayoutProps {
@@ -177,15 +179,16 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
                   setIsProfileModalOpen(true);
                   setDropdownOpen(false);
                 }}
-                className="block w-full text-left text-sm text-blue-600 hover:underline"
+                className="flex items-center w-full text-left text-sm text-blue-600 hover:underline gap-2"
               >
+                <Edit className="w-4 h-4" />
                 Edit Profile
               </button>
               <button
                 onClick={handleLogout}
                 className="block mt-2 w-full text-left text-sm text-red-600 hover:underline"
               >
-                <LogOut size={16} className="inline-block mr-1" />
+                <LogOut size={16} className="inline-block mr-5" />
                 Logout
               </button>
             </div>

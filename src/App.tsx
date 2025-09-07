@@ -30,7 +30,7 @@ import OrderPage from "./pages/admin/OrderPage";
 
 import ProviderLayout from "./components/layouts/ProviderLayout";
 import ProviderDashboard from "./pages/provider2/DashboardProvider"
-import JobProvider from "./pages/provider2/Jobs";
+import JobsAndRequests from "./pages/provider2/JobsAndRequests";
 //import ProductProvider from "./pages/provider2/Products";
 import ServiceProvider from "./pages/provider2/Services";
 import AboutUs from "./pages/AboutUs";
@@ -132,7 +132,7 @@ const App = () => (
 
                     <Routes>
                       <Route path="/dashboard" element={<ProviderDashboard />} />
-                      <Route path="/job" element={<JobProvider />} />
+                      <Route path="/job_request" element={<JobsAndRequests />} />
                       <Route path="/product_order" element={<ProductsAndOrders />} />
                       <Route path="/service_order" element={<ServicesAndOrders />} />
                       {/* <Route path="/service" element={<ServiceProvider />} />
@@ -140,7 +140,7 @@ const App = () => (
                       <Route path="/project_order" element={<ProjectOrder />} /> */}
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
-                      <Route path="/JobRequest" element={<JobRequest />} />
+                      {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
                       <Route path="/MessagePro" element={<MessagePro />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
