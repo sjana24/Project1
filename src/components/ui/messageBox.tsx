@@ -22,6 +22,7 @@ export interface Message {
 }
 
 export interface Conversation {
+  current_user_role:string;
     chatSession_id: number;
     customer_id: number;
     provider_id: number;
@@ -30,6 +31,7 @@ export interface Conversation {
     receiverid: number;
     receriver_name: string;
     customer_username: string;
+    provider_username:string;
     messages: Message[];
 }
 
@@ -366,13 +368,13 @@ const MessageBox = () => {
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 md:w-1/3 lg:w-1/4 h-full overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">Messages</h2>
-          <div className="relative mt-3">
+          {/* <div className="relative mt-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search conversations..."
               className="pl-10 bg-gray-50 border-gray-200"
             />
-          </div>
+          </div> */}
         </div>
         
         <div className="overflow-y-auto max-h-[calc(100vh-180px)]">
@@ -400,15 +402,17 @@ const MessageBox = () => {
       <div className="flex items-start gap-3">
         <div className="relative">
           <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-            {chatItem.receriver_name?.charAt(0) || 'U'}
+            {chatItem.provider_username?.charAt(0) || 'U'}
           </div>
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+          {/* <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div> */}
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-1">
             <h3 className="font-semibold text-gray-900 truncate">
-              {chatItem.receriver_name || 'Unknown User'}
+              {/* {chatItem.customer_username || 'Unknown User'} */}
+               {((chatItem.current_user_role ==="customer")?chatItem.provider_username:chatItem.customer_username)|| 'Unknown User'}
+              
             </h3>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 whitespace-nowrap">
@@ -463,15 +467,16 @@ const MessageBox = () => {
               </Button>
             </Link>
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-              {chat.receriver_name?.charAt(0) || 'U'}
+              {/* {chat.receriver_name?.charAt(0) || 'U'} */}
+               {((chat.current_user_role ==="customer")?chat.provider_username?.charAt(0) :chat.customer_username?.charAt(0)) || "U"}
             </div>
             <div>
               <h2 className="font-semibold text-gray-900">
-                Chat with {chat.receriver_name}
+                Chat with {((chat.current_user_role ==="customer")?chat.provider_username:chat.customer_username)||"Unknown" }
               </h2>
-              <p className="text-sm text-gray-600">
+              {/* <p className="text-sm text-gray-600">
                 {chat.customer_username} • Last active recently
-              </p>
+              </p> */}
             </div>
           </div>
           {user?.role === 'admin' && (
