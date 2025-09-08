@@ -8,7 +8,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // echo "hi";
-require_once "./Root/Product.php";
+require_once "./Root/Order.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
@@ -26,9 +26,15 @@ if (isset($_SESSION['user'])) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['product_Details'];
         $card=$data['card_details'];
+        $address=$data['address'];
+        $paymentMethod=$data['paymentMethod'];
 
         print_r( $array);
         print_r($card); 
+        print_r($address);
+        $order=new Order();
+        $responce=$order->createOrder($user_id,$array,$paymentMethod,$address,300);
+        echo json_encode($responce);
 
        
     } else {

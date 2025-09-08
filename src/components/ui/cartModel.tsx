@@ -52,6 +52,37 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
 
         }
         else {
+            if(paymentMethod ==="cod"){
+                            const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
+                    // customer_id: currentUser.customerId,
+                    // product_Details: "janakan",
+                    paymentMethod:paymentMethod,
+                    card_details:null,
+                    product_Details: selectedItems,
+                    address:formData,
+
+                },
+                    { withCredentials: true }
+                );
+        
+                if (!responce.data.success) {
+                    toast({
+                        title: "Order Placed",
+                        description: "Your order placed successfully.",
+                        variant: "default", // optional styling
+                    });
+                    //  navigate("/");
+                    // redirect("/");
+                } else {
+                    toast({
+                        title: "Ordering Failed",
+                        description: responce.data.message || "There was an error submitting your application.",
+                        variant: "destructive", // optional styling
+                    });
+                }
+
+            }
+            else{
             const validationErrors = validate();
 
             if (Object.keys(validationErrors).length === 0) {
@@ -60,21 +91,23 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
                 const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
                     // customer_id: currentUser.customerId,
                     // product_Details: "janakan",
+                    paymentMethod:paymentMethod,
                     card_details: cardData,
                     product_Details: selectedItems,
+                    address:formData,
 
                 },
                     { withCredentials: true }
                 );
-
+        
                 if (!responce.data.success) {
                     toast({
                         title: "Order Placed",
                         description: "Your order placed successfully.",
                         variant: "default", // optional styling
                     });
-                     navigate("/");
-                    redirect("/");
+                    //  navigate("/");
+                    // redirect("/");
                 } else {
                     toast({
                         title: "Ordering Failed",
@@ -86,7 +119,7 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
             } else {
                 console.log("Validation errors:", errors);
                 // Show errors to user
-            }
+            }}
             console.log(" doi");
         }
 
