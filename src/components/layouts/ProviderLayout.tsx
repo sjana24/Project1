@@ -12,7 +12,8 @@ import {
   MessageSquare,
   Wrench,
   Layers,
-  Edit 
+  Edit, 
+  User
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -123,7 +124,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/80 backdrop-blur-lg border-r border-white/20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 w-96 bg-white/80 backdrop-blur-lg border-r border-white/20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } lg:static flex flex-col`}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b border-white/20">
@@ -161,14 +162,21 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
         </nav>
 
         {/* Profile Button with Dropdown */}
-        <div className="p-4 border-t border-white/20 relative">
+        <div className="p-4 border-t border-white/20 relative mb-24">
           <div
             className="w-full"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <Button size="sm" className="green-600 text-white w-full">
-              Hi, {providerName || 'Provider'}
-            </Button>
+            <Button 
+  variant="outline"
+  className="w-full flex items-center gap-3 rounded-xl bg-green-500 text-black hover:bg-teal-600 transition-colors duration-300"
+>
+  <User className="w-5 h-5 text-black" />
+  <span className="font-medium">Hi, {providerName || "Provider"}</span>
+</Button>
+
+
+
           </div>
 
           {/* Dropdown panel */}
