@@ -289,6 +289,13 @@ const Blogs: React.FC = () => {
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Define a mapping of tags to Wikipedia URLs
+  const wikiLinks: Record<string, string> = {
+    "solar": "https://en.wikipedia.org/wiki/Solar_energy",
+    "energy": "https://en.wikipedia.org/wiki/Energy",
+    "renewable": "https://en.wikipedia.org/wiki/Renewable_energy",
+  };
+
   // Fetch all blog posts
   useEffect(() => {
     const fetchAllBlogs = async () => {
@@ -336,6 +343,8 @@ const Blogs: React.FC = () => {
   }
 
  return (
+  <div className="min-h-screen">
+        <Navigation />
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
@@ -433,12 +442,15 @@ const Blogs: React.FC = () => {
                       .split(",")
                       .slice(0, 3)
                       .map((tag) => (
-                        <span
+                        <a
                           key={tag}
-                          className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
+                          href={wikiLinks[tag.trim().toLowerCase()]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs hover:bg-gray-200 transition-colors"
                         >
                           #{tag.trim()}
-                        </span>
+                        </a>
                       ))}
                   </div>
                 </div>
@@ -452,6 +464,7 @@ const Blogs: React.FC = () => {
         </div>
       </div>
       <Footer />
+    </div>  
       <BlogModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
