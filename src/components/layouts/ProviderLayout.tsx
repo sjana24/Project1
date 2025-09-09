@@ -4,28 +4,32 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   Home,
   Package,
-  ShoppingCart,
   Briefcase,
   Bell,
-  Settings,
   LogOut,
   Menu,
   X,
+  MessageSquare,
+  Wrench,
+  Layers,
+  Edit, 
+  User
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
   { name: 'Products & Orders', href: '/service_provider/product_order', icon: Package },
-  { name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
-  { name: 'Jobs', href: '/service_provider/job', icon: Briefcase },
-  { name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
+  { name: 'Services & Orders & Requests', href: '/service_provider/service_order', icon: Wrench },
+
+  //{ name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
+  { name: 'Jobs & Requests', href: '/service_provider/job_request', icon: Briefcase },
+  //{ name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
   { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
-  //{ name: 'Product Orders', href: '/service_provider/product_order', icon: Bell },
-  { name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
-  { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Bell },
-  { name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
-    { name: 'Message', href: '/service_provider/MessagePro', icon: Settings },
+  //{ name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
+  { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Layers },
+  //{ name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
+  { name: 'Message', href: '/service_provider/MessagePro', icon: MessageSquare },
 ];
 
 interface ProviderLayoutProps {
@@ -120,7 +124,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/80 backdrop-blur-lg border-r border-white/20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 w-96 bg-white/80 backdrop-blur-lg border-r border-white/20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } lg:static flex flex-col`}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b border-white/20">
@@ -158,14 +162,21 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
         </nav>
 
         {/* Profile Button with Dropdown */}
-        <div className="p-4 border-t border-white/20 relative">
+        <div className="p-4 border-t border-white/20 relative mb-24">
           <div
             className="w-full"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <Button size="sm" className="green-600 text-white w-full">
-              Hi, {providerName || 'Provider'}
-            </Button>
+            <Button 
+  variant="outline"
+  className="w-full flex items-center gap-3 rounded-xl bg-green-500 text-black hover:bg-teal-600 transition-colors duration-300"
+>
+  <User className="w-5 h-5 text-black" />
+  <span className="font-medium">Hi, {providerName || "Provider"}</span>
+</Button>
+
+
+
           </div>
 
           {/* Dropdown panel */}
@@ -176,15 +187,16 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
                   setIsProfileModalOpen(true);
                   setDropdownOpen(false);
                 }}
-                className="block w-full text-left text-sm text-blue-600 hover:underline"
+                className="flex items-center w-full text-left text-sm text-blue-600 hover:underline gap-2"
               >
+                <Edit className="w-4 h-4" />
                 Edit Profile
               </button>
               <button
                 onClick={handleLogout}
                 className="block mt-2 w-full text-left text-sm text-red-600 hover:underline"
               >
-                <LogOut size={16} className="inline-block mr-1" />
+                <LogOut size={16} className="inline-block mr-5" />
                 Logout
               </button>
             </div>

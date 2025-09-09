@@ -30,7 +30,7 @@ import OrderPage from "./pages/admin/OrderPage";
 
 import ProviderLayout from "./components/layouts/ProviderLayout";
 import ProviderDashboard from "./pages/provider2/DashboardProvider"
-import JobProvider from "./pages/provider2/Jobs";
+import JobsAndRequests from "./pages/provider2/JobsAndRequests";
 //import ProductProvider from "./pages/provider2/Products";
 import ServiceProvider from "./pages/provider2/Services";
 import AboutUs from "./pages/AboutUs";
@@ -39,13 +39,13 @@ import Service_Request from "./pages/provider2/Service_Request";
 import Chat from "./pages/provider2/Chat";
 import Orders from "./pages/Orders";
 import ProjectOrder from "./pages/provider2/ProjectOrder";
-//import ProductOrder from "./pages/provider2/ProductOrder";
+import ServicesAndOrders from "./pages/provider2/ServicesAndOrders";
 import OnGoing from "./pages/provider2/OnGoing";
 import JobRequest from "./pages/provider2/JobRequest";
 // import Message from "./pages/Message";
 import MessagePro from "./pages/provider2/MessagePro";
 import Message from "./pages/Messsage";
-import ProductsAndOrders, { ProductOrder } from "./pages/provider2/ProductsAndOrders";
+import ProductsAndOrders  from "./pages/provider2/ProductsAndOrders";
 
 const queryClient = new QueryClient();
 
@@ -132,14 +132,15 @@ const App = () => (
 
                     <Routes>
                       <Route path="/dashboard" element={<ProviderDashboard />} />
-                      <Route path="/job" element={<JobProvider />} />
+                      <Route path="/job_request" element={<JobsAndRequests />} />
                       <Route path="/product_order" element={<ProductsAndOrders />} />
-                      <Route path="/service" element={<ServiceProvider />} />
+                      <Route path="/service_order" element={<ServicesAndOrders />} />
+                      {/* <Route path="/service" element={<ServiceProvider />} />
                       <Route path="/service_req" element={<Service_Request />} />
-                      <Route path="/project_order" element={<ProjectOrder />} />
+                      <Route path="/project_order" element={<ProjectOrder />} /> */}
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
-                      <Route path="/JobRequest" element={<JobRequest />} />
+                      {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
                       <Route path="/MessagePro" element={<MessagePro />} />
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 

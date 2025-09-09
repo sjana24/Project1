@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import { Label } from "recharts";
-import { Menu } from "lucide-react";
+import { Menu, User } from "lucide-react";
 
 export interface Notification {
   id: number;
@@ -222,7 +222,6 @@ const NavigationProvider = () => {
                                             <Link to="/customer/profile">
                                                 <Button size="sm" className="solar-gradient text-white"  >
                                                     Hi,{currentProvider.providerName}
-
 
                                                 </Button>
                                             </Link>
