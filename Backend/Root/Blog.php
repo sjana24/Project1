@@ -56,7 +56,8 @@ class Blog
             "read_time"    => max(1, ceil(str_word_count(strip_tags($blog['content'])) / 200)), // ~200 words/min
             "category"     => $blog['category'] ?? "general",
             "tags"         => "solar,energy,renewable", // hardcoded or later make separate tags table
-            "content"      => $blog['content']
+            "content"      => $blog['content'],
+            "image"        => $blog['image']
         ];
     }
 }

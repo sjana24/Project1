@@ -18,18 +18,45 @@ export type Blog = {
   category: string;
   tags: string; // comma-separated
   content: string;
+  image?: string;
+
+};
+
+// Custom Modal for Messages
+const MessageModal: React.FC<{
+  message: string;
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ message, isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg text-center">
+        <p className="text-lg font-medium text-gray-800 mb-4">{message}</p>
+        <button
+          onClick={onClose}
+          className="bg-[#26B170] text-white px-4 py-2 rounded hover:bg-green-600 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
 };
 
 // Comment Section Component
 const CommentSection: React.FC<{ blogId: number }> = ({ blogId }) => {
-  const [showCommentForm, setShowCommentForm] = useState(false);
-  const [comment, setComment] = useState("");
-  const handleCommentSubmit = (e: React.FormEvent) => {
+const [showCommentForm, setShowCommentForm] = useState(false);
+const [comment, setComment] = useState("");
+
+const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) {
       alert("Please enter a comment!");
       return;
     }
+    
     alert(`Comment submitted for blog ${blogId}: ${comment}`);
     setComment("");
     setShowCommentForm(false);
@@ -262,6 +289,13 @@ const Blogs: React.FC = () => {
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Define a mapping of tags to Wikipedia URLs
+  const wikiLinks: Record<string, string> = {
+    "solar": "https://en.wikipedia.org/wiki/Solar_energy",
+    "energy": "https://en.wikipedia.org/wiki/Energy",
+    "renewable": "https://en.wikipedia.org/wiki/Renewable_energy",
+  };
+
   // Fetch all blog posts
   useEffect(() => {
     const fetchAllBlogs = async () => {
@@ -308,9 +342,10 @@ const Blogs: React.FC = () => {
     );
   }
 
-  return (
+ return (
+  <div className="min-h-screen">
+        <Navigation />
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -321,6 +356,7 @@ const Blogs: React.FC = () => {
             energy, sustainability, and renewable technology.
           </p>
         </div>
+
 
         {/* Category Filter */}
         <div className="flex flex-wrap gap-4 mb-8">
@@ -348,11 +384,13 @@ const Blogs: React.FC = () => {
                 key={blog.blog_id}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
+                
                 <img
-                  src="https://placehold.co/600x400/26B170/ffffff?text=Solar+Blog"
+                  src={blog.image || "https://placehold.co/600x400/26B170/ffffff?text=Solar+Blog"}
                   alt={blog.title}
                   className="w-full h-48 object-cover"
                 />
+
 
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
@@ -404,12 +442,15 @@ const Blogs: React.FC = () => {
                       .split(",")
                       .slice(0, 3)
                       .map((tag) => (
-                        <span
+                        <a
                           key={tag}
-                          className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
+                          href={wikiLinks[tag.trim().toLowerCase()]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs hover:bg-gray-200 transition-colors"
                         >
                           #{tag.trim()}
-                        </span>
+                        </a>
                       ))}
                   </div>
                 </div>
@@ -423,6 +464,7 @@ const Blogs: React.FC = () => {
         </div>
       </div>
       <Footer />
+    </div>  
       <BlogModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
