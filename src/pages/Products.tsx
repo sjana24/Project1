@@ -44,8 +44,6 @@ const Products = () => {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  // const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -147,7 +145,7 @@ const Products = () => {
         variant: "destructive", // optional styling
 
       });
-      // navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
       return;
     }
     else {
@@ -175,7 +173,7 @@ const Products = () => {
         toast({
           title: "Only for Customers!",
           variant: "destructive",
-          // description: `${product.name} has been added to your cart.`,
+          description: `You are not authorized to add items to the cart.`,
 
         });
 
@@ -247,7 +245,7 @@ const Products = () => {
                       <CardTitle className="text-lg">{product.name}</CardTitle>
                       <div className="flex items-center space-x-1">
 
-                        {/* <span className="text-sm font-medium">{product.name}</span> */}
+                        {/* <span className="text-sm font-light p-1 bg-green-300 rounded-lg">{product.category}</span> */}
                       </div>
                     </div>
                     <CardDescription className="text-sm text-muted-foreground">
@@ -289,8 +287,7 @@ const Products = () => {
                 <div className="flex md:hidden p-4 items-start gap-4 border-b">
 
                   <img
-                    // src={product.name} // replace with image URL
-                    // src="../one.jpeg"
+
                     src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
                     alt={product.name}
                     className="w-24 h-24 object-cover rounded-md border"
@@ -311,7 +308,7 @@ const Products = () => {
                         Rs {product.price.toLocaleString()}
                       </p>
                     </div>
-                    {/* <span className="text-xs text-gray-400 text-right mt-2">just now</span> */}
+                    <span className="text-xs text-gray-400 text-right mt-2">just now</span>
                   </div>
                 </div>
 
@@ -342,14 +339,7 @@ const Products = () => {
               {/* Image Section */}
               <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-4 border-r">
                 <img
-                  // src={(() => {
-                  //   try {
-                  //     const imgArr = JSON.parse(selectedProduct.images);
-                  //     return imgArr[0] || "../one.jpeg";
-                  //   } catch {
-                  //     return "../one.jpeg";
-                  //   }
-                  // })()}
+                  
                   alt={selectedProduct.name}
                   // src="../one.jpeg"
                   src={`http://localhost/Git/Project1/Backend/${selectedProduct.images.split(',')[0]}`}
@@ -364,13 +354,7 @@ const Products = () => {
                   {/* {service.category} */}
                   <p className="text-sm text-muted-foreground">{selectedProduct.category} </p>
                 </Badge>
-                {/* <p className="text-sm text-muted-foreground">{selectedProduct.category} */}
-                {/* <div className="flex items-center space-x-1"> */}
-                {/* <Star size={20} className="text-yellow-500" /> */}
-                {/* <span className="text-sm font-medium">{service.rating}</span> */}
-                {/* </Star> */}
-                {/* </div> */}
-                {/* </p> */}
+          
                 <div className="text-gray-600 text-sm">
                   <strong>Provider:</strong> {selectedProduct.provider_name}
                 </div>
@@ -387,9 +371,7 @@ const Products = () => {
                 </div>
                 {/* Actions */}
                 <div className="pt-4 border-t flex justify-between items-center">
-                  {/* <div className="text-xl font-bold text-primary">
-              Rs {selectedProduct.price.toLocaleString()}
-            </div> */}
+                 
                   <Button
                     onClick={() => handleAddToCart(selectedProduct)}
                     className="bg-[#26B170] hover:bg-[#21965F] text-white"
@@ -415,20 +397,7 @@ const Products = () => {
                   </ul>
                 </div>
 
-                {/* <div className="pt-4 border-t">
-                  <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
-                  <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
-                    <li>
-                      ⭐⭐⭐⭐☆ - “Great performance even in cloudy weather.” – <i>Ayesha</i>
-                    </li>
-                    <li>
-                      ⭐⭐⭐⭐⭐ - “Highly recommended for rooftop installation.” – <i>Ramesh</i>
-                    </li>
-                    <li>
-                      ⭐⭐⭐☆☆ - “Expected better packaging.” – <i>Dinuka</i>
-                    </li>
-                  </ul>
-                </div> */}
+               
 
 
               </div>
