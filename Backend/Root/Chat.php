@@ -483,7 +483,7 @@ ORDER BY cs.sent_at ASC";
         ];
     }
 }
-public function getUserConversationsWithMessages($user_id) {
+public function getUserConversationsWithMessages1($user_id,$userrole) {
     try {
         // 1️⃣ Fetch all conversations where this user is either customer or provider
         $sql = "
@@ -492,9 +492,9 @@ public function getUserConversationsWithMessages($user_id) {
                 c.customer_id,
                 c.provider_id,
                 cu.user_id AS customer_user_id,
-                cu_user.username AS customer_username,
+                cu_user.username AS receiver_username,
                 pr.user_id AS provider_user_id,
-                pr_user.username AS provider_username
+                pr_user.username AS sender_username
             FROM conversation c
             LEFT JOIN customer cu ON c.customer_id = cu.customer_id
             LEFT JOIN user cu_user ON cu.user_id = cu_user.user_id
@@ -530,6 +530,122 @@ public function getUserConversationsWithMessages($user_id) {
             $stmtMsg->bindParam(1, $conv['chatSession_id'], PDO::PARAM_INT);
             $stmtMsg->execute();
             $messages = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
+
+            // Attach messages as an array inside conversation
+            $conv['messages'] = $messages;
+        }
+
+        return [
+            "success" => true,
+            "conversations" => $conversations,
+            "message" => count($conversations) > 0 
+                ? "Conversations with messages fetched successfully." 
+                : "No conversations found for this user."
+        ];
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "conversations" => [],
+            "message" => "Failed to fetch conversations. " . $e->getMessage()
+        ];
+    }
+}
+
+
+public function getUserConversationsWithMessages($user_id, $userrole) {
+    try {
+        // 1️⃣ Fetch all conversations where this user is either customer or provider
+        $sql = "
+            SELECT 
+                c.chatSession_id,
+                c.customer_id,
+                c.provider_id,
+                cu.user_id AS customer_user_id,
+                cu_user.username AS customer_username,
+                pr.user_id AS provider_user_id,
+                pr_user.username AS provider_username
+            FROM conversation c
+            LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+            LEFT JOIN user cu_user ON cu.user_id = cu_user.user_id
+            LEFT JOIN service_provider pr ON c.provider_id = pr.provider_id
+            LEFT JOIN user pr_user ON pr.user_id = pr_user.user_id
+            WHERE cu.user_id = ? OR pr.user_id = ?
+            ORDER BY c.chatSession_id DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(2, $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $conversations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2️⃣ For each conversation, fetch its messages and adjust sender/receiver names
+        foreach ($conversations as &$conv) {
+            $sqlMessages = "
+                SELECT 
+                    message_id, 
+                    chatSession_id, 
+                    sender_id, 
+                    receiver_id, 
+                    message, 
+                    is_read, 
+                    sent_at
+                FROM chat_sessions
+                WHERE chatSession_id = ?
+                ORDER BY sent_at ASC
+            ";
+            $stmtMsg = $this->conn->prepare($sqlMessages);
+            $stmtMsg->bindParam(1, $conv['chatSession_id'], PDO::PARAM_INT);
+            $stmtMsg->execute();
+            $messages = $stmtMsg->fetchAll(PDO::FETCH_ASSOC);
+
+            // Determine the other participant's name based on user role
+            if ($userrole === 'customer') {
+                // If current user is customer, the other participant is provider
+                $conv['other_participant_name'] = $conv['provider_username'];
+                $conv['other_participant_id'] = $conv['provider_user_id'];
+                $conv['current_user_role'] = 'customer';
+            } else if ($userrole === 'service_provider') {
+                // If current user is provider, the other participant is customer
+                $conv['other_participant_name'] = $conv['customer_username'];
+                $conv['other_participant_id'] = $conv['customer_user_id'];
+                $conv['current_user_role'] = 'provider';
+            } else {
+                // For admin or other roles, show both names
+                $conv['other_participant_name'] = "Customer: " . $conv['customer_username'] . " | Provider: " . $conv['provider_username'];
+                $conv['current_user_role'] = 'admin';
+            }
+
+            // Add sender/receiver names to each message based on user role
+            foreach ($messages as &$msg) {
+                if ($userrole === 'customer') {
+                    $msg['sender_name'] = ($msg['sender_id'] == $user_id) ? 'You' : $conv['provider_username'];
+                    $msg['receiver_name'] = ($msg['receiver_id'] == $user_id) ? 'You' : $conv['provider_username'];
+                } else if ($userrole === 'provider') {
+                    $msg['sender_name'] = ($msg['sender_id'] == $user_id) ? 'You' : $conv['customer_username'];
+                    $msg['receiver_name'] = ($msg['receiver_id'] == $user_id) ? 'You' : $conv['customer_username'];
+                } else {
+                    // For admin, show actual usernames
+                    if ($msg['sender_id'] == $conv['customer_user_id']) {
+                        $msg['sender_name'] = 'Customer: ' . $conv['customer_username'];
+                    } else if ($msg['sender_id'] == $conv['provider_user_id']) {
+                        $msg['sender_name'] = 'Provider: ' . $conv['provider_username'];
+                    } else {
+                        $msg['sender_name'] = 'Unknown';
+                    }
+                    
+                    if ($msg['receiver_id'] == $conv['customer_user_id']) {
+                        $msg['receiver_name'] = 'Customer: ' . $conv['customer_username'];
+                    } else if ($msg['receiver_id'] == $conv['provider_user_id']) {
+                        $msg['receiver_name'] = 'Provider: ' . $conv['provider_username'];
+                    } else {
+                        $msg['receiver_name'] = 'Unknown';
+                    }
+                }
+            }
 
             // Attach messages as an array inside conversation
             $conv['messages'] = $messages;

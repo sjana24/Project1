@@ -21,7 +21,7 @@
 
             $getAll = new Chat();
             // $response = $getAll->getAllChats($user_id);
-            $response = $getAll->getUserConversationsWithMessages($user_id);
+            $response = $getAll->getUserConversationsWithMessages($user_id,$user_role);
              echo json_encode($response);
 
         
