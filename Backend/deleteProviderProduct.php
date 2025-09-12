@@ -7,7 +7,7 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-echo "hi";
+
 require_once "./Root/Product.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -26,10 +26,11 @@ if (isset($_SESSION['user'])) {
         
         $data = json_decode(file_get_contents("php://input"), true);
         $product_id = $data['product_id'];
-        $deleteProduct = new Product();
-        echo $product_id;
+        $product = new Product();
+        // echo $product_id;
      
-        $response = $deleteProduct->$deleteProduct($product_id, $user_id);
+        $response = $product->deleteProductProvider($product_id, $user_id);
+        // $product->deleteProductProvider()
         echo json_encode($response);
 
     

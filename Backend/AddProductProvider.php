@@ -139,7 +139,7 @@ if (!isset($_FILES['images'])) {
 
 
         $addProduct = new Product();
-        $response = $addProduct->addProduct( $user_id, $name, $description, $price, $category, $image_path, $specifications);
+        $response = $addProduct->addProductProvider( $user_id, $name, $description, $price, $category, $image_path, $specifications);
         echo json_encode($response);
         // echo "$uploadedImages";
         // print_r($uploadedImages);
