@@ -5,6 +5,9 @@ class Order
 {
     protected $conn;
     protected $customer_id;
+    protected $provider_id;
+    protected $new_status;
+    protected $order_id;
 
     public function __construct()
     {
@@ -50,14 +53,14 @@ class Order
     //     }
     // }
 
-//     public function GetOrdersCustomer($customer_id)
+//     public function GetOrdersProvider($provider_id)
 // {
-//     $this->customer_id = $customer_id;
+//     $this->provider_id = $provider_id;
 //     try {
-//         // Get orders of the customer
-//         $sql = "SELECT * FROM `order` WHERE customer_id=:customer_id";
+//         // Get orders of the provider
+//         $sql = "SELECT * FROM `order` WHERE provider_id=:provider_id";
 //         $stmt = $this->conn->prepare($sql);
-//         $stmt->bindParam(':customer_id', $this->customer_id, PDO::PARAM_INT);
+//         $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
 //         $stmt->execute();
 //         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -95,6 +98,82 @@ class Order
 //         ];
 //     }
 // }
+public function GetOrdersProvider($provider_id)
+{
+    $this->provider_id = $provider_id;
+
+    try {
+        // ✅ Get all orders that contain products from this provider
+        $sql = "SELECT DISTINCT o.* 
+                FROM `order` o
+                INNER JOIN order_item oi ON o.order_id = oi.order_id
+                INNER JOIN product p ON oi.product_id = p.product_id
+                WHERE p.provider_id = :provider_id";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$orders) {
+            return [
+                'success' => false,
+                'message' => 'No Orders found for this provider.'
+            ];
+        }
+
+        // ✅ For each order, get related order items + product details
+        foreach ($orders as &$order) {
+            $itemSql = "SELECT 
+                            oi.item_id, 
+                            oi.order_id, 
+                            oi.product_id, 
+                            oi.quantity, 
+                            oi.unit_price, 
+                            oi.subtotal,
+                            p.name AS product_name,
+                            p.images AS product_images,
+                            p.category AS product_category
+                        FROM order_item oi
+                        INNER JOIN product p ON oi.product_id = p.product_id
+                        WHERE oi.order_id = :order_id AND p.provider_id = :provider_id";
+
+            $itemStmt = $this->conn->prepare($itemSql);
+            $itemStmt->bindParam(':order_id', $order['order_id'], PDO::PARAM_INT);
+            $itemStmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+            $itemStmt->execute();
+            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $order['items'] = $items ?: [];
+
+            // ✅ Compute totals for this provider's items in the order
+            $totalAmount = 0;
+            $totalItems = 0;
+            foreach ($items as $item) {
+                $totalAmount += $item['subtotal'];
+                $totalItems += $item['quantity'];
+            }
+
+            $order['provider_total_amount'] = $totalAmount;
+            $order['provider_total_items'] = $totalItems;
+        }
+
+        return [
+            'success' => true,
+            'orders' => $orders,
+            'message' => 'Orders fetched successfully.'
+        ];
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch orders. ' . $e->getMessage()
+        ];
+    }
+}
+
+
+
 public function GetOrdersCustomer($customer_id)
 {
     $this->customer_id = $customer_id;
@@ -530,4 +609,45 @@ public function createOrder($customer_id, $cartItems, $paymentData, $shipping_ad
             'message' => 'Failed to create order: ' . $e->getMessage()
         ];
     }
-}}
+}
+
+ public function updateOrderStatusProvider($order_id, $new_status)
+    {
+        $this->order_id = $order_id;
+        $this->new_status = $new_status;
+
+        try {
+           $sql = "UPDATE `order`
+        SET status = :status, updated_at = NOW()
+        WHERE order_id = :order_id";
+
+$stmt = $this->conn->prepare($sql);
+$stmt->bindParam(':status', $this->new_status, PDO::PARAM_STR);
+$stmt->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
+
+$stmt->execute();
+
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Order  status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update order approval status."
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return [
+                "success" => false,
+                "message" => "Error updating product approval: " . $e->getMessage()
+            ];
+        }
+    }
+
+
+
+}
