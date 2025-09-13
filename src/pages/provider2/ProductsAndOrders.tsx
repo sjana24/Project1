@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Search, Package, Eye, Star } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package, Eye, Star, DollarSign, AlertCircle, Clock, CheckCircle, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import OrderDetailsModal from '@/components/uiProvider/orderDetailsModel';
 
 export interface Review {
   review_id: number;
@@ -30,9 +33,45 @@ export interface Product {
   reviews?: Review[];
 }
 
+// Single order item
+export interface OrderItem {
+  item_id: number;
+  order_id: number;
+  product_id: number;
+  product_name: string;
+  product_category: string;
+  product_images: string; // URL or path
+  quantity: number;
+  unit_price: string; // could also be number if backend sends as number
+  subtotal: string;   // same as above
+}
+
+// Full order
+export interface Order {
+  order_id: number;
+  customer_id: number;
+  customerName?: string; // optional if you join user table
+  order_date: string; // ISO string from backend
+  total_amount: string;
+  delivery_charge: string;
+  status: "new" | "pending" | "on_process" | "packed" | "on_transit" | "delivered" | "cancelled";
+  shipping_address: string;
+  payment_status: "pending" | "paid" | "failed" | string;
+  created_at: string;
+  updated_at: string;
+
+  // Provider-specific calculated fields
+  provider_total_amount: number;
+  provider_total_items: number;
+
+  // Nested items
+  items: OrderItem[];
+}
+
 export default function Products() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -45,10 +84,46 @@ export default function Products() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const mockProductOrders = [
+  {
+    order_id: 1,
+    order_number: 'ORD-2024-001',
+    productName: 'Solar Panel Kit - 3kW',
+    image: '/images/solar-kit.jpg',
+    customerName: 'John Smith',
+    customerEmail: 'john.smith@email.com',
+    price: 4800,
+    status: 'new',
+    quantity: 2,
+    total_price: 9600,
+    order_date: '2024-07-01',
+    deliveryEstimate: '2024-07-05',
+    paymentStatus: 'paid',
+    description: 'Complete off-grid solar panel kit with inverter and mounting structure'
+  },
+  {
+    order_id: 2,
+    order_number: 'ORD-2024-002',
+    productName: 'Battery Storage 5kWh',
+    image: '/images/battery.jpg',
+    customerName: 'Sarah Johnson',
+    customerEmail: 'sarah.j@email.com',
+    price: 2500,
+    status: 'pending',
+    quantity: 2,
+    total_price: 5000,
+    order_date: '2024-07-02',
+    deliveryEstimate: '2024-07-07',
+    paymentStatus: 'paid',
+    description: 'Lithium-ion home energy storage battery with wall mount'
+  }
+  // Add more orders as needed
+];
 
   // Fetch products
   useEffect(() => {
     fetchProducts();
+    fetchOrders();
   }, []);
 
   const fetchProducts = () => {
@@ -59,6 +134,17 @@ export default function Products() {
         }
       })
       .catch(() => console.log("Failed to fetch products"));
+  };
+
+
+  const fetchOrders = () => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllOrderProvider.php", { withCredentials: true })
+      .then(res => {
+        if (res.data.success) {
+          setOrders(res.data.orders);
+        }
+      })
+      .catch(() => console.log("Failed to fetch orders"));
   };
 
   const filteredProducts = products.filter(product =>
@@ -72,6 +158,9 @@ export default function Products() {
     if (res.data.success) {
       toast({ title: "Deleted", description: "Product deleted successfully", variant: "destructive" });
       setProducts(products.filter(p => p.product_id !== id));
+    }
+    else{
+            toast({ title: "Failed", description: "Product deleted failed", variant: "destructive" });
     }
   };
 
@@ -133,8 +222,100 @@ export default function Products() {
     }
   };
 
+
+
+  const [searchOrder, setSearchOrder] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+    const filteredOrders = orders.filter(order => {
+    const matchesSearch =
+      order.status.toLowerCase().includes(searchOrder.toLowerCase()) ||
+      order.customerName.toLowerCase().includes(searchOrder.toLowerCase()) ;
+      // order.order_number.toLowerCase().includes(searchOrder.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  // ======================
+// Order Actions
+// ======================
+
+// 🔹 Cancel an order
+const handleCancelOrder = (orderId: string) => {
+  if (confirm("Are you sure you want to cancel this order?")) {
+    // Example: call your API here
+    console.log(`Cancelling order: ${orderId}`);
+
+    // TODO: replace with API call
+    // await fetch(`/api/orders/${orderId}/cancel`, { method: "POST" });
+
+    // Update UI immediately (optional)
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.order_id.toString() === orderId ? { ...o, status: "cancelled" } : o
+      )
+    );
+  }
+};
+
+// 🔹 Update status (dropdown)
+const handleStatusUpdate = async(orderId: string, newStatus: string) => {
+  console.log(`Updating order ${orderId} to status: ${newStatus}`);
+
+   const res = await axios.post("http://localhost/Git/Project1/Backend/updateOrderStatusProvider.php", {order_id:orderId,new_status:newStatus}, {
+          withCredentials: true,
+          headers: { "Content-Type": "application/form-data" }
+        });
+        if (res.data.success) {
+          toast({ title: "Updated", description: "Product Status updated successfully" });
+        }
+
+  // TODO: replace with API call
+  // await fetch(`/api/orders/${orderId}/status`, {
+  //   method: "POST",
+  //   body: JSON.stringify({ status: newStatus }),
+  // });
+
+  // setOrders((prev) =>
+  //   prev.map((o) =>
+  //     o.order_id.toString() === orderId ? { ...o, status: newStatus } : o
+  //   )
+  // );
+};
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
+// 🔹 View details (opens modal or console for now)
+const handleViewOrder = (order: any) => {
+  console.log("Viewing order:", order);
+
+  // If you want a modal, set state here:
+  setSelectedOrder(order);
+  setShowOrderModal(true);
+};
+
+// 🔹 Contact customer
+const handleContactCustomer = (order: any) => {
+  console.log("Contacting customer:", order.customerName);
+
+  // Example: open email client or chat
+  if (order.customerEmail) {
+    window.location.href = `mailto:${order.customerEmail}?subject=Order #${order.order_id}`;
+  } else {
+    alert("No customer email available.");
+  }
+};
+
+
   return (
+
     <div className="space-y-6">
+       <Tabs defaultValue="products">
+        <TabsList className="mb-6 grid w-full grid-cols-2">
+          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+        </TabsList>
+        <TabsContent value='products'> 
+      <div > 
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -304,6 +485,237 @@ export default function Products() {
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">No products found</h3>
         </div>
       )}
+      </div>
+      </TabsContent>
+
+      
+
+ <TabsContent value="orders">
+  <div>
+    {/* Stats Overview */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <Card>
+        <CardContent className="p-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">Total Orders</p>
+            <p className="text-2xl font-bold">{filteredOrders.length}</p>
+          </div>
+          <DollarSign className="h-6 w-6 text-primary" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">New Orders</p>
+            <p className="text-2xl font-bold text-red-600">
+              {filteredOrders.filter((o) => o.status === "new").length}
+            </p>
+          </div>
+          <div className="h-12 w-12 bg-red-50 rounded-lg flex items-center justify-center">
+            <AlertCircle className="h-6 w-6 text-red-600" />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">Pending</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {filteredOrders.filter((o) => o.status === "pending").length}
+            </p>
+          </div>
+          <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
+            <Clock className="h-6 w-6 text-blue-600" />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">Delivered</p>
+            <p className="text-2xl font-bold text-green-600">
+              {filteredOrders.filter((o) => o.status === "delivered").length}
+            </p>
+          </div>
+          <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    {/* Filters */}
+    <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search orders..."
+          value={searchOrder}
+          onChange={(e) => setSearchOrder(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-full md:w-52">
+          <SelectValue placeholder="Filter by status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Status</SelectItem>
+          <SelectItem value="new">New</SelectItem>
+          <SelectItem value="pending">Pending</SelectItem>
+          <SelectItem value="on_process">On Process</SelectItem>
+          <SelectItem value="packed">Packed</SelectItem>
+          <SelectItem value="on_transit">On Transit</SelectItem>
+          <SelectItem value="delivered">Delivered</SelectItem>
+          <SelectItem value="cancelled">Cancelled</SelectItem>
+        </SelectContent>
+      </Select>
+      <p>xvxczxc</p>
+    </div>
+
+    {/* Orders List */}
+    {orders.length === 0 ? (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <Clock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No product orders found</p>
+        </CardContent>
+      </Card>
+    ) : (
+      <div className="space-y-6">
+        {orders.map((order) => (
+          <Card key={order.order_id} className="hover:shadow-lg transition-shadow">
+            <CardHeader className="border-b pb-4">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Order #{order.order_id}
+                  </p>
+                  <p className="font-medium">Customer: {order.customerName || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(order.order_date).toLocaleString()}
+                  </p>
+                  <p>{order.shipping_address}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Select
+                    defaultValue={order.status}
+                    onValueChange={(value) =>
+                      handleStatusUpdate(order.order_id.toString(), value)
+                    }
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Update Status" />
+                    </SelectTrigger>
+                    <SelectContent defaultValue={order.status}>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="on_process">On Process</SelectItem>
+                      <SelectItem value="packed">Packed</SelectItem>
+                      <SelectItem value="on_transit">On Transit</SelectItem>
+                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+             
+                   <div >
+
+            </div>
+                  <Badge variant="outline">
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    {order.payment_status}
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {/* Items List */}
+              <div className="grid gap-4">
+                {order.items.map((item) => (
+                  <div
+                    key={item.item_id}
+                    className="flex items-center gap-4 border-b pb-3 last:border-b-0"
+                  >
+                    <img
+                      // src={item.product_images}
+                       src={`http://localhost/Git/Project1/Backend/${item.product_images}`}
+                      alt={item.product_name}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">{item.product_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.product_category}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm">Qty: {item.quantity}</p>
+                      <p className="text-sm">Unit: Rs.{item.unit_price}</p>
+                      <p className="font-medium">Rs.{item.subtotal}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Totals */}
+              <div className="border-t pt-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>Rs.{order.provider_total_amount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery:</span>
+                  <span>Rs.{order.delivery_charge}</span>
+                </div>
+                <div className="flex justify-between font-medium text-lg">
+                  <span>Total:</span>
+                  <span>Rs.{order.total_amount}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 pt-4 border-t">
+                {!["delivered", "cancelled"].includes(order.status) && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() =>
+                      handleStatusUpdate(order.order_id.toString(), "cancelled")
+                    }
+                  >
+                    Cancel Order
+                  </Button>
+                )}
+                <Button variant="outline" size="sm"
+                 onClick={() => handleViewOrder(order)}
+                 >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+                <Button variant="outline" size="sm">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Contact Customer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )}
+  </div>
+    {/* The Modal */}
+      <OrderDetailsModal
+        order={selectedOrder}
+        open={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+      />
+</TabsContent>
+
+
+      
+      </Tabs>
+
+      
     </div>
   );
 }

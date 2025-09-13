@@ -559,7 +559,7 @@ class Product
     {
         $this->provider_id = $provider_id;
         $this->product_id = $product_id;
-        $is_delete = 0;
+        $is_delete = 1;
 
         try {
             $sql = "UPDATE product 
