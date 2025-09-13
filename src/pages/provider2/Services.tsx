@@ -16,6 +16,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import axios from 'axios';
+export interface Review {
+  review_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
 export interface Service {
   service_id: number;
   name: string;
@@ -23,7 +29,9 @@ export interface Service {
   price: number;
   type: string;
   is_active: boolean;
-  // category: 'installation' | 'maintainace' | 'relocation';
+  is_approved:boolean;
+  reviews:Review[];
+  category: 'installation' | 'maintainace' | 'relocation';
   status: 'Active' | 'Inactive';
   createdAt: string;
 }
@@ -42,7 +50,7 @@ export default function Services() {
     name: '',
     description: '',
     price: 0,
-    // category:'',
+    category:'',
     type: '',
     status: 'Active' as 'Active' | 'Inactive',
   });
@@ -136,7 +144,7 @@ export default function Services() {
       description: '',
       price: 0,
       type: '',
-      // category:'',
+      category:'',
       status: 'Active',
     });
     setEditingService(null);
@@ -204,7 +212,7 @@ export default function Services() {
       description: service.description,
       price: service.price,
       type: service.type,
-      // category:service.category,
+      category:service.category,
       status: service.status,
     });
     setIsModalOpen(true);
@@ -231,281 +239,265 @@ export default function Services() {
       }
   };
 
+  // Function to toggle service status
+const toggleServiceStatus = async (service: any, checked: boolean) => {
+  try {
+    const newStatus = checked ? 1 : 0;
+
+    const res = await axios.post(
+      "http://localhost/Git/Project1/Backend/updateProviderServiceStatus.php",
+      { service_id: service.service_id, is_active: newStatus },
+      { withCredentials: true }
+    );
+
+    if (res.data.success) {
+      toast({
+        title: "Status Updated",
+        description: `Service "${service.name}" is now ${checked ? "Active" : "Inactive"}`,
+      });
+
+      // Optionally update local state to reflect the change instantly
+      setServices((prevServices: any[]) =>
+        prevServices.map((s) =>
+          s.service_id === service.service_id ? { ...s, is_active: newStatus } : s
+        )
+      );
+    } else {
+      toast({
+        title: "Error",
+        description: res.data.message || "Failed to update status",
+        variant: "destructive",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating service status:", error);
+    toast({
+      title: "Error",
+      description: "Something went wrong while updating status.",
+      variant: "destructive",
+    });
+  }
+};
+
+
   return (
+    
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
-          <p className="text-gray-500 dark:text-gray-400">Manage your solar services and offerings</p>
-        </div>
-
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-green-500 hover:bg-green-600">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Service
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingService ? 'Edit Service' : 'Add New Service'}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Service Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="type">Service Type</Label>
-                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select service type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {serviceTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="price">Price (Rs.)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value: 'Active' | 'Inactive') => setFormData({ ...formData, status: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-green-500 hover:bg-green-600">
-                  {editingService ? 'Update' : 'Add'} Service
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <Input
-          placeholder="Search services..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
-
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredServices.map((service) => (
-          <Card key={service.service_id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{service.name}</CardTitle>
-                  <div className="flex space-x-2 mt-1">
-                    <Badge variant="secondary">
-                      {service.type}
-                    </Badge>
-                    <Badge variant={service.status === 'Active' ? 'default' : 'destructive'}>
-                      {service.status}
-                    </Badge>
-                  </div>
-                </div>
-                {/* <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleToggleVisibility(service.service_id)}
-                >
-                  {service.is_active ? (
-                    <Eye className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <EyeOff className="w-4 h-4 text-gray-400" />
-                  )}
-                </Button> */}
-                <div className="flex items-center space-x-2">
-
-                  <Switch
-                    checked={service.is_active} // assuming product has an `is_visible` boolean field
-                    onCheckedChange={(checked) => updateServicetVisibility(service, checked)}
-                  />
-                  <span className="text-sm text-gray-700">
-                    {service.is_active ? "Visible" : "Hidden"}
-                  </span>
-                </div>
-
-                <div className="flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(service)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(service.service_id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          // onClick={() => setSelectedJob(job)}
-                                        >
-                                          <Eye className="w-4 h-4" />
-                                        </Button>
-                                      </DialogTrigger>
-                
-                                      <DialogContent className="max-w-3xl">
-                                        <DialogHeader>
-                                          <DialogTitle>Job Details</DialogTitle>
-                                        </DialogHeader>
-                
-                                        {1 && (
-                                          <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
-                                            <div className="grid grid-cols-2 gap-4">
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Title</label>
-                                                {/* <p className="text-lg font-semibold">{selectedJob.title}</p> */}
-                                              </div>
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Status</label>
-                                                {/* <Badge variant={isExpired(selectedJob.expiry_date) ? 'destructive' : 'default'}>
-                                                  {isExpired(selectedJob.expiry_date) ? 'Expired' : 'Active'}
-                                                </Badge> */}
-                                              </div>
-                                            </div>
-                
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Location</label>
-                                                {/* <p>{selectedJob.location}</p> */}
-                                              </div>
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Job Type</label>
-                                                {/* <p>{selectedJob.job_type}</p> */}
-                                              </div>
-                                            </div>
-                
-                                            <div>
-                                              <label className="font-medium text-gray-500 dark:text-gray-400">Description</label>
-                                              <p className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                                {/* {selectedJob.description} */}
-                                              </p>
-                                            </div>
-                
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Salary</label>
-                                                {/* <p className="font-semibold text-green-600">Rs. {selectedJob.salary_range}/month</p> */}
-                                              </div>
-                                              <div>
-                                                <label className="font-medium text-gray-500 dark:text-gray-400">Application Deadline</label>
-                                                {/* <p>{new Date(selectedJob.expiry_date).toLocaleDateString()}</p> */}
-                                              </div>
-                                            </div>
-                
-                                            <div>
-                                              <label className="font-medium text-gray-500 dark:text-gray-400">Requirements</label>
-                                              <ul className="list-disc list-inside mt-1 space-y-1">
-                                                {/* {selectedJob.requirements?.split('\n').map((req, idx) => (
-                                                  <li key={idx}>{req}</li>
-                                                ))} */}
-                                              </ul>
-                                            </div>
-                
-                                            <div>
-                                              <label className="font-medium text-gray-500 dark:text-gray-400">Benefits</label>
-                                              <ul className="list-disc list-inside mt-1 space-y-1">
-                                                {/* {selectedJob.benefits?.split('\n').map((benefit, idx) => (
-                                                  <li key={idx}>{benefit}</li>
-                                                ))} */}
-                                              </ul>
-                                            </div>
-                
-                                            <div>
-                                              <label className="font-medium text-gray-500 dark:text-gray-400">Posted On</label>
-                                              {/* <p>{new Date(selectedJob.posting_date).toLocaleDateString()}</p> */}
-                                            </div>
-                                          </div>
-                                        )}
-                                      </DialogContent>
-                                    </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
-                {service.description}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-green-600">
-                  Rs. {service.price.toLocaleString()}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredServices.length === 0 && (
-        <div className="text-center py-12">
-          <Wrench className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No services found</h3>
-          <p className="text-gray-500 dark:text-gray-400">
-            {searchTerm ? 'Try adjusting your search terms' : 'Add your first service to get started'}
-          </p>
-        </div>
-      )}
+  <div className="flex justify-between items-center">
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
+      <p className="text-gray-500 dark:text-gray-400">Manage your services and offerings</p>
     </div>
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-green-500 hover:bg-green-600 flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          Add Service
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{editingService ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Service Name & Category */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name">Service Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="installation">Installation</SelectItem>
+                  <SelectItem value="consulting">Consulting</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Price & Status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price">Price (Rs.)</Label>
+              <Input
+                id="price"
+                type="number"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                required
+              />
+            </div>
+            {/* <div> */}
+              {/* <Label htmlFor="status">Status</Label> */}
+              {/* <Select
+                value={formData.is_active ? 'Active' : 'Inactive'}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, is_active: value === 'Active' })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select> */}
+            {/* </div> */}
+          </div>
+
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-green-500 hover:bg-green-600">
+              {editingService ? 'Update' : 'Add'} Service
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  </div>
+
+  {/* Search */}
+  <div className="relative">
+    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+    <Input
+      placeholder="Search services..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="pl-10"
+    />
+  </div>
+
+  {/* Services Grid */}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {filteredServices.map((service) => (
+      <Card key={service.service_id} className="hover:shadow-lg transition-shadow">
+        <CardHeader className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg">{service.name}</CardTitle>
+            <div className="flex space-x-2 mt-1">
+              <Badge variant="secondary">
+                {service.category}
+                </Badge>
+              <Badge
+                variant={service.is_approved ? 'default' : 'destructive'}
+                className="capitalize"
+              >
+                {service.is_approved ? 'Active' : 'Inactive by admin'}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={service.is_active}
+              onCheckedChange={(checked) => toggleServiceStatus(service, checked)}
+            />
+            <span className="text-sm text-gray-700">
+              {service.is_active ? 'On' : 'Off'}
+            </span>
+          </div>
+
+          <div className="flex space-x-1">
+            <Button variant="ghost" size="sm" onClick={() => handleEdit(service)}>
+              <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(service.service_id)}
+              className="text-red-500 hover:text-red-700"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Eye className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Service Details & Reviews</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                  <p className="font-medium">{service.description}</p>
+                  <p>
+                    <span className="font-semibold">Price:</span> Rs. {service.price}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Category:</span> 
+                    {service.category}
+                  </p>
+                  <p className="font-semibold">Reviews:</p>
+                  {service.reviews.length === 0 ? (
+                    <p>No reviews yet</p>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1">
+                      {service.reviews.map((review) => (
+                        <li key={review.review_id}>
+                          <p className="font-medium">Rating: {review.rating}/5</p>
+                          <p>{review.comment}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+            {service.description}
+          </p>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-green-600">
+              Rs. {service.price.toLocaleString()}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+
+  {filteredServices.length === 0 && (
+    <div className="text-center py-12">
+      <Wrench className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white">No services found</h3>
+      <p className="text-gray-500 dark:text-gray-400">
+        {searchTerm ? 'Try adjusting your search terms' : 'Add your first service to get started'}
+      </p>
+    </div>
+  )}
+</div>
+
   );
 }
