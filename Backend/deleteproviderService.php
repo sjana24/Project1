@@ -26,10 +26,10 @@ if (isset($_SESSION['user'])) {
         
         $data = json_decode(file_get_contents("php://input"), true);
         $service_id = $data['service_id'];
-        $deleteService = new Service();
-        echo $service_id;
+        $service = new Service();
+        // echo $service_id;
      
-        $response = $deleteService->deleteService($service_id, $user_id);
+        $response = $service->deleteServiceProvider($service_id, $user_id);
         echo json_encode($response);
 
     

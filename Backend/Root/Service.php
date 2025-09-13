@@ -210,7 +210,7 @@ class Service
     public function getAllServicesProvider($provider_id)
 {
     try {
-        $sql = "SELECT * FROM service WHERE provider_id = :provider_id";
+        $sql = "SELECT * FROM service WHERE provider_id = :provider_id AND is_delete = 0";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':provider_id', $provider_id);
         $stmt->execute();
@@ -457,7 +457,7 @@ class Service
         $this->price       = $price;
         $this->type        = $type;
         $this->status      = $status;
-        $this->visible      = 1;
+        $this->visible      = 0;
         $this->provider_id = (int)$provider_id;
 
         $count = $this->isExistingService($this->provider_id, $this->name, $this->type);
@@ -474,7 +474,7 @@ class Service
 
             // Insert into `service` table
             $sql = "INSERT INTO service (
-                    provider_id, name, description, price, category, is_approved,visible, created_at, updated_at
+                    provider_id, name, description, price, category, is_approved,is_active, created_at, updated_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
 
             $stmt = $this->conn->prepare($sql);
@@ -529,7 +529,7 @@ class Service
                         price = ?,
                         category = ?,
                         is_approved = ?,
-                        visible=?,
+                        is_Active=?,
                         updated_at = NOW()
                       WHERE service_id = ? AND provider_id = ?";
 
@@ -593,35 +593,71 @@ class Service
             ];
         }
     }
-    public function deleteService($service_id, $provider_id)
+
+    public function deleteServiceProvider($service_id, $provider_id)
     {
         $this->service_id = (int)$service_id;
-        $this->provider_id = (int)$provider_id;
+        $this->provider_id= (int)$provider_id;
+        $is_delete=1;
 
-        // try {
-        //     $sql = "DELETE FROM service WHERE service_id = :service_id AND provider_id = :provider_id";
-        //     $stmt = $this->conn->prepare($sql);
-        //     $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
-        //     $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+        try {
+            $sql = "UPDATE service 
+                SET is_delete = :is_delete, updated_at = NOW() 
+                WHERE service_id = :service_id AND provider_id = :provider_id";
 
-        //     if ($stmt->execute()) {
-        //         return [
-        //             "success" => true,
-        //             "message" => "Service deleted successfully."
-        //         ];
-        //     } else {
-        //         return [
-        //             "success" => false,
-        //             "message" => "Failed to delete service."
-        //         ];
-        //     }
-        // } catch (PDOException $e) {
-        //     return [
-        //         "success" => false,
-        //         "message" => "Error deleting service: " . $e->getMessage()
-        //     ];
-        // }
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_BOOL);
+            $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
+            $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Service visibility status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update service visibility status."
+                ];
+            }
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Error updating service visibility: " . $e->getMessage()
+            ];
+        }
     }
+    // public function deleteService($service_id, $provider_id)
+    // {
+    //     $this->service_id = (int)$service_id;
+    //     $this->provider_id = (int)$provider_id;
+
+    //     try {
+    //         $sql = "DELETE FROM service WHERE service_id = :service_id AND provider_id = :provider_id";
+    //         $stmt = $this->conn->prepare($sql);
+    //         $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
+    //         $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+
+    //         if ($stmt->execute()) {
+    //             return [
+    //                 "success" => true,
+    //                 "message" => "Service deleted successfully."
+    //             ];
+    //         } else {
+    //             return [
+    //                 "success" => false,
+    //                 "message" => "Failed to delete service."
+    //             ];
+    //         }
+    //     } catch (PDOException $e) {
+    //         return [
+    //             "success" => false,
+    //             "message" => "Error deleting service: " . $e->getMessage()
+    //         ];
+    //     }
+    // }
+
     public function getAllServiceRequestsByProvider($provider_id)
     {
         try {
