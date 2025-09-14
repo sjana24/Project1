@@ -21,6 +21,7 @@
             $getAll = new Service();
             // $response = $getAll->getAllServiceRequestsByProvider($user_id);
             $response = $getAll->getServiceRequestsByProvider($user_id);
+            // getServiceRequestsByProvider
              echo json_encode($response);
 
         

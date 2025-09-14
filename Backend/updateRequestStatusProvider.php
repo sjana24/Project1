@@ -7,9 +7,9 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-// echo "hi";
 require_once "./Root/Chat.php";
 require_once "./Root/Notification.php";
+require_once "./Root/Service.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
@@ -24,13 +24,16 @@ if (isset($_SESSION['user'])) {
 
     // echo "$user_name,$user_id,$user_role";
     if ("service_provider" === $user_role) {
-        
-       $data = json_decode(file_get_contents("php://input"), true);
-       $request_id = htmlspecialchars(strip_tags($data['request_id']));
-        $customer_id = htmlspecialchars(strip_tags($data['customer_id']));
-       $status = htmlspecialchars(strip_tags($data['status']));
-// echo "$user_name,$customer_id,$request_id";
 
+        $data = json_decode(file_get_contents("php://input"), true);
+        $request_id = htmlspecialchars(strip_tags($data['request_id']));
+
+        $status = htmlspecialchars(strip_tags($data['status']));
+        // echo "$user_name,$customer_id,$request_id";
+        // echo $status, $request_id;
+        $service = new Service();
+        $responce = $service->updateRequestStatus($request_id, $user_id, $status);
+        echo json_encode($responce);
 
 
         // $manageChat = new Chat();
@@ -47,10 +50,11 @@ if (isset($_SESSION['user'])) {
         //      echo json_encode($responce2);
         // }
         // echo json_encode($response);
-        
+
         // echo "$uploadedImages";
         // print_r($uploadedImages);
         // echo json_encode(false)
-    
-// }
-    }}
+
+        // }
+    }
+}

@@ -1,78 +1,27 @@
 
 import React, { useEffect, useState } from 'react';
-import { Eye, Filter } from 'lucide-react';
+import {ClipboardList, GitPullRequestCreateArrow, HomeIcon, Search, SettingsIcon,} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 // import { useDashboardStore, Request } from '@/store/dashboardStore';
+import { Request } from '@/store/provider.interface';
 import axios from 'axios';
-
-interface Request {
-  request_id: number;
-  customer_id: number;
-  service_id: number;
-  request_date: string;         // ISO date string
-  status: string;
-  payment_status: string;
-  created_at: string;
-  updated_at: string;
-  service_type: "installation" | "maintenance" | "relocation";
-
-  // Customer info
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-
-  // Service info
-  service_name: string;
-  service_description: string;
-  service_price: number;
-  service_category: string;
-
-  // Extra service-type-specific details
-  details: InstallationDetails | MaintenanceDetails | RelocationDetails | {};
-}
-
-interface InstallationDetails {
-  installation_address: string;
-  roof_height: number;
-}
-
-interface MaintenanceDetails {
-  device_condition: string;
-  service_notes: string;
-  last_maintenance_date: string;
-  roof_height: number;
-}
-
-interface RelocationDetails {
-  current_address: string;
-  new_address: string;
-  current_roof_height: number;
-  new_roof_height: number;
-}
-
-
-// export interface Request {
-//   request_id: number;
-//   customerName: string;
-//   customerEmail: string;
-//   customerPhone: string;
-//   service: string;
-//   description: string;
-//   status: 'pending' | 'In Progress' | 'Completed';
-//   createdAt: string;
-// }
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function Service_Requests() {
+    const { toast } = useToast();
   // const { requestStatus, updateRequestStatus } = useDashboardStore();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(true);
   const [requests, setRequests] = useState<Request[]>([]);
+  const [searchRequest, setSearchRequest] = useState<String>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceRequestProvider.php", { withCredentials: true })
@@ -98,254 +47,222 @@ export default function Service_Requests() {
       });
 
   }, []);
-  const filteredRequests = requests.filter(request =>
-    statusFilter === 'all' || request.service_category === statusFilter
-  );
 
-  // const handleStatusChange = (id: number, status: Request['status']) => {
-  //   // updateRequestStatus(id, status);
-  // };
-   const handleStatusChange = async (request_id: number, customer_id: number, newStatus: 'accepted' | 'rejected') => {
-    console.log("handleStatusChange called with request_id:", request_id, "customer_id:", customer_id, "newStatus:", newStatus);
+  const filteredRequests = requests.filter(request => {
+    const matchesSearch =
+      request.service_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 
-    const response = await axios.post("http://localhost/Git/Project1/Backend/ManageServiceRequestStatus.php", {
-      // customer_id: currentUser.customerId,
-      // product_Details: product,
+      request.service_category.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      statusFilter === 'all' || request.service_category === statusFilter;
+
+    return matchesSearch && matchesCategory;
+  });
+
+    const  handleRequestStatusUpdate = async (request_id: number, newStatus: 'accepted' | 'rejected') => {
+
+    const response = await axios.post("http://localhost/Git/Project1/Backend/updateRequestStatusProvider.php", {
       request_id: request_id,
-      customer_id: customer_id,
       status: newStatus,
 
     },
       { withCredentials: true }
     );
-    console.log(response.data);
-    if (response.data.success) {
-      //   // After adding product to cart
-      //   triggerCartUpdate();
-      //   console.log("add to cart sucess ");
-      // toast({
-      //   title: "Requset accepted !",
-      //   description: ``,
+     if (response.data.success) {
+      toast({
+        title: "Status updated!",
+        description: "Service request status updated successfully.",
 
-      // });
+      });
     }
-    // else {
-    //   console.log(" erroe adoi");
-    //   toast({
-    //     title: "Only for Customers!",
-    //     variant: "destructive",
-    //     // description: `${product.name} has been added to your cart.`,
+    else {
+      toast({
+        title: "Status update failed",
+        variant: "destructive",
+        description:"Service request status updated successfully."
 
-    //   });
+      });
 
-    // }
+    }
 
-    // setRequests((prev) =>
-    //   prev.map((req) =>
-    //     req.request_id === request_id ? { ...req, status: newStatus } : req
-    //   )
-    // );
+    setRequests((prev) =>
+      prev.map((req) =>
+        req.request_id === request_id ? { ...req, status: newStatus } : req
+      )
+    );
   };
 
-  const getStatusColor = (status: Request['status']) => {
-    switch (status) {
-      case 'pending': return 'bg-blue-100 text-blue-800';
-      case 'In Progress': return 'bg-yellow-100 text-yellow-800';
-      case 'Completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Service Requests</h1>
-          <p className="text-gray-500 dark:text-gray-400">Manage customer service requests</p>
+    <>
+      {/* <TabsContent value="requests"> */}
+      <div>
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Requests</p>
+                <p className="text-2xl font-bold">{requests.length}</p>
+              </div>
+              <ClipboardList className="h-6 w-6 text-primary" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Installation</p>
+                <p className="text-2xl font-bold ">
+                  {requests.filter((r) => r.service_category === "installation").length}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                <GitPullRequestCreateArrow className="h-6 w-6 " />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Relocation</p>
+                <p className="text-2xl font-bold ">
+                  {requests.filter((r) => r.service_category === "relocation").length}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center">
+                <HomeIcon className="h-6 w-6 " />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Maintenance</p>
+                <p className="text-2xl font-bold ">
+                  {requests.filter((r) => r.service_category === "maintenance").length}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-red-50 rounded-lg flex items-center justify-center">
+                <SettingsIcon className="h-6 w-6 " />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 text-gray-500" />
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search requests"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
+            <SelectTrigger className="w-full md:w-52">
+              <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Category</SelectItem>
-              <SelectItem value="installation">Installtion</SelectItem>
-              <SelectItem value="maintenance">Maintenance</SelectItem>
+              <SelectItem value="installation">Installation</SelectItem>
               <SelectItem value="relocation">Relocation</SelectItem>
+              <SelectItem value="maintenance">Maintenance</SelectItem>
+              {/* <SelectItem value="cancelled">Cancelled</SelectItem> */}
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Installation</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {requests.filter(r => r.service_category === 'installation').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Maintenance</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {requests.filter(r => r.service_category === 'maintenance').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Relocation</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {requests.filter(r => r.service_category === 'relocation').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Requests List */}
-      <div className="space-y-4">
+        {/* Requests List */}
         {filteredRequests.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500 dark:text-gray-400">No requests found</p>
+            <CardContent className="py-8 text-center">
+              <ClipboardList className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No service requests found</p>
             </CardContent>
           </Card>
         ) : (
-          filteredRequests.map((request) => (
-            <Card key={request.request_id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold">{request.service_name}</h3>
-                      <Badge className={getStatusColor(request.status)}>
-                        {request.status}
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Customer:</span>
-                        <p className="font-medium">{request.customer_name}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Email:</span>
-                        <p className="font-medium">{request.customer_email}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Phone:</span>
-                        <p className="font-medium">{request.customer_phone}</p>
-                      </div>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-gray-500 dark:text-gray-400 text-sm">Description:</span>
-                      <p className="text-gray-700 dark:text-gray-300">{request.service_description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2 ml-4">
-
+          <div className="space-y-6">
+            {filteredRequests.map((req) => (
+              <Card key={req.request_id} className="hover:shadow-lg transition-shadow">
+                <CardHeader className="border-b pb-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div>
-                      <Button size="sm" 
-                      onClick={() => handleStatusChange(request.request_id, request.customer_id, 'accepted')}
-                      >Accept</Button>
-                      <Button variant="destructive" size="sm" 
-                      onClick={() => handleStatusChange(request.request_id, request.customer_id, 'rejected')}
-                      >Reject</Button>
+                      <p className="text-sm text-muted-foreground">
+                        Request #{req.request_id}
+                      </p>
+                      <p className="font-medium">
+                        Customer: {req.customer_name || "N/A"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(req.request_date).toLocaleString()}
+                      </p>
+                      <p className="text-sm">Phone: {req.customer_phone}</p>
+                      <p className="text-sm">Email: {req.customer_email}</p>
                     </div>
-                    {/* <Select
-                      value={request.status}
-                      onValueChange={(value: Request['status']) => handleStatusChange(request.request_id, value)}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="In Progress">In Progress</SelectItem>
-                        <SelectItem value="Completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select> */}
+                    <div className="flex items-center gap-3">
 
-                    <Dialog>
-                      <DialogTrigger asChild>
+
                         <Button
-                          variant="outline"
+                          variant="default"
                           size="sm"
-                          onClick={() => setSelectedRequest(request)}
+                        onClick={() =>
+                          handleRequestStatusUpdate(req.request_id, "accepted")
+                        }
                         >
-                          <Eye className="w-4 h-4" />
+                          Accept Request
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Request Details</DialogTitle>
-                        </DialogHeader>
-                        {selectedRequest && (
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Service</label>
-                                <p className="text-lg font-semibold">{selectedRequest.service_name}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
-                                <Badge className={getStatusColor(selectedRequest.status)}>
-                                  {selectedRequest.status}
-                                </Badge>
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer Name</label>
-                                <p>{selectedRequest.customer_name}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</label>
-                                <p>{selectedRequest.customer_email}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</label>
-                                <p>{selectedRequest.customer_phone}</p>
-                              </div>
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
-                              <p className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                {selectedRequest.service_description}
-                              </p>
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Created At</label>
-                              <p>{new Date(selectedRequest.request_date).toLocaleString()}</p>
-                            </div>
-                          </div>
-                        )}
-                      </DialogContent>
-                    </Dialog>
+  
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                        onClick={() =>
+                          handleRequestStatusUpdate(req.request_id, "rejected")
+                        }
+                        >
+                          Cancel Request
+                        </Button>
+               
+                    </div>
+
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  {/* Service Info */}
+                  <div className="space-y-2">
+                    <p className="font-medium">{req.service_name}</p>
+                                     <p className="text-sm">
+                      Category: <span className='font-semibold'>{req.service_category} </span>
+                    </p>
+                    <p className="font-medium">Price: Rs.{req.service_price}</p>
+                  </div>
+
+                  {/* Extra Details */}
+                  {req.details && Object.keys(req.details).length > 0 && (
+                    <div className="border-t pt-4 text-sm space-y-1">
+                      {Object.entries(req.details).map(([key, value]) => (
+                        <p key={key}>
+                          <span className="font-medium capitalize">{key.replace(/_/g, " ")}:</span>{" "}
+                          {value}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
-    </div>
+
+    </>
   );
 }
