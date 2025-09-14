@@ -133,44 +133,44 @@ $sanitizedData = [
 // You can now access like:
  $serviceType       = $serviceDataFetch['category'];
 
-echo "Full Name: $fullName<br>";
-echo "Phone: $phone<br>";
-echo "Maintainance Roof Height: $maintainanceRoofHeight<br><br>";
+// echo "Full Name: $fullName<br>";
+// echo "Phone: $phone<br>";
+// echo "Maintainance Roof Height: $maintainanceRoofHeight<br><br>";
 
-// echo "Installation Address: $installationAddress<br>";
-// echo "Installation City: $installationCity<br>";
-// echo "Installation Province: $installationProvince<br>";
-// echo "Installation Zip: $installationZip<br>";
-echo "Installation Roof Type: $installationRoofType<br>";
-echo "Installation Roof Height: $installationRoofHeight<br>";
-echo "Installation Roof Size: $installationRoofSize<br>";
-echo "Installation Capacity: $installationCapacity<br>";
-echo "Full Address (Installation): $fullAddressInstallation<br><br>";
+// // echo "Installation Address: $installationAddress<br>";
+// // echo "Installation City: $installationCity<br>";
+// // echo "Installation Province: $installationProvince<br>";
+// // echo "Installation Zip: $installationZip<br>";
+// echo "Installation Roof Type: $installationRoofType<br>";
+// echo "Installation Roof Height: $installationRoofHeight<br>";
+// echo "Installation Roof Size: $installationRoofSize<br>";
+// echo "Installation Capacity: $installationCapacity<br>";
+// echo "Full Address (Installation): $fullAddressInstallation<br><br>";
 
-echo "Maintenance Address: $maintenanceAddress<br>";
-// echo "Maintenance City: $maintenanceCity<br>";
-// echo "Maintenance Province: $maintenanceProvince<br>";
-// echo "Maintenance Zip: $maintenanceZip<br>";
-echo "Maintenance Problem: $maintenanceProblem<br>";
-echo "Full Address (Maintenance): $fullAddressMaintainance<br><br>";
+// echo "Maintenance Address: $maintenanceAddress<br>";
+// // echo "Maintenance City: $maintenanceCity<br>";
+// // echo "Maintenance Province: $maintenanceProvince<br>";
+// // echo "Maintenance Zip: $maintenanceZip<br>";
+// echo "Maintenance Problem: $maintenanceProblem<br>";
+// echo "Full Address (Maintenance): $fullAddressMaintainance<br><br>";
 
-echo "Relocation Old Address: $relocationOldAddress<br>";
-echo "Relocation Old City: $relocationOldCity<br>";
-echo "Relocation Old Province: $relocationOldProvince<br>";
-echo "Relocation Old Zip: $relocationOldZip<br>";
-echo "Full Address (Relocation - Old): $fullAddressRelocationOld<br><br>";
+// echo "Relocation Old Address: $relocationOldAddress<br>";
+// echo "Relocation Old City: $relocationOldCity<br>";
+// echo "Relocation Old Province: $relocationOldProvince<br>";
+// echo "Relocation Old Zip: $relocationOldZip<br>";
+// echo "Full Address (Relocation - Old): $fullAddressRelocationOld<br><br>";
 
-echo "Relocation New Address: $relocationNewAddress<br>";
-echo "Relocation New City: $relocationNewCity<br>";
-echo "Relocation New Province: $relocationNewProvince<br>";
-echo "Relocation New Zip: $relocationNewZip<br>";
-echo "Full Address (Relocation - New): $fullAddressRelocationNew<br><br>";
+// echo "Relocation New Address: $relocationNewAddress<br>";
+// echo "Relocation New City: $relocationNewCity<br>";
+// echo "Relocation New Province: $relocationNewProvince<br>";
+// echo "Relocation New Zip: $relocationNewZip<br>";
+// echo "Full Address (Relocation - New): $fullAddressRelocationNew<br><br>";
 
-echo "Relocation Roof Height (Old): $relocationRoofHeightOld<br>";
-echo "Relocation Roof Height (New): $relocationRoofHeightNew<br>";
-echo "Relocation Roof Size: $relocationRoofSize<br><br>";
+// echo "Relocation Roof Height (Old): $relocationRoofHeightOld<br>";
+// echo "Relocation Roof Height (New): $relocationRoofHeightNew<br>";
+// echo "Relocation Roof Size: $relocationRoofSize<br><br>";
 
-echo "Preferred Date: $preferredDate<br>";
+// echo "Preferred Date: $preferredDate<br>";
 
 
 

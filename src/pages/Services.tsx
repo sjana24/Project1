@@ -414,68 +414,75 @@ const Services = () => {
           {/* Services Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {filteredServices.map((service) => (
-              <Card key={service.service_id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect">
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        {/*  */}
-                        <img
-                          src={`http://localhost/Git/Project1/Backend/${service.company_image.split(',')[0]}`}
-                          alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">{service.company_name}</CardTitle>
-                        <p className="text-sm text-muted-foreground font-medium">{service.provider_name}</p>
-                        <div className="">
-                          <Badge variant="default" className="mt-1 bg-blue-300">
-                            {service.category}
-                          </Badge>
+              <Card key={service.service_id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect relative shadow overflow-hidden">
+
+                <div className="absolute inset-0 bg-cover bg-center opacity-40"
+                  style={{
+                    backgroundImage: `url("http://localhost/Git/Project1/Backend/${service.company_image}")`,
+                  }}
+                ></div>
+                <div className="relative ">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          {/*  */}
+                          <img
+                            src={`http://localhost/Git/Project1/Backend/${service.company_image}`}
+                            alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl">{service.company_name}</CardTitle>
+                          <p className="text-sm text-muted-foreground font-medium">{service.provider_name}</p>
+                          <div className="">
+                            <Badge variant="default" className="mt-1 bg-blue-300">
+                              {service.category}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      {/* <Star size={20} className="text-yellow-500" />
+                      <div className="flex items-center space-x-1">
+                        {/* <Star size={20} className="text-yellow-500" />
                       <span className="text-sm font-medium">
                         {service.average_rating}
                         </span>
                       {/* </Star> */}
 
-                      {service.average_rating != null ? (
-                        <>
-                          <Star size={20} className="text-yellow-500" />
-                          <span className="text-sm font-medium">{service.average_rating}</span>
-                        </>
-                      ) : (
-                        <span className="text-sm font-medium">New Service</span>
-                      )}
+                        {service.average_rating != null ? (
+                          <>
+                            <Star size={20} className="text-yellow-500" />
+                            <span className="text-sm font-medium">{service.average_rating}</span>
+                          </>
+                        ) : (
+                          <span className="text-sm font-medium">New Service</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <CardDescription className="text-muted-foreground mb-4">
-                    {service.description}
-                  </CardDescription>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {/* 123456789 */}
-                    {/* {service.features.map((feature, index) => (
+                    <CardDescription className="text-muted-foreground mb-4">
+                      {service.description}
+                    </CardDescription>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {/* 123456789 */}
+                      {/* {service.features.map((feature, index) => (
                       <h1 key={index} className="text-xs">
                         {feature}
                       </h1>
                     ))} */}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-2xl font-bold text-primary">
-                          {service.price === 0 ? "Free" : `Rs ${service.price}`}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{service.price}</div>
-                      </div>
                     </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-2xl font-bold text-primary">
+                            {service.price === 0 ? "Free" : `Rs ${service.price}`}
+                          </div>
+                          <div className="text-sm text-muted-foreground">{service.price}</div>
+                        </div>
+                      </div>
 
-                    <div className="space-y-2">
-                      {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="space-y-2">
+                        {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Phone className="h-4 w-4" />
                         <span>{service.phone}</span>
                       </div>
@@ -483,58 +490,60 @@ const Services = () => {
                         <Mail className="h-4 w-4" />
                         <span>{service.email}</span>
                       </div> */}
+                      </div>
+
+                      <div className="  flex flex-col sm:flex-row gap-6 justify-center">
+
+                        <Button size="lg"
+                          className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
+                          onClick={() => handleServiceClick(service)}
+
+                        >
+                          Request Service
+                        </Button>
+
+                        <Button size="lg"
+                          className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
+                          onClick={() => handleSendRequestContact(service)}
+                        >
+
+                          Request for Contact
+                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="text-sm text-blue-600 hover:text-blue-800"
+                              onClick={() => handleViewReviews(service.service_id, service)}
+                            >
+                              View Reviews
+                            </Button>
+                          </DialogTrigger>
+
+                          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
+                            </DialogHeader>
+
+                            {selectedServiceReviews.length > 0 ? (
+                              selectedServiceReviews.map((review, index) => (
+                                <div key={index} className="border-b py-3">
+                                  <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
+                                  <p className="text-base">{review.comment}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-muted-foreground">No reviews available.</p>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+
+
+                      </div>
                     </div>
-
-                    <div className="  flex flex-col sm:flex-row gap-6 justify-center">
-
-                      <Button size="lg"
-                        className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
-                        onClick={() => handleServiceClick(service)}
-
-                      >
-                        Request Service
-                      </Button>
-
-                      <Button size="lg"
-                        className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
-                        onClick={() => handleSendRequestContact(service)}
-                      >
-
-                        Request for Contact
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="text-sm text-blue-600 hover:text-blue-800"
-                            onClick={() => handleViewReviews(service.service_id, service)}
-                          >
-                            View Reviews
-                          </Button>
-                        </DialogTrigger>
-
-                        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
-                          </DialogHeader>
-
-                          {selectedServiceReviews.length > 0 ? (
-                            selectedServiceReviews.map((review, index) => (
-                              <div key={index} className="border-b py-3">
-                                <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
-                                <p className="text-base">{review.comment}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-muted-foreground">No reviews available.</p>
-                          )}
-                        </DialogContent>
-                      </Dialog>
-
-
-                    </div>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </div>
+                {/* </div> */}
               </Card>
             ))}
           </div>

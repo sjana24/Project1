@@ -658,46 +658,69 @@ class Service
     //     }
     // }
 
-    public function getAllServiceRequestsByProvider($provider_id)
+    public function getAllServiceRequestsByProvider1($provider_id)
     {
         try {
             // $sql = "SELECT * FROM service_request WHERE provider_id = :provider_id";
-            $sql="SELECT 
+    //         $sql="SELECT 
+    // sr.*,
+    // -- c.name AS customer_name,
+    // -- c.email AS customer_email,
+    // -- c.phone AS customer_phone,
+    // -- s.name AS service_name,
+    // -- s.type AS service_type,
+
+    // -- Installation fields
+    // ir.*,
+    // -- ir.installation_date,
+    // -- ir.device_type,
+    // -- ir.location AS installation_location,
+
+    // -- Maintenance fields
+    // mr.*,
+    // -- mr.maintenance_date,
+    // -- mr.issue_description,
+    // -- mr.location AS maintenance_location,
+
+    // -- Relocation fields
+    // -- rr.relocation_date,
+    // -- rr.old_address,
+    // -- rr.new_address
+    // rr.*
+
+// FROM service_request sr
+// JOIN service s ON sr.service_id = s.service_id
+// JOIN customer c ON sr.customer_id = c.customer_id
+
+// LEFT JOIN installation_request ir ON sr.request_id = ir.request_id
+// LEFT JOIN maintenance_request_details mr ON sr.request_id = mr.request_id
+// LEFT JOIN relocated_request rr ON sr.request_id = rr.request_id
+
+// WHERE s.provider_id = :provider_id AND sr.status =:status
+
+// ";
+
+$sql="SELECT 
     sr.*,
-    -- c.name AS customer_name,
-    -- c.email AS customer_email,
-    -- c.phone AS customer_phone,
-    -- s.name AS service_name,
-    -- s.type AS service_type,
+    c.name AS customer_name,
+    s.name AS service_name,
+    s.type AS service_type,
 
-    -- Installation fields
-    ir.*,
-    -- ir.installation_date,
-    -- ir.device_type,
-    -- ir.location AS installation_location,
+    CASE 
+        WHEN sr.service_type = 'installation' 
+            THEN JSON_OBJECT('installation_date', ir.installation_date, 'device_type', ir.device_type, 'location', ir.location)
+        WHEN sr.service_type = 'maintenance' 
+            THEN JSON_OBJECT('maintenance_date', mr.maintenance_date, 'issue_description', mr.issue_description, 'location', mr.location)
+        WHEN sr.service_type = 'relocation' 
+            THEN JSON_OBJECT('relocation_date', rr.relocation_date, 'old_address', rr.old_address, 'new_address', rr.new_address)
+    END AS details
 
-    -- Maintenance fields
-    mr.*,
-    -- mr.maintenance_date,
-    -- mr.issue_description,
-    -- mr.location AS maintenance_location,
-
-    -- Relocation fields
-    -- rr.relocation_date,
-    -- rr.old_address,
-    -- rr.new_address
-    rr.*
-
-FROM service_request sr
-JOIN service s ON sr.service_id = s.service_id
-JOIN customer c ON sr.customer_id = c.customer_id
-
-LEFT JOIN installation_request ir ON sr.request_id = ir.request_id
-LEFT JOIN maintenance_request_details mr ON sr.request_id = mr.request_id
-LEFT JOIN relocated_request rr ON sr.request_id = rr.request_id
-
-WHERE s.provider_id = :provider_id AND sr.status =:status
-
+FROM service_requests sr
+LEFT JOIN customers c ON sr.customer_id = c.id
+LEFT JOIN services s ON sr.service_id = s.id
+LEFT JOIN installation_requests ir ON sr.request_id = ir.request_id
+LEFT JOIN maintenance_requests mr ON sr.request_id = mr.request_id
+LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
 ";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':provider_id', $provider_id);
@@ -726,6 +749,112 @@ WHERE s.provider_id = :provider_id AND sr.status =:status
             ];
         }
     }
+
+// function getServiceRequestsByProvider($providerId) {
+//     $sql = "
+//         SELECT 
+//             sr.request_id,
+//             sr.customer_id,
+//             sr.service_id,
+//             sr.status,
+//             sr.payment_status,
+//             sr.request_date,
+
+//             c.name  AS customer_name,
+//             c.email AS customer_email,
+//             c.phone AS customer_phone,
+
+//             s.name  AS service_name,
+//             s.type  AS service_type,
+//             s.category AS service_category,
+//             s.price    AS service_price,
+
+//             ir.installation_date,
+//             ir.device_type,
+//             ir.location AS installation_location,
+//             ir.roof_height AS installation_roof_height,
+
+//             mr.maintenance_date,
+//             mr.issue_description,
+//             mr.location AS maintenance_location,
+
+//             rr.relocation_date,
+//             rr.old_address,
+//             rr.new_address,
+//             rr.current_roof_height,
+//             rr.new_roof_height
+
+//         FROM service_request sr
+//         JOIN customer c ON sr.customer_id = c.id
+//         JOIN service s  ON sr.service_id = s.id
+
+//         LEFT JOIN installation_request ir 
+//                ON sr.request_id = ir.request_id AND s.type = 'installation'
+//         LEFT JOIN maintenance_request_details mr 
+//                ON sr.request_id = mr.request_id AND s.type = 'maintenance'
+//         LEFT JOIN relocated_request rr 
+//                ON sr.request_id = rr.request_id AND s.type = 'relocation'
+
+//         WHERE s.provider_id = :provider_id
+//     ";
+
+//     $stmt = $this->conn->prepare($sql);
+//     $stmt->execute(['provider_id' => $providerId]);
+//     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//     $requests = [];
+//     foreach ($rows as $row) {
+//         $details = [];
+
+//         if ($row['service_type'] === 'installation') {
+//             $details = [
+//                 "installation_date" => $row['installation_date'],
+//                 "device_type"       => $row['device_type'],
+//                 "location"          => $row['installation_location'],
+//                 "roof_height"       => $row['installation_roof_height']
+//             ];
+//         } elseif ($row['service_type'] === 'maintenance') {
+//             $details = [
+//                 "maintenance_date"  => $row['maintenance_date'],
+//                 "issue_description" => $row['issue_description'],
+//                 "location"          => $row['maintenance_location']
+//             ];
+//         } elseif ($row['service_type'] === 'relocation') {
+//             $details = [
+//                 "relocation_date"    => $row['relocation_date'],
+//                 "old_address"        => $row['old_address'],
+//                 "new_address"        => $row['new_address'],
+//                 "current_roof_height"=> $row['current_roof_height'],
+//                 "new_roof_height"    => $row['new_roof_height']
+//             ];
+//         }
+
+//         $requests[] = [
+//             "request_id"      => $row['request_id'],
+//             "customer_id"     => $row['customer_id'],
+//             "service_id"      => $row['service_id'],
+//             "status"          => $row['status'],
+//             "payment_status"  => $row['payment_status'],
+//             "request_date"    => $row['request_date'],
+//             "customer_name"   => $row['customer_name'],
+//             "customer_email"  => $row['customer_email'],
+//             "customer_phone"  => $row['customer_phone'],
+//             "service_name"    => $row['service_name'],
+//             "service_type"    => $row['service_type'],
+//             "service_category"=> $row['service_category'],
+//             "service_price"   => $row['service_price'],
+//             "details"         => $details
+//         ];
+//     }
+
+//     return [
+//         "success"  => true,
+//         "requests" => $requests,
+//         "message"  => "Service requests fetched successfully for provider."
+//     ];
+// }
+
+
 
     public function getServiceRequestsByProvider($provider_id)
 {
@@ -758,7 +887,8 @@ WHERE s.provider_id = :provider_id AND sr.status =:status
         // Step 2: Get detailed info from the appropriate table for each service_type
         foreach ($serviceRequests as $request) {
             $requestId = $request['request_id'];
-            $type = strtolower($request['service_type']);
+            // $type = strtolower($request['service_type']);
+              $type = strtolower($request['service_category']);
 
             $extraDetails = [];
 
@@ -809,6 +939,45 @@ WHERE s.provider_id = :provider_id AND sr.status =:status
         ];
     }
 }
+
+  public function updateRequestStatus($request_id,$provider_id, $new_status)
+    {
+        $this->request_id= (int)$request_id;
+        $this->provider_id= (int)$provider_id;
+        $this->status= $new_status;
+        // $is_delete=1;
+
+        try {
+           $sql = "UPDATE service_request sr
+        JOIN service s ON sr.service_id = s.service_id
+        SET sr.status = :status, sr.updated_at = NOW()
+        WHERE sr.request_id = :request_id 
+          AND s.provider_id = :provider_id";
+
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
+            $stmt->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+            $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Service request status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update service request status."
+                ];
+            }
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Error updating service request: " . $e->getMessage()
+            ];
+        }
+    }
 
 
 
