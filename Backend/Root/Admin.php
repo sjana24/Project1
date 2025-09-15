@@ -55,6 +55,148 @@ class Admin
             echo json_encode(["message" => "Failed to login. " . $e->getMessage()]);
         }
     }
+      public function getAllCustomers()
+    {
+        $status="active";
+        $user_role="customer";
+
+        try {
+            $sql = "SELECT * FROM user WHERE  user_role=:user_role ";
+            $stmt = $this->conn->prepare($sql);
+             $stmt->bindParam(':user_role', $user_role); 
+            //  $stmt->bindParam(':status', $status); 
+            //  $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->execute();
+            $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($customers) {
+                return [
+                    'success' => true,
+                    'customers' => $customers,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
+          public function getAllProviders()
+    {
+        $status="active";
+        $user_role="service_provider";
+
+        try {
+            $sql = "SELECT * FROM user WHERE  user_role=:user_role ";
+            $stmt = $this->conn->prepare($sql);
+             $stmt->bindParam(':user_role', $user_role); 
+            //  $stmt->bindParam(':status', $status); 
+            //  $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->execute();
+            $providers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($providers) {
+                return [
+                    'success' => true,
+                    'providers' => $providers,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
+
+          public function getAllProducts()
+    {
+        $status="active";
+        $user_role=0;
+
+        try {
+            $sql = "SELECT * FROM product WHERE  is_delete=:user_role ";
+            $stmt = $this->conn->prepare($sql);
+             $stmt->bindParam(':user_role', $user_role); 
+            //  $stmt->bindParam(':status', $status); 
+            //  $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->execute();
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($products) {
+                return [
+                    'success' => true,
+                    'products' => $products,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
+
+            public function getAllJobs()
+    {
+        // $status="active";
+        // $user_role=0;
+
+        try {
+            $sql = "SELECT * FROM job_posting  ";
+            $stmt = $this->conn->prepare($sql);
+            //  $stmt->bindParam(':user_role', $user_role); 
+            //  $stmt->bindParam(':status', $status); 
+            //  $stmt->bindParam(':provider_id', $provider_id); 
+            $stmt->execute();
+            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($jobs) {
+                return [
+                    'success' => true,
+                    'jobs' => $jobs,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
     // public function Register($name, $email, $contact_no, $password)
     // {
     //     $this->name = $name;

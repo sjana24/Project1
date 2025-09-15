@@ -46,6 +46,11 @@ import JobRequest from "./pages/provider2/JobRequest";
 import MessagePro from "./pages/provider2/MessagePro";
 import Message from "./pages/Messsage";
 import ProductsAndOrders  from "./pages/provider2/ProductsAndOrders";
+import CustomersPage from "./pages/admin/customerPage";
+import ProviderPage from "./pages/admin/providerPage";
+import ProductPage from "./pages/admin/productPage";
+import ServicesPage1 from "./pages/admin/ServicePage1";
+import JobsPage from "./pages/admin/JobOpenings";
 
 const queryClient = new QueryClient();
 
@@ -98,11 +103,17 @@ const App = () => (
 
                     <Routes>
                       <Route path="dashboard" element={<AdminDashboard />} />
-                      <Route path="provider" element={<ProvidersPage />} />
+                      {/* <Route path="provider" element={<ProvidersPage />} /> */}
                       <Route path="product" element={<ProductsPage />} />
                       <Route path="service" element={<ServicesPage />} />
-                      <Route path="user" element={<UsersPage />} />
+                      <Route path="service1" element={<ServicesPage1 />} />
+                      {/* <Route path="user" element={<UsersPage />} /> */}
                       <Route path="order" element={<OrderPage />} />
+                      <Route path="user" element={<CustomersPage />} />
+                      <Route path="provider" element={<ProviderPage />} />
+                      <Route path="products" element={<ProductPage />} />
+                      <Route path="jobs" element={<JobsPage />} />
+
 
                       <Route path="" element={<Navigate to="dashboard" replace />} />
 
