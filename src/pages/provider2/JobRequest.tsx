@@ -162,7 +162,7 @@ const JobRequest = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                <p className="text-sm font-medium text-muted-foreground">Pending</p>
                 <p className="text-2xl font-bold">{stats.pending}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
