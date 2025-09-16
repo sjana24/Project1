@@ -55,6 +55,8 @@ export default function Services() {
     status: 'Active' as 'Active' | 'Inactive',
   });
 
+  const [sortBy, setSortBy] = useState<string>('');
+
   const serviceTypes = [
     'Installation',
     'Maintenance',
@@ -384,16 +386,30 @@ const toggleServiceStatus = async (service: any, checked: boolean) => {
     </Dialog>
   </div>
 
-  {/* Search */}
-  <div className="relative">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-    <Input
-      placeholder="Search services..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="pl-10"
-    />
-  </div>
+  {/* Search and Filter */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+              <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search services or providers..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Service Name</SelectItem>
+                <SelectItem value="provider">Provider</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
   {/* Services Grid */}
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
