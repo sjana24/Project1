@@ -939,8 +939,79 @@ LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
         ];
     }
 }
+public function updateRequestStatus($request_id, $provider_id, $new_status)
+{
+    $this->request_id = (int)$request_id;
+    $this->provider_id = (int)$provider_id;
+    $this->status = $new_status;
 
-  public function updateRequestStatus($request_id,$provider_id, $new_status)
+    try {
+        // 1. Update request status
+        $sql = "UPDATE service_request sr
+                JOIN service s ON sr.service_id = s.service_id
+                SET sr.status = :status, sr.updated_at = NOW()
+                WHERE sr.request_id = :request_id 
+                  AND s.provider_id = :provider_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
+        $stmt->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+        $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+
+            // 2. If status is accepted, insert into ongoing_project
+            if (strtolower($this->status) === "accepted") {
+
+                // Fetch customer name + service name
+                $query = "SELECT u.username AS customer_name, s.name AS service_name
+                          FROM service_request sr
+                          JOIN customer c ON sr.customer_id = c.customer_id
+                          JOIN user u ON c.user_id = u.user_id
+                          JOIN service s ON sr.service_id = s.service_id
+                          WHERE sr.request_id = :request_id
+                            AND s.provider_id = :provider_id
+                          LIMIT 1";
+                $stmt2 = $this->conn->prepare($query);
+                $stmt2->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+                $stmt2->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+                $stmt2->execute();
+                $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+                if ($row) {
+                    $project_name = $row['customer_name'] . " - " . $row['service_name'];
+
+                    $insert = "INSERT INTO ongoing_project 
+                               (request_id, project_name, status, start_date, due_date, completed_date, payment_id, created_at, updated_at) 
+                               VALUES (:request_id, :project_name, 'new', NULL, NULL, NULL, NULL, NOW(), NOW())";
+
+                    $stmt3 = $this->conn->prepare($insert);
+                    $stmt3->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+                    $stmt3->bindParam(':project_name', $project_name, PDO::PARAM_STR);
+                    $stmt3->execute();
+                }
+            }
+
+            return [
+                "success" => true,
+                "message" => "Service request status updated successfully."
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Failed to update service request status."
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            "success" => false,
+            "message" => "Error updating service request: " . $e->getMessage()
+        ];
+    }
+}
+
+
+  public function updateRequestStatus1($request_id,$provider_id, $new_status)
     {
         $this->request_id= (int)$request_id;
         $this->provider_id= (int)$provider_id;
@@ -961,6 +1032,7 @@ LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
             $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
+                
                 return [
                     "success" => true,
                     "message" => "Service request status updated successfully."
