@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Services from "./Services";
 import Orders from "./ProjectOrder";
 import ServiceRequests from "./Service_Request";
+import OngoingProject from "./ProjectOrder";
 
 export default function ServicesAndOrders() {
   return (
@@ -15,7 +16,7 @@ export default function ServicesAndOrders() {
         <TabsList className="mb-6 grid w-full grid-cols-3">
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="requests">Service Requests</TabsTrigger>
-           <TabsTrigger value="orders">Orders</TabsTrigger>
+           <TabsTrigger value="ongoingProjects">Orders</TabsTrigger>
         </TabsList>
 
         {/* Services Tab */}
@@ -24,8 +25,8 @@ export default function ServicesAndOrders() {
         </TabsContent>
 
         {/* Orders Tab */}
-        <TabsContent value="orders">
-          <Orders />
+        <TabsContent value="ongoingProjects">
+          <OngoingProject/>
         </TabsContent>
 
         {/* Requests Tab */}
