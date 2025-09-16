@@ -43,3 +43,28 @@ export interface RelocationDetails {
   current_roof_height: number;
   new_roof_height: number;
 }
+
+// export interface IOngoingProject {
+//     id:number;
+//     orderNumber:number;
+//     projectTitle:string;
+//     customerName: string;
+//     customerEmail: string;
+//     budget: number;
+//     status: string;
+//     priority: string;
+//     startDate:string;
+//     estimatedCompletion: string;
+//     paymentStatus: string;
+//     description: string;
+// }
+export interface IOngoingProject extends Request {
+  project_id: number;
+  project_name: string;
+  status: string;           // Project-specific status (e.g., "new", "in_progress", "completed")
+  start_date: string;       // ISO date string
+  due_date: string;         // ISO date string
+  completed_date: string | null;
+  payment_id: number | null;
+  request_status: string;   // Status of the related service_request (e.g., "accepted", "pending")
+}
