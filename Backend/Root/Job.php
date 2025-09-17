@@ -34,37 +34,65 @@ class Job
         $this->conn = $dbObj->connect();
     }
 
+
     public function getAllJobsCustomer()
-    {
+{
+    try {
+        $sql = "
+            SELECT 
+                jp.job_id,
+                jp.provider_id,
+                jp.admin_id,
+                jp.title,
+                jp.description,
+                jp.location,
+                jp.job_type,
+                jp.min_salary,
+                jp.max_salary,
+                jp.posting_date,
+                jp.expiry_date,
+                jp.status,
+                jp.is_approved,
+                jp.requirements,
+                jp.benefits,
+                sp.company_name,
+                sp.profile_image
+            FROM job_posting jp
+            INNER JOIN service_provider sp 
+                ON jp.provider_id = sp.provider_id
+            WHERE jp.expiry_date > NOW() 
+              AND jp.is_approved = 1
+              AND jp.status = 'active'
+            ORDER BY jp.posting_date DESC
+        ";
 
-        try {
-            $sql = "SELECT * FROM job_posting";
-            $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $stmt->execute();
-            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($jobs) {
-                return [
-                    'success' => true,
-                    'jobs' => $jobs,
-                    'message' => 'Jobs fetched successfully.'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No jobs found.'
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+        if ($jobs) {
+            return [
+                'success' => true,
+                'jobs' => $jobs,
+                'message' => 'Jobs fetched successfully.'
+            ];
+        } else {
             return [
                 'success' => false,
-                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+                'message' => 'No active jobs found.'
             ];
         }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Failed to get jobs. " . $e->getMessage()]);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+        ];
     }
+}
+
+
     public function getAllJobsProvider($provider_id)
     {
 
@@ -96,7 +124,7 @@ class Job
             ];
         }
     }
-    public function getAllJobRequestsProvider($provider_id)
+    public function getAllJobRequestsProvider1($provider_id)
     {
 
         $this->provider_id = $provider_id;
