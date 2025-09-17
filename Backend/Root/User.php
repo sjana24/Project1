@@ -10,11 +10,11 @@ abstract class User
     protected $user_name;
     protected $email;
     protected $password;
-    protected $role;
+    protected $user_role;
 
     protected $name;
     //   protected $email;
-    protected $contact_no;
+    protected $contact_number;
     //   protected $role;
     //   protected $password;
     protected $address;
@@ -35,13 +35,15 @@ abstract class User
     {
         $this->email = $email;
         $this->password = $password;
-        $this->role = $role;
+        $this->user_role = $user_role;
 
         try {
-            $sql = "SELECT * FROM user WHERE email=? AND user_role=? ";
+            $sql = "SELECT * FROM user WHERE email=? AND user_role=?  AND email_verified=? AND is_blocked=?";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(1, $this->email);
-            $stmt->bindParam(2, $this->role);
+            $stmt->bindParam(2, $this->user_role);
+            $stmt->bindParam(3, $email_verified);
+            $stmt->bindParam(4, $is_blocked);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,7 +55,7 @@ abstract class User
                 // $this->logged = $user['success'];
                 $this->user_id = $user['user_id'];
                 $this->user_name = $user['username'];
-                $this->role = $user['user_role'];
+                $this->user_role = $user['user_role'];
                 $_SESSION['user'] = [
                     "user_id" => $user['user_id'],
                     "user_name" => $user['username'],
@@ -61,7 +63,7 @@ abstract class User
                 ];
                 error_log("Session set: " . print_r($_SESSION['user'], true));
 
-                return ['user_id' => $this->user_id, 'user_name' => $this->user_name, 'user_role' => $this->role, 'success' => true, 'message' => 'Login Successful...'];
+                return ['user_id' => $this->user_id, 'user_name' => $this->user_name, 'user_role' => $this->user_role, 'success' => true, 'message' => 'Login Successful...'];
             } else {
                 return ["success" => false, "message" => "Incorrect email or password..."];
             }
@@ -84,14 +86,14 @@ abstract class User
     }
 
 
-    public function signupUser($name, $email, $contact_no, $role, $password, $address, $district, $province, $company_name, $business_reg_no, $company_description, $website)
+    public function signupUser($name, $email, $contact_number, $role, $password, $address, $district, $province, $company_name, $business_reg_no, $company_description, $website)
     {
         $this->name = $name;
         $this->email = $email;
-        $this->contact_no = $contact_no;
+        $this->contact_number = $contact_number;
         $this->password = $password;
 
-        $this->role = $role;
+        $this->user_role = $user_role;
 
         $this->address = $address;
         $this->district = $district;
@@ -102,21 +104,21 @@ abstract class User
         $this->website = $website;
 
         $dash = 0;
-        $count=$this->isExistingUser($this->email,$this->role);
+        $count=$this->isExistingUser($this->email,$this->user_role);
 
         if (0==$count){
             try {
             // 1. Insert into `user` table
-            $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `password`, `user_role`, `created_at`, `updated_at`, `status`) 
-                                  VALUES (?, ?, ?, ?, NOW(), NOW(), 'active')");
-            $stmt->execute([$this->name, $this->email, $this->password, $this->role]);
+            $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `email_verified`, `password`, `is_blocked`, `user_role`, `created_at`, `updated_at`) 
+                                  VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->execute([$this->name, $this->email, $this->email_verified, $this->password, $this->is_blocked, $this->user_role]);
 
             // 2. Get auto-incremented user_id
             $userId = $this->conn->lastInsertId();
             $dash = $userId;
 
             // 3. Depending on role, insert into service_provider or customer
-            if ($this->role === 'service_provider') {
+            if ($this->user_role === 'service_provider') {
 
                 $stmt = $this->conn->prepare("INSERT INTO `service_provider` 
             (`user_id`, `contact_number`, `address`, `district`, `company_name`, `business_registration_number`, `company_description`, `website`, `verification_status`) 
@@ -124,7 +126,7 @@ abstract class User
 
                 $stmt->execute([
                     $userId,
-                    $this->contact_no,
+                    $this->contact_number,
                     $this->address,
                     $this->district,
                     // '', // profile_image initially empty
@@ -141,7 +143,7 @@ abstract class User
 
                 $stmt->execute([
                     $userId,
-                    $this->contact_no,
+                    $this->contact_number,
                     // $this->address,
                     // $this->district,
                     // $this->province

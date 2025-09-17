@@ -17,12 +17,12 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 // $email = filter_var($data['email'] ?? null,FILTER_SANITIZE_EMAIL);
 // $password = htmlspecialchars(strip_tags($data['password'] ?? null));
-// $role = htmlspecialchars(strip_tags($data['role'] ?? null));
+// $role = htmlspecialchars(strip_tags($data['user_role'] ?? null));
 // $data = json_decode(file_get_contents("php://input"), true);
 
 $email = isset($data['email']) ? htmlspecialchars(strip_tags($data['email'])) : '';
 $password = isset($data['password']) ? htmlspecialchars(strip_tags($data['password'])) : '';
-$role = isset($data['role']) ? htmlspecialchars(strip_tags($data['role'])) : '';
+$role = isset($data['user_role']) ? htmlspecialchars(strip_tags($data['user_role'])) : '';
 
 
 if(!filter_var($data['email'],FILTER_VALIDATE_EMAIL)){
@@ -40,8 +40,7 @@ $userLogin=new Customer();
 
 
 
-$loginRes=$userLogin->Login($email,$password,$role);
-    // $x=$userLogin->Login($email,$password,$role);
+$loginRes=$userLogin->Login($email,$password,$user_role);
 
 if ($loginRes['success']) {
     http_response_code(200);

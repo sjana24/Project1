@@ -10,10 +10,10 @@ $data = json_decode(file_get_contents("php://input"), true); // For JSON input
 
 $name = htmlspecialchars(strip_tags(trim($data['name'] ?? '')));
 $email = htmlspecialchars(strip_tags(trim($data['email'] ?? '')));
-$contact_no = htmlspecialchars(strip_tags(trim($data['contact_no'] ?? '')));
+$contact_number = htmlspecialchars(strip_tags(trim($data['contact_number'] ?? '')));
 $password = htmlspecialchars(strip_tags(trim($data['password'] ?? '')));
 $confirmpassword = htmlspecialchars(strip_tags(trim($data['confirmpassword'] ?? '')));
-$role = htmlspecialchars(strip_tags(trim($data['role'] ?? '')));
+$role = htmlspecialchars(strip_tags(trim($data['user_role'] ?? '')));
 $address = htmlspecialchars(strip_tags(trim($data['address'] ?? '')));
 $district = htmlspecialchars(strip_tags(trim($data['district'] ?? '')));
 $province = htmlspecialchars(strip_tags(trim($data['province'] ?? '')));
@@ -29,8 +29,8 @@ if (empty($name)) $errors[] = "Name is required.";
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
 if (strlen($password) < 6) $errors[] = "Password must be at least 6 characters.";
 if ($password !== $confirmpassword) $errors[] = "Passwords do not match.";
-if (empty($role) || !in_array($role, ['customer', 'service_provider'])) $errors[] = "Valid role is required.";
-if (empty($contact_no) || !preg_match('/^[0-9]{10}$/', $contact_no)) $errors[] = "Valid 10-digit contact number is required.";
+if (empty($user_role) || !in_array($user_role, ['customer', 'service_provider'])) $errors[] = "Valid role is required.";
+if (empty($contact_number) || !preg_match('/^[0-9]{10}$/', $contact_number)) $errors[] = "Valid 10-digit contact number is required.";
 if ($website && !filter_var($website, FILTER_VALIDATE_URL)) $errors[] = "Website must be a valid URL.";
 
 // Echo errors or continue
@@ -41,7 +41,7 @@ if (!empty($errors)) {
 else{
     
     $createdUser=new Customer();
-    $responce=$createdUser->signUpUser($name,$email,$contact_no,$role,$password,$address,$district,$province,$company_name,$business_reg_no,$company_description,$website);
+    $responce=$createdUser->signUpUser($name,$email,$contact_number,$user_role,$password,$address,$district,$province,$company_name,$business_reg_no,$company_description,$website);
    
 }
 
@@ -69,7 +69,7 @@ if ($responce['success']) {
 //     "data" => [
 //         "name" => $name,
 //         "email" => $email,
-//         "contact_no" => $contact_no,
+//         "contact_number" => $contact_number,
 //         "role" => $role,
 //         "address" => $address,
 //         "district" => $district,

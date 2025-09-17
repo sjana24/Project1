@@ -17,6 +17,15 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  // const [registerData, setRegisterData] = useState({
+  //     name: "",
+  //     email: "",
+  //     contact_number: " ",
+  //     password: "",
+  //     confirmpassword: ""
+  // });
+
   // const [isVarificationModel, setVarificationModel] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otp, setOtp] = useState("");
@@ -24,10 +33,10 @@ const Login = () => {
   const [registerData, setRegisterData] = useState({
     full_name: "",
     email: "",
-    contact_no: "",
+    contact_number: "",
     password: "",
     confirmpassword: "",
-    role: "",                // "customer" | "service_provider"
+    user_role: "",                // "customer" | "service_provider"
     address: "",
     district: "",
     province: "",
@@ -38,16 +47,19 @@ const Login = () => {
   });
 
 
+
   type RoleType = "customer" | "service_provider" | "admin";
 
   const [loginData, setLoginData] = useState<{
     email: string;
     password: string;
-    role: RoleType;
+    user_role: RoleType;
   }>({
     email: "",
     password: "",
+
     role: "admin" as RoleType,// ✅ assign a valid default value here
+
   });
 
 
@@ -55,7 +67,9 @@ const Login = () => {
     e.preventDefault();
     console.log(registerData);
     const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
+
     if (!registerData.full_name || !registerData.email || !registerData.password || !registerData.contact_no || !registerData.confirmpassword) {
+
       console.log(" error in data");
       return;
     }
@@ -72,6 +86,7 @@ const Login = () => {
 
   const handleConfirmOtp = async () => {
     try {
+
       console.log(otp, registerData);
       const res = await axios.post("http://localhost/Git/Project1/Backend/ConfirmOtp.php", {
         email: registerData.email,
@@ -108,11 +123,13 @@ const Login = () => {
       const emailSend = await axios.post("http://localhost/Git/Project1/Backend/RequestEmailVarification.php", { "email": registerData.email }, { withCredentials: true });
       if (emailSend.data.success) {
 
+
         toast({
           title: "Varification code !",
           description: "Varification code send successfully",
         });
           setShowOtpModal(true);
+
 
       }
       else {
@@ -123,6 +140,7 @@ const Login = () => {
         });
 
       }
+
     } catch (err) {
       console.error("Error registering user:", err);
     } finally {
@@ -136,12 +154,14 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+
     if (!loginData.email || !loginData.password || !loginData.role) {
       toast({
         title: "Sign in failed",
         description: "Plese fill required filed",
         variant: "destructive",
       });
+
       return;
     }
 
@@ -157,8 +177,10 @@ const Login = () => {
         });
 
 
+
         let role = res.data.user_role;
         const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
+
 
         navigate(`/${cleanRole}/dashboard`);
 
@@ -249,23 +271,24 @@ const Login = () => {
                           <label className="flex items-center gap-2 ">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="customer"
-                              checked={loginData.role === "customer"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              checked={loginData.user_role === "customer"}
+                              onChange={(e) => setLoginData(prev => ({ ...prev, user_role: e.target.value as RoleType }))}
                             />
                             Customer
                           </label>
                           <label className="flex items-center gap-2 ">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="service_provider"
-                              checked={loginData.role === "service_provider"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              checked={loginData.user_role === "service_provider"}
+                              onChange={(e) => setLoginData(prev => ({ ...prev, user_role: e.target.value as RoleType }))}
                             />
                             Service Provider
                           </label>
+
                           {/* <div className="hidden">
                             <label className="flex items-center gap-2">
                               <input
@@ -278,6 +301,7 @@ const Login = () => {
                               Admin
                             </label>
                           </div> */}
+
                         </div>
                       </div>
 
@@ -332,9 +356,11 @@ const Login = () => {
                         <Label>Mobile Number</Label>
                         <Input
                           type="tel"
+
                           placeholder="0771234567"
                           value={registerData.contact_no}
                           onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
+
                           required
                           pattern="^0\d{9}$"
                           maxLength={10}
@@ -376,10 +402,10 @@ const Login = () => {
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="customer"
-                              checked={registerData.role === 'customer'}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                              checked={registerData.user_role === 'customer'}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, user_role: e.target.value }))}
                               required
                             />
                             Customer
@@ -387,10 +413,10 @@ const Login = () => {
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="service_provider"
-                              checked={registerData.role === 'service_provider'}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                              checked={registerData.user_role === 'service_provider'}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, user_role: e.target.value }))}
                               required
                             />
                             Service Provider
@@ -399,7 +425,9 @@ const Login = () => {
                       </div>
 
                       {/* Fields for Customer */}
-                      {registerData.role === 'customer' && (
+
+                      {registerData.user_role === 'customer' && (
+
                         <>
                           <div>
                             <Label>Address</Label>
@@ -463,7 +491,7 @@ const Login = () => {
                       )}
 
                       {/* Fields for Service Provider */}
-                      {registerData.role === 'service_provider' && (
+                      {registerData.user_role === 'service_provider' && (
                         <>
                           <div>
                             <Label>Company Name</Label>
