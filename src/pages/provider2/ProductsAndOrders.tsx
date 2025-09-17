@@ -12,7 +12,7 @@ import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderDetailsModal from '@/components/uiProvider/orderDetailsModel';
-
+import { X } from "lucide-react";
 export interface Review {
   review_id: number;
   rating: number;
@@ -136,6 +136,34 @@ export default function Products() {
       .catch(() => console.log("Failed to fetch products"));
   };
 
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+  const validateForm = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!formData.name) {
+      errors.name = "Product name is required.";
+    }
+    if (!formData.description) {
+      errors.description = "Product description is required.";
+    }
+    // Validate that the price is a positive number
+    if (formData.price === null || formData.price <= 0) {
+      errors.price = "Price must be a positive number.";
+    }
+    if (!formData.category) {
+      errors.category = "Category is required.";
+    }
+    // Add a validation rule for specifications
+    if (!formData.specifications) {
+      errors.specifications = "Specifications are required.";
+    }
+    // Add a validation rule for the image file
+    if (!imageFile) {
+      errors.imageFile = "An image is required.";
+    }
+    return errors;
+  };
 
   const fetchOrders = () => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllOrderProvider.php", { withCredentials: true })
@@ -168,7 +196,7 @@ export default function Products() {
           return a.name.localeCompare(b.name);
       }
     });
-  
+
   // Delete
   const handleDelete = async (id: number) => {
     const res = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderProduct.php", { product_id: id }, { withCredentials: true });
@@ -183,6 +211,15 @@ export default function Products() {
 
   // Add or Update Product
   const handleSave = async () => {
+    // Step 1: Validate the form data
+    const errors = validateForm();
+
+    // Step 2: Check if there are any validation errors
+    if (Object.keys(errors).length > 0) {
+      // If errors exist, update the error state and stop
+      setFormErrors(errors);
+      return;
+    }
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -195,29 +232,30 @@ export default function Products() {
       }
 
       let res;
-      if (formData.product_id) {
-        formDataToSend.append("product_id", String(formData.product_id));
-        res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        if (res.data.success) {
-          toast({ title: "Updated", description: "Product updated successfully" });
-        }
-      } else {
-        res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        if (res.data.success) {
-          toast({ title: "Added", description: "Product added successfully" });
-        }
-      }
-      fetchProducts();
-      setIsDialogOpen(false);
-      setFormData({ name: '', description: '', price: 0, category: '', specifications: '' });
-      setImageFile(null);
-      setImagePreview(null);
+      console.log("Form Data:", formDataToSend);
+      // if (formData.product_id) {
+      //   formDataToSend.append("product_id", String(formData.product_id));
+      //   res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
+      //     withCredentials: true,
+      //     headers: { "Content-Type": "multipart/form-data" }
+      //   });
+      //   if (res.data.success) {
+      //     toast({ title: "Updated", description: "Product updated successfully" });
+      //   }
+      // } else {
+      //   res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
+      //     withCredentials: true,
+      //     headers: { "Content-Type": "multipart/form-data" }
+      //   });
+      //   if (res.data.success) {
+      //     toast({ title: "Added", description: "Product added successfully" });
+      //   }
+      // }
+      // fetchProducts();
+      // setIsDialogOpen(false);
+      // setFormData({ name: '', description: '', price: 0, category: '', specifications: '' });
+      // setImageFile(null);
+      // setImagePreview(null);
     } catch (err) {
       toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
     }
@@ -321,7 +359,7 @@ export default function Products() {
       alert("No customer email available.");
     }
   };
-  
+
 
 
   return (
@@ -343,6 +381,7 @@ export default function Products() {
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-green-500 hover:bg-green-600" onClick={() => {
+                    setSelectedProduct(null);
                     setFormData({ name: '', description: '', price: 0, category: '', specifications: '' });
                     setImageFile(null);
                     setImagePreview(null);
@@ -351,34 +390,55 @@ export default function Products() {
                     Add Product
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-lg">
+                <DialogContent className="max-w-lg ">
                   <DialogHeader>
                     <DialogTitle>{formData.product_id ? "Edit Product" : "Add Product"}</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
+                    <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
+
                     <div>
-                      <Label>Name</Label>
-                      <Input value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                      <Label htmlFor="name">Name</Label>
+                      <Input id="name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                      {formErrors.name && <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>}
                     </div>
                     <div>
-                      <Label>Description</Label>
-                      <Textarea value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea id="description" value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                      {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
                     </div>
                     <div>
-                      <Label>Price</Label>
-                      <Input type="number" value={formData.price || 0} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} />
+                      <Label htmlFor="price">Price</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        value={formData.price || ''}
+                        onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                      />
+                      {formErrors.price && <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>}
                     </div>
                     <div>
-                      <Label>Category</Label>
-                      <Input value={formData.category || ''} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+                      <Label htmlFor="category">Category</Label>
+                      <Input id="category" value={formData.category || ''} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+                      {formErrors.category && <p className="text-red-500 text-sm mt-1">{formErrors.category}</p>}
                     </div>
                     <div>
                       <Label>Specifications</Label>
-                      <Textarea value={formData.specifications || ''} onChange={(e) => setFormData({ ...formData, specifications: e.target.value })} />
+                      <Textarea
+                        value={formData.specifications || ''}
+                        onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
+                      />
+                      {/* Display error message for specifications */}
+                      {formErrors.specifications && <p className="text-red-500 text-sm mt-1">{formErrors.specifications}</p>}
                     </div>
                     <div>
                       <Label>Upload Image</Label>
-                      <Input type="file" accept="image/*" onChange={handleImageChange} />
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      {/* Display error message for image */}
+                      {formErrors.imageFile && <p className="text-red-500 text-sm mt-1">{formErrors.imageFile}</p>}
                       {imagePreview && (
                         <img src={imagePreview} alt="Preview" className="mt-3 rounded-lg shadow-md max-h-40 object-cover" />
                       )}
@@ -392,28 +452,28 @@ export default function Products() {
             </div>
 
             {/* Search and Filter */}
-                      <div className="flex flex-col md:flex-row gap-4 mb-8">
-                        <div className="relative flex-1">
-            
-                          <Input
-                            placeholder="Search products..."
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                          />
-                        </div>
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                          <SelectTrigger className="w-full md:w-48">
-                            <SelectValue placeholder="Sort by" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="name">Name</SelectItem>
-                            <SelectItem value="price-low">Price: Low to High</SelectItem>
-                            <SelectItem value="price-high">Price: High to Low</SelectItem>
-                            <SelectItem value="rating">Highest Rated</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <div className="relative flex-1">
+
+                <Input
+                  placeholder="Search products..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
