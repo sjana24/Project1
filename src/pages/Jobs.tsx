@@ -1,5 +1,5 @@
 import Navigation from "@/components/Navigation";
-import { Search, MapPin, Calendar, DollarSign, Briefcase, Building, Mail, Phone, Eye } from "lucide-react";
+import { Search, MapPin, Calendar, Briefcase, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,28 +10,11 @@ import Footer from "@/components/Footer";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import JobViewModal from "@/components/customerModel/JobViewModel";
 import { districts, jobTypes } from "@/store/commonData";
+import { IJob } from "@/store/commonInterface";
 
-interface Job {
-  job_id: number;
-  title: string;
-  description: string;
-  requirements: string;
-  location: string;
-  job_type: string;
-  salary_range: string;
-  posting_date: string;
-  expiry_date: string;
-  company_name: string;
-  logo: string;
-  min_salary: number;
-  max_salary: number;
-
-
-
-}
 interface User {
   id: number;
   name: string;
@@ -45,11 +28,11 @@ const Jobs = () => {
   const { checkSession } = useAuth();
   const [locationFilter, setLocationFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<IJob[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
 
   const [showDialog, setShowDialog] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<IJob | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(() => null);
 
 
@@ -78,23 +61,23 @@ const Jobs = () => {
     setModalOpen(true);
   };
 
-  // const locations = [];
-  const types = ["Full Time"];
-
 
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllJobsCustomer.php")
       .then(response => {
         const data = response.data;
         if (response.data.success) {
-          console.log("data got");
-
           setJobs(data.jobs);
         }
         else {
-          // setError('Failed to load products.');
+          toast({
+            title: "Fetch job",
+            description: "Fetch jobs failed.",
+            variant: "destructive",
+          });
+
           console.log(response.data);
-          console.log(" sorry we cant get ur products");
+
         }
         setLoading(false);
       })
@@ -133,46 +116,6 @@ const Jobs = () => {
     }
 
   }
-  //   const requestJobApplication = async (formData: any) => {
-  //     console.log("Submitting job application:", formData);
-  //     const formDataToSend = new FormData();
-
-  // // Append text fields
-  // formDataToSend.append('jobId', formData.jobId.toString());
-  // formDataToSend.append('fullName', formData.fullName);
-  // formDataToSend.append('email', formData.email);
-  // formDataToSend.append('phone', formData.phone);
-  // formDataToSend.append('contactMethod', formData.contactMethod);
-  // formDataToSend.append('jobRole', formData.jobRole);
-
-  // // Append the resume file if present
-  // if (formData.resume) {
-  //   formDataToSend.append('resume', formData.resume); // 'resume' is the key expected by the backend
-  // }
-  //     try { 
-  //       const responce = await axios.post("http://localhost/Git/Project1/Backend/RequestJobApplication.php", {formDataToSend},{headers: { 'Content-Type': 'multipart/form-data' },withCredentials: true});
-  //       if (responce.data.success) {
-  //         toast({
-  //           title: "Application Submitted",
-  //           description: "Your job application has been submitted successfully.",
-  //           variant: "default", // optional styling
-  //         });
-  //       }else { 
-  //         toast({
-  //           title: "Application Failed",
-  //           description: responce.data.message || "There was an error submitting your application.",
-  //           variant: "destructive", // optional styling
-  //         });
-  //       }   
-  //     } catch (error) {
-  //       console.error("Error submitting job application:", error);  
-  //       toast({
-  //         title: "Application Error",
-  //         description: "There was an error submitting your job application. Please try again later.",
-  //         variant: "destructive", // optional styling
-  //       }); 
-  //     }
-  //   }
   const requestJobApplication = async (formData: any) => {
     console.log("Submitting job application:", formData);
     const formDataToSend = new FormData();
@@ -394,9 +337,16 @@ const Jobs = () => {
 
                 <div>
                   <label>Full Name *</label>
-                  <input type="text" name="fullName" required value={formData.fullName}
+                  <input
+                    type="text"
+                    name="fullName"
+                    required
+                    value={formData.fullName}
                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full p-2 border rounded" />
+                    pattern="^[A-Za-z. ]+$"
+                    title="Name can only contain letters, spaces, and periods."
+                    className="w-full p-2 border rounded"
+                  />
                 </div>
 
                 <div>
@@ -406,11 +356,21 @@ const Jobs = () => {
                     className="w-full p-2 border rounded" />
                 </div>
 
+
                 <div>
-                  <label>Phone *</label>
-                  <input type="tel" name="phone" required value={formData.phone}
+                  <label>Telephone number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    value={formData.phone}
                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full p-2 border rounded" />
+                    // pattern="$07^[0-9]{10}$"
+                    pattern="^07\d{8}$"
+                    maxLength={10}
+                    title="Phone number must be 10 digits. and start with 07"
+                    className="w-full p-2 border rounded"
+                  />
                 </div>
 
 
