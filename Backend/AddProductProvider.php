@@ -80,63 +80,6 @@ if (!isset($_FILES['images'])) {
     echo json_encode(["success" => false, "message" => "No images uploaded"]);
     exit;
 }
-// print_r ($x);
-// echo ($_POST['images']);
-
-// foreach ($_FILES['images']['name'] as $index => $filename) {
-//     if ($_FILES['images']['error'][$index] !== UPLOAD_ERR_OK) continue;
-
-//     $tmpName = $_FILES['images']['tmp_name'][$index];
-//     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-//     $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-//     if (!in_array(strtolower($ext), $allowedExt)) continue;
-
-//     $newName = time() . '_' . uniqid() . '.' . $ext;
-//     $uploadPath = __DIR__ . '/uploads/' . $newName;
-
-//     if (move_uploaded_file($tmpName, $uploadPath)) {
-//         $uploadedImages[] = 'uploads/' . $newName;
-//     }
-// }
-// if (empty($uploadedImages)) {
-//     echo json_encode(["success" => false, "message" => "Image upload failed."]);
-//     exit;
-// }
-
-        // $uploadedImages = [];
-
-        // if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
-        //     foreach ($_FILES['images']['name'] as $index => $name) {
-        //         if ($_FILES['images']['error'][$index] === UPLOAD_ERR_OK) {
-        //             $uploadDir = 'uploads/';
-        //             $uniqueName = time() . '_' . basename($name);
-        //             $uploadPath = $uploadDir . $uniqueName;
-
-        //             if (move_uploaded_file($_FILES['images']['tmp_name'][$index], $uploadPath)) {
-        //                 $uploadedImages[] = $uploadPath;
-        //             }
-        //         }
-        //     }
-        // }
-
-//         $uploadedImages = [];
-
-// if (isset($_FILES['images'])) {
-//     foreach ($_FILES['images']['name'] as $index => $filename) {
-//         if ($_FILES['images']['error'][$index] === UPLOAD_ERR_OK) {
-//             $tmpName = $_FILES['images']['tmp_name'][$index];
-//             $newName = time() . '_' . basename($filename);
-//             $uploadPath = 'uploads/' . $newName;
-
-//             if (move_uploaded_file($tmpName, $uploadPath)) {
-//                 $uploadedImages[] = $uploadPath; // store file path
-//             }
-//         }
-//     }
-// }
-
-
 
         $addProduct = new Product();
         $response = $addProduct->addProductProvider( $user_id, $name, $description, $price, $category, $image_path, $specifications);

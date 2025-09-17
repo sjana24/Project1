@@ -20,6 +20,14 @@ class Job
     protected $expiry_date;
     protected $conn;
 
+    protected $jobId;
+    protected $fullName;
+    protected $email;
+    protected $phone;
+    protected $contactMethod;
+    protected $jobRole;
+    protected $resume;
+
     public function __construct()
     {
         $dbObj = new Database;
@@ -128,6 +136,103 @@ WHERE jp.provider_id = :provider_id;
         }
     }
 
+public function getAllJobRequestsProvider($provider_id)
+{
+    $this->provider_id = $provider_id;
+    try {
+        $sql = "SELECT 
+                    ja.jobid AS request_id,
+                    ja.fullName,
+                    ja.email,
+                    ja.phone,
+                    ja.contactMethod,
+                    ja.resume,
+         
+                    ja.created_at AS applied_at,
+
+                    jp.job_id,
+                    jp.title,
+                    jp.location,
+                    jp.job_type,
+                    jp.min_salary,
+                    jp.max_salary,
+                    jp.posting_date,
+                    jp.expiry_date,
+                    jp.status AS job_status,
+                    jp.requirements,
+                    jp.benefits
+                FROM jobapply ja
+                INNER JOIN job_posting jp ON ja.jobId = jp.job_id
+                WHERE jp.provider_id = :provider_id
+                ORDER BY ja.created_at DESC";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $jobRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($jobRequests) {
+            return [
+                'success' => true,
+                'jobRequests' => $jobRequests,
+                'message' => 'Requests fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No requests found.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch job requests. ' . $e->getMessage()
+        ];
+    }
+}
+
+
+//     public function getAllJobRequestsProvider1($provider_id)
+//     {
+
+//         $this->provider_id = $provider_id;
+//         try {
+//             $sql = "SELECT 
+//     jp.*,
+//     ja.*
+    
+// FROM jobapply ja
+// LEFT JOIN job_posting jp ON ja.jobId = jp.job_id
+// WHERE jp.provider_id = :provider_id;
+// ";
+//             $stmt = $this->conn->prepare($sql);
+//             $stmt->bindParam(':provider_id', $this->provider_id);
+//             $stmt->execute();
+//             $jobRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//             if ($jobRequests) {
+//                 return [
+//                     'success' => true,
+//                     'jobRequests' => $jobRequests,
+//                     'message' => 'Requests fetched successfully.'
+//                 ];
+//             } else {
+//                 return [
+//                     'success' => false,
+//                     'message' => 'No requests found.'
+//                 ];
+//             }
+//         } catch (PDOException $e) {
+//             http_response_code(500);
+//             echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+//             return [
+//                 'success' => false,
+//                 'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+//             ];
+//         }
+//     }
+
     public function addJobProvider($provider_id, $title, $description, $requirements, $benifits, $location, $job_type, $expiryDate, $minSalary, $maxSalary)
     {   /////salary mathanum marakathaaa
 
@@ -178,6 +283,52 @@ WHERE jp.provider_id = :provider_id;
             ];
         }
     }
+
+    public function addJobApplication($jobId, $fullName, $email, $phone, $contactMethod, $jobRole, $resumeFileName)
+{
+    $this->jobId = $jobId;
+    $this->fullName = $fullName;
+    $this->email = $email;
+    $this->phone = $phone;
+    $this->contactMethod = $contactMethod;
+    $this->jobRole = $jobRole;
+    $this->resume = $resumeFileName;
+
+    try {
+        $sql = "INSERT INTO jobapply 
+                (jobId, fullName, email, phone, contactMethod, jobRole, resume, created_at) 
+                VALUES 
+                (:jobId, :fullName, :email, :phone, :contactMethod, :jobRole, :resume, NOW())";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam(':jobId', $this->jobId, PDO::PARAM_INT);
+        $stmt->bindParam(':fullName', $this->fullName);
+        $stmt->bindParam(':email', $this->email);
+        $stmt->bindParam(':phone', $this->phone);
+        $stmt->bindParam(':contactMethod', $this->contactMethod);
+        $stmt->bindParam(':jobRole', $this->jobRole);
+        $stmt->bindParam(':resume', $this->resume);
+
+        if ($stmt->execute()) {
+            return [
+                'success' => true,
+                'message' => 'Job application submitted successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Failed to submit job application.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to submit job application. ' . $e->getMessage()
+        ];
+    }
+}
 
     public function editJobProvider($job_id, $provider_id, $title, $description, $requirements, $benifits, $location, $job_type, $expiryDate, $minSalary, $maxSalary)
     {

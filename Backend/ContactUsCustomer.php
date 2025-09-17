@@ -24,7 +24,7 @@ if (isset($_SESSION['user'])) {
     // echo "$user_name,$user_id,$user_role";
     if ("customer" === $user_role) {
         $data = json_decode(file_get_contents("php://input"), true);
-       
+       echo "skdnkds";
         // $addToCart = new Product();
         // $Result = $addToCart->AddToCart($user_id, $product_id, 1);
 
