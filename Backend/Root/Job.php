@@ -88,6 +88,45 @@ class Job
             ];
         }
     }
+    public function getAllJobRequestsProvider($provider_id)
+    {
+
+        $this->provider_id = $provider_id;
+        try {
+            $sql = "SELECT 
+    jp.*,
+    ja.*
+    
+FROM jobapply ja
+LEFT JOIN job_posting jp ON ja.jobId = jp.job_id
+WHERE jp.provider_id = :provider_id;
+";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':provider_id', $this->provider_id);
+            $stmt->execute();
+            $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($jobs) {
+                return [
+                    'success' => true,
+                    'jobs' => $jobs,
+                    'message' => 'Jobs fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No jobs found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed get all jobs. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch jobs. ' . $e->getMessage()
+            ];
+        }
+    }
 
     public function addJobProvider($provider_id, $title, $description, $requirements, $benifits, $location, $job_type, $expiryDate, $minSalary, $maxSalary)
     {   /////salary mathanum marakathaaa
@@ -108,7 +147,7 @@ class Job
                     VALUES (:provider_id, :title, :description, :requirements, :benefits, :location, :job_type, :expiry_date, :min_salary ,:max_salary)";
             $stmt = $this->conn->prepare($sql);
 
-            $stmt->bindParam(':provider_id',$this->provider_id);
+            $stmt->bindParam(':provider_id', $this->provider_id);
             $stmt->bindParam(':title', $this->title);
             $stmt->bindParam(':description', $this->description);
             $stmt->bindParam(':requirements', $this->requirements);
