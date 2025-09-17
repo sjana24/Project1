@@ -9,26 +9,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
-export interface currentUser {
-  customerId: number,
-  customerName: string,
-  role: string,
-
-}
+import { provinces, districtsByProvince } from "@/store/commonData";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  // const [registerData, setRegisterData] = useState({
-  //     name: "",
-  //     email: "",
-  //     contact_no: " ",
-  //     password: "",
-  //     confirmpassword: ""
-  // });
+
   const [registerData, setRegisterData] = useState({
-    name: "",
+    full_name: "",
     email: "",
     contact_no: "",
     password: "",
@@ -43,12 +32,7 @@ const Login = () => {
     website: ""
   });
 
-  // const [loginData, setLoginData] = useState({
-  //     email: "",
-  //     password: "",
-  //     role: "customer" | "service_provider" | "admin",
 
-  // });
   type RoleType = "customer" | "service_provider" | "admin";
 
   const [loginData, setLoginData] = useState<{
@@ -58,64 +42,35 @@ const Login = () => {
   }>({
     email: "",
     password: "",
-    role: "customer", // ✅ assign a valid default value here
+    role: "admin" as RoleType,// ✅ assign a valid default value here
   });
-
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(registerData);
     const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
-    if (!registerData.name || !registerData.email || !registerData.password || !registerData.contact_no || !registerData.confirmpassword) {
+    if (!registerData.full_name || !registerData.email || !registerData.password || !registerData.contact_no || !registerData.confirmpassword) {
       console.log(" error in data");
       return;
     }
 
-    // else if (!mobileRegex.test(registerData.mobileNumber)) {
-    //     console.log(" error in data");
-    //     return;
-    // }
     try {
       const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
-      // console.log("Registration successful:");
       if (res.data.success) {
-        console.log("account created successful ");
+
         toast({
           title: "Account Created!",
-          description: "Successful",
+          description: "Account created successfully",
         });
         navigate(0);
-
-        // localStorage.setItem('currentUser', JSON.stringify(foundUser));
-        // const loginUser: currentUser = {
-        //   customerId: res.data.user_id,
-        //   customerName: res.data.user_name,
-        //   role: res.data.user_role,
-
-        // };
-        // localStorage.setItem('currentUser', JSON.stringify(userData));
-        // localStorage.setItem('jana', JSON.stringify(loginUser));
-        // sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
-        // sessionStorage.setItem("role", JSON.stringify(loginUser));
-        // console.log(res.data);
-        // if ("customer"===res.data.role){
-        // let role = res.data.user_role;
-        // console.log(role);
-        // navigate('/${role}');
-        // const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
-        // navigate(`/${cleanRole}/dashboard`);
-        // navigate ("/login");
-
-
+       
       }
       else {
-        console.log(res.data);
         toast({
           title: "Sign up failed",
-          description: "Email already used use another email",
+          description: "Email already used use another email"+`${res.data.message}`,
           variant: "destructive",
         });
-        console.log(" error in login"); // show error message from PHP
 
       }
 
@@ -131,19 +86,19 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(loginData);
 
     if (!loginData.email || !loginData.password || !loginData.role) {
-      console.log(" error in data");
+      toast({
+        title: "Sign in failed",
+        description: "Plese fill required filed",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsLoading(true);
     try {
       const res = await axios.post("http://localhost/Git/Project1/Backend/LoginUser.php", loginData, { withCredentials: true });
-      // console.log("Login successful:");
-      // navigate("/");
-
 
       if (res.data.success) {
         console.log("Login successful ");
@@ -152,42 +107,19 @@ const Login = () => {
           description: "Successfully logged in",
         });
 
-        // localStorage.setItem('currentUser', JSON.stringify(foundUser));
-        const loginUser: currentUser = {
-          customerId: res.data.user_id,
-          customerName: res.data.user_name,
-          role: res.data.user_role,
 
-        };
-        // localStorage.setItem('currentUser', JSON.stringify(userData));
-        localStorage.setItem('jana', JSON.stringify(loginUser));
-        // sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
-        // sessionStorage.setItem("role", JSON.stringify(loginUser));
-        console.log(res.data);
-        // if ("customer"===res.data.role){
         let role = res.data.user_role;
-        // console.log(role);
-        // navigate('/${role}');
         const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
+
         navigate(`/${cleanRole}/dashboard`);
 
-        // }
-        // else if 
-        // console.log(res.data.userEmail);
-        // navigate("/", {
-
-        //     state: { name: res.data.userName, email: res.data.userEmail }
-        // });
-        // navigate("/"); // only navigate if login is successful
       }
       else {
-        console.log(res.data);
         toast({
           title: "Login failed",
           description: "Invalid credentials or user not found",
           variant: "destructive",
         });
-        console.log(" error in login"); // show error message from PHP
 
       }
     } catch (err) {
@@ -196,34 +128,6 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  const provinces = [
-    { value: "Western", label: "Western" },
-    { value: "Central", label: "Central" },
-    { value: "Southern", label: "Southern" },
-    { value: "Northern", label: "Northern" },
-    { value: "Eastern", label: "Eastern" },
-    { value: "North Western", label: "North Western" },
-    { value: "North Central", label: "North Central" },
-    { value: "Uva", label: "Uva" },
-    { value: "Sabaragamuwa", label: "Sabaragamuwa" },
-  ];
-
-  const districtsByProvince: Record<string, string[]> = {
-    Western: ["Colombo", "Gampaha", "Kalutara"],
-    Central: ["Kandy", "Matale", "Nuwara Eliya"],
-    Southern: ["Galle", "Matara", "Hambantota"],
-    Northern: ["Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu"],
-    Eastern: ["Trincomalee", "Batticaloa", "Ampara"],
-    NorthWestern: ["Kurunegala", "Puttalam"],
-    NorthCentral: ["Anuradhapura", "Polonnaruwa"],
-    Uva: ["Badulla", "Monaragala"],
-    Sabaragamuwa: ["Ratnapura", "Kegalle"]
-  };
-
-
-
-
-
 
   return (
     <div className="min-h-screen">
@@ -292,8 +196,8 @@ const Login = () => {
                       {/* Radio Button Group */}
                       <div className="space-y-2">
                         <Label>User Type</Label>
-                        <div className="flex gap-4">
-                          <label className="flex items-center gap-2">
+                        <div className="flex gap-4 justify-around">
+                          <label className="flex items-center gap-2 ">
                             <input
                               type="radio"
                               name="role"
@@ -303,7 +207,7 @@ const Login = () => {
                             />
                             Customer
                           </label>
-                          <label className="flex items-center gap-2">
+                          <label className="flex items-center gap-2 ">
                             <input
                               type="radio"
                               name="role"
@@ -313,16 +217,18 @@ const Login = () => {
                             />
                             Service Provider
                           </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="role"
-                              value="admin"
-                              checked={loginData.role === "admin"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
-                            />
-                            Admin
-                          </label>
+                          {/* <div className="hidden">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="role"
+                                value="admin"
+                                checked={loginData.role === "admin"}
+                                onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              />
+                              Admin
+                            </label>
+                          </div> */}
                         </div>
                       </div>
 
@@ -335,102 +241,6 @@ const Login = () => {
               </TabsContent>
 
 
-
-              {/* <TabsContent value="register">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-
-                                            Create New Account
-                                        </CardTitle>
-                                        <CardDescription>
-                                            Join SolaX to access exclusive features, buy products, post reviews, and apply for jobs.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <form onSubmit={handleRegister} className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="register-name">Full Name</Label>
-                                                <div className="relative">
-
-                                                    <Input
-                                                        id="register-name"
-                                                        type="text"
-                                                        placeholder="John Doe"
-                                                        className="pl-10"
-                                                        value={registerData.name}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="register-email">Email</Label>
-                                                <div className="relative">
-
-                                                    <Input
-                                                        id="register-email"
-                                                        type="email"
-                                                        placeholder="your@email.com"
-                                                        className="pl-10"
-                                                        value={registerData.email}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="register-number">Mobile Number</Label>
-                                                <div className="relative">
-
-                                                    <Input
-                                                        id="register-number"
-                                                        type="number"
-                                                        placeholder="077 *** ****"
-                                                        className="pl-10"
-                                                        value={registerData.contact_no}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
-                                                        required
-
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="register-password">Password</Label>
-                                                <div className="relative">
-
-                                                    <Input
-                                                        id="register-password"
-                                                        type="password"
-                                                        placeholder="••••••••"
-                                                        className="pl-10"
-                                                        value={registerData.password}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="confirm-password">Confirm Password</Label>
-                                                <div className="relative">
-                                                    <Input
-                                                        id="confirm-password"
-                                                        type="password"
-                                                        placeholder="••••••••"
-                                                        className="pl-10"
-                                                        value={registerData.confirmpassword}
-                                                        onChange={(e) => setRegisterData(prev => ({ ...prev, confirmpassword: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <Button type="submit" className="w-full solar-gradient text-white">
-                                                Create Account
-                                            </Button>
-                                        </form>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent> */}
               <TabsContent value="register">
                 <Card>
                   <CardHeader>
@@ -446,9 +256,13 @@ const Login = () => {
                         <Input
                           type="text"
                           placeholder="John Doe"
-                          value={registerData.name}
-                          onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
+                          value={registerData.full_name}
+                          onChange={(e) => setRegisterData(prev => ({ ...prev, full_name: e.target.value }))}
                           required
+                          minLength={3}
+                          maxLength={50}
+                          pattern="^[A-Za-z\s.,&'\-]+$"
+                          title="Name can only contain letters, spaces, and common characters like . , & -"
                         />
                       </div>
 
@@ -469,11 +283,13 @@ const Login = () => {
                         <Label>Mobile Number</Label>
                         <Input
                           type="tel"
-                          placeholder="077xxxxxxx"
-                          pattern="^0\d{9}$"
+                          placeholder="0771234567"
                           value={registerData.contact_no}
                           onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
                           required
+                          pattern="^0\d{9}$"
+                          maxLength={10}
+                          title="Mobile number must be exactly 10 digits and start with 0."
                         />
                       </div>
 
@@ -486,6 +302,9 @@ const Login = () => {
                           value={registerData.password}
                           onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
                           required
+                          minLength={8}
+                          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                          title="Password must be at least 8 characters, include uppercase, lowercase, number, and special character."
                         />
                       </div>
 
@@ -513,7 +332,6 @@ const Login = () => {
                               checked={registerData.role === 'customer'}
                               onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
                               required
-
                             />
                             Customer
                           </label>
@@ -532,7 +350,7 @@ const Login = () => {
                       </div>
 
                       {/* Fields for Customer */}
-                      {registerData.role === 'customer1' && (
+                      {registerData.role === 'customer' && (
                         <>
                           <div>
                             <Label>Address</Label>
@@ -542,18 +360,11 @@ const Login = () => {
                               value={registerData.address}
                               onChange={(e) => setRegisterData(prev => ({ ...prev, address: e.target.value }))}
                               required
+                              pattern="^[a-zA-Z0-9\s,./-]+$"
+                              title="Address can include letters, numbers, spaces, and , . / -"
                             />
                           </div>
-                          {/* <div>
-              <Label>District</Label>
-              <Input
-                type="text"
-                placeholder="Colombo"
-                value={registerData.district}
-                onChange={(e) => setRegisterData(prev => ({ ...prev, district: e.target.value }))}
-                required
-              />
-            </div> */}
+
                           {/* Province Dropdown */}
                           <div>
                             <Label>Province</Label>
@@ -564,7 +375,108 @@ const Login = () => {
                                 setRegisterData((prev) => ({
                                   ...prev,
                                   province: e.target.value,
-                                  district: "" // reset district when province changes
+                                  district: "" // reset district
+                                }))
+                              }
+                              required
+                            >
+                              <option value="">Select Province</option>
+                              {provinces.map((prov) => (
+                                <option key={prov.value} value={prov.value}>
+                                  {prov.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* District Dropdown */}
+                          <div>
+                            <Label>District</Label>
+                            <select
+                              className="w-full p-2 border rounded"
+                              value={registerData.district || ""}
+                              onChange={(e) =>
+                                setRegisterData((prev) => ({ ...prev, district: e.target.value }))
+                              }
+                              required
+                            >
+                              <option value="">Select District</option>
+                              {(districtsByProvince[registerData.province?.replace(/\s/g, "")] || []).map(
+                                (district) => (
+                                  <option key={district} value={district}>
+                                    {district}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Fields for Service Provider */}
+                      {registerData.role === 'service_provider' && (
+                        <>
+                          <div>
+                            <Label>Company Name</Label>
+                            <Input
+                              type="text"
+                              placeholder="SolaX Pvt Ltd"
+                              value={registerData.company_name}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, company_name: e.target.value }))}
+                              required
+                              pattern="^[a-zA-Z\s.,&'-]+$"
+                              title="Company name can only contain letters, spaces, and common characters like . , & -"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Business Registration Number</Label>
+                            <Input
+                              type="text"
+                              placeholder="BR123456"
+                              value={registerData.business_reg_no}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, business_reg_no: e.target.value }))}
+                              required
+                              pattern="^BR\d{6}$"
+                              title="Business registration number must be in format: BR followed by 6 digits (e.g. BR123456)."
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Company Description</Label>
+                            <Input
+                              type="text"
+                              placeholder="Solar energy solutions provider"
+                              value={registerData.company_description}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, company_description: e.target.value }))}
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Address</Label>
+                            <Input
+                              type="text"
+                              placeholder="456, Business Park"
+                              value={registerData.address}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, address: e.target.value }))}
+                              required
+                              pattern="^[a-zA-Z0-9\s,./-]+$"
+                              title="Address can include letters, numbers, spaces, and , . / -"
+                            />
+                          </div>
+
+                          {/* Province Dropdown */}
+                          <div>
+                            <Label>Province</Label>
+                            <select
+                              className="w-full p-2 border rounded"
+                              value={registerData.province || ""}
+                              onChange={(e) =>
+                                setRegisterData((prev) => ({
+                                  ...prev,
+                                  province: e.target.value,
+                                  district: ""
                                 }))
                               }
                               required
@@ -600,111 +512,6 @@ const Login = () => {
                             </select>
                           </div>
 
-                        </>
-                      )}
-
-                      {/* Fields for Service Provider */}
-                      {registerData.role === 'service_provider' && (
-                        <>
-                          <div>
-                            <Label>Company Name</Label>
-                            <Input
-                              type="text"
-                              placeholder="SolaX Pvt Ltd"
-                              value={registerData.company_name}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, company_name: e.target.value }))}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <Label>Business Registration Number</Label>
-                            <Input
-                              type="text"
-                              placeholder="BR123456"
-                              value={registerData.business_reg_no}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, business_reg_no: e.target.value }))}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <Label>Company Description</Label>
-                            <Input
-                              type="text"
-                              placeholder="Solar energy solutions provider"
-                              value={registerData.company_description}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, company_description: e.target.value }))}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <Label>Address</Label>
-                            <Input
-                              type="text"
-                              placeholder="456, Business Park"
-                              value={registerData.address}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, address: e.target.value }))}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <div>
-                              <Label>Province</Label>
-                              <select
-                                className="w-full p-2 border rounded"
-                                value={registerData.province || ""}
-                                onChange={(e) =>
-                                  setRegisterData((prev) => ({
-                                    ...prev,
-                                    province: e.target.value,
-                                    district: "" // reset district when province changes
-                                  }))
-                                }
-                                required
-                              >
-                                <option value="">Select Province</option>
-                                {provinces.map((prov) => (
-                                  <option key={prov.value} value={prov.value}>
-                                    {prov.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            {/* District Dropdown */}
-                            <div>
-                              <Label>District</Label>
-                              <select
-                                className="w-full p-2 border rounded"
-                                value={registerData.district || ""}
-                                onChange={(e) =>
-                                  setRegisterData((prev) => ({ ...prev, district: e.target.value }))
-                                }
-                                required
-                              >
-                                <option value="">Select District</option>
-                                {(districtsByProvince[registerData.province?.replace(/\s/g, "")] || []).map(
-                                  (district) => (
-                                    <option key={district} value={district}>
-                                      {district}
-                                    </option>
-                                  )
-                                )}
-                              </select>
-                            </div>
-                            {/* <Label>District</Label>
-                            <Input
-                              type="text"
-                              placeholder="Kandy"
-                              value={registerData.district}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, district: e.target.value }))}
-                              required
-                            /> */}
-                          </div>
-
                           <div>
                             <Label>Website</Label>
                             <Input
@@ -712,6 +519,8 @@ const Login = () => {
                               placeholder="https://solax.com"
                               value={registerData.website}
                               onChange={(e) => setRegisterData(prev => ({ ...prev, website: e.target.value }))}
+                              pattern="https?://.+"
+                              title="Enter a valid website URL starting with http:// or https://"
                             />
                           </div>
                         </>
@@ -724,6 +533,7 @@ const Login = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
+
 
             </Tabs>
             <div className="text-center mt-6">
