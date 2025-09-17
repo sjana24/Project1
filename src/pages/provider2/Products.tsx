@@ -10,7 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 // import { useDashboardStore, Product } from '@/store/dashboardStore';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from  "@/components/ui/select";
 export interface Product {
+  average_rating: any;
   product_id: number;
   name: string;
   description: string;
@@ -35,6 +37,8 @@ export default function Products() {
   // const { products, addProduct, updateProduct, deleteProduct } = useDashboardStore();
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const { toast } = useToast();
+    const [sortBy, setSortBy] = useState("name");
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -121,6 +125,24 @@ export default function Products() {
         description: 'New product has been added successfully.',
       });
     }
+    const filteredProducts = products
+
+    .filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.average_rating - a.average_rating;
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
 
     setFormData({
       product_id: 0,
@@ -443,6 +465,30 @@ export default function Products() {
           </Card>
         ))}
       </div> */}
+      {/* Search and Filter */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+
+              <Input
+                placeholder="Search products..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <Card key={product.product_id} className="hover:shadow-lg transition-shadow">

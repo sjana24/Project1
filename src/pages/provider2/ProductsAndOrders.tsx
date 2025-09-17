@@ -147,11 +147,28 @@ export default function Products() {
       .catch(() => console.log("Failed to fetch orders"));
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Add sortBy state for product sorting
+  const [sortBy, setSortBy] = useState<string>('name');
 
+  const filteredProducts = products
+    .filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          // If average_rating is not present, fallback to 0
+          return (b as any).average_rating - (a as any).average_rating;
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
+  
   // Delete
   const handleDelete = async (id: number) => {
     const res = await axios.post("http://localhost/Git/Project1/Backend/deleteProviderProduct.php", { product_id: id }, { withCredentials: true });
@@ -304,6 +321,7 @@ export default function Products() {
       alert("No customer email available.");
     }
   };
+  
 
 
   return (
@@ -373,16 +391,29 @@ export default function Products() {
               </Dialog>
             </div>
 
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            {/* Search and Filter */}
+                      <div className="flex flex-col md:flex-row gap-4 mb-8">
+                        <div className="relative flex-1">
+            
+                          <Input
+                            placeholder="Search products..."
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                          <SelectTrigger className="w-full md:w-48">
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="name">Name</SelectItem>
+                            <SelectItem value="price-low">Price: Low to High</SelectItem>
+                            <SelectItem value="price-high">Price: High to Low</SelectItem>
+                            <SelectItem value="rating">Highest Rated</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
