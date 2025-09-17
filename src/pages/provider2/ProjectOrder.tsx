@@ -320,14 +320,16 @@ const handleUpdateDates =async (project_id:number) => {
                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                   <p className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" /> Start:{" "}
-                    {new Date(order.start_date).toLocaleDateString()}
+                    { order.start_date ?new Date(order.start_date).toLocaleDateString(): "Not set"}
                   </p>
                   <p className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" /> Due:{" "}
-                    {new Date(order.due_date).toLocaleDateString()}
+                     { order.due_date ?new Date(order.due_date).toLocaleDateString(): "Not set"}
+                    {/* {new Date(order.due_date).toLocaleDateString()} */}
                   </p>
                   <p className="flex items-center gap-1">
-                    <DollarSign className="h-4 w-4" /> Price: Rs.
+                    {/* <DollarSign className="h-4 w-4" /> */}
+                     Price: Rs.
                     {order.service_price}
                   </p>
                 </div>
