@@ -521,6 +521,7 @@ const Login = () => {
                               onChange={(e) => setRegisterData(prev => ({ ...prev, website: e.target.value }))}
                               pattern="https?://.+"
                               title="Enter a valid website URL starting with http:// or https://"
+                              required
                             />
                           </div>
                         </>
