@@ -9,8 +9,8 @@ class Admin
     protected $name;
     protected $email;
     protected $password;
-    protected $contact_no;
-    protected $disable_sts;
+    protected $contact_number;
+    protected $disable_status;
     protected $conn;
     public $id = 3;
 
@@ -28,7 +28,7 @@ class Admin
         // echo $this->password;
 
         try {
-            $sql = "SELECT admin_id,password,email FROM admin WHERE email=?";
+            $sql = "SELECT admin_id FROM admin WHERE email=?";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(1, $this->email);
             $stmt->execute();
@@ -197,21 +197,21 @@ class Admin
             ];
         }
     }
-    // public function Register($name, $email, $contact_no, $password)
+    // public function Register($name, $email, $contact_number, $password)
     // {
     //     $this->name = $name;
     //     $this->email = $email;
-    //     $this->contact_no = $contact_no;
+    //     $this->contact_number = $contact_number;
     //     $this->password = $password;
 
 
     //     try {
-    //         $sql = "INSERT INTO customer (customer_id, name, email, contact_no, password) VALUES ( ?, ?, ?, ?, ?)";
+    //         $sql = "INSERT INTO customer (customer_id, name, email, contact_number, password) VALUES ( ?, ?, ?, ?, ?)";
     //         $stmt = $this->conn->prepare($sql);
     //         $stmt->bindParam(1, $this->id);
     //         $stmt->bindParam(2, $this->name);
     //         $stmt->bindParam(3, $this->email);
-    //         $stmt->bindParam(4, $this->contact_no);
+    //         $stmt->bindParam(4, $this->contact_number);
     //         $stmt->bindParam(5, $this->password);
     //         $result = $stmt->execute();
 

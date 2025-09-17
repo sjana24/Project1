@@ -6,7 +6,7 @@ class Provider{
     protected $name;
     protected $email;
     protected $password;
-    protected $contact_no;
+    protected $contact_number;
     protected $comapany_name;
     protected $business_reg_no;
     protected $company_description;
@@ -14,7 +14,7 @@ class Provider{
     protected $district;
     protected $website;
     protected $profile_image;
-    protected $approval_status;
+    protected $verification_status;
     protected $status;
     protected $conn;
     
@@ -29,7 +29,7 @@ class Provider{
         $this->password=$password;
 
         try{
-            $sql="SELECT provider_id,password FROM service_provider WHERE email=?";
+            $sql="SELECT provider_id FROM service_provider WHERE email=?";
             $stmt=$this->conn->prepare($sql);
             $stmt->bindParam(1,$this->email);
             $stmt->execute();
@@ -54,21 +54,21 @@ class Provider{
 
         }
     }
-     public function Register($name, $email, $contact_no, $password)
+     public function Register($name, $email, $contact_number, $password)
     {
         $this->name = $name;
         $this->email = $email;
-        $this->contact_no = $contact_no;
+        $this->contact_number = $contact_number;
         $this->password = $password;
 
 
         try {
             $sql = "INSERT INTO service_provider () VALUES ( ?, ?, ?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
-            // $stmt->bindParam(1, $this->id);
-            // $stmt->bindParam(2, $this->name);
-            // $stmt->bindParam(3, $this->email);
-            // $stmt->bindParam(4, $this->contact_no);
+            // $stmt->bindParam(1, $this->provider_id);
+            // $stmt->bindParam(2, $this->user_id);
+            // $stmt->bindParam(3, $this->contact_number);
+            // $stmt->bindParam(4, $this->);address);
             // $stmt->bindParam(5, $this->password);
             $result = $stmt->execute();
 

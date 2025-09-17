@@ -23,17 +23,17 @@ const Login = () => {
   // const [registerData, setRegisterData] = useState({
   //     name: "",
   //     email: "",
-  //     contact_no: " ",
+  //     contact_number: " ",
   //     password: "",
   //     confirmpassword: ""
   // });
   const [registerData, setRegisterData] = useState({
     name: "",
     email: "",
-    contact_no: "",
+    contact_number: "",
     password: "",
     confirmpassword: "",
-    role: "",                // "customer" | "service_provider"
+    user_role: "",                // "customer" | "service_provider"
     address: "",
     district: "",
     province: "",
@@ -46,7 +46,7 @@ const Login = () => {
   // const [loginData, setLoginData] = useState({
   //     email: "",
   //     password: "",
-  //     role: "customer" | "service_provider" | "admin",
+  //     user_role: "customer" | "service_provider" | "admin",
 
   // });
   type RoleType = "customer" | "service_provider" | "admin";
@@ -54,11 +54,11 @@ const Login = () => {
   const [loginData, setLoginData] = useState<{
     email: string;
     password: string;
-    role: RoleType;
+    user_role: RoleType;
   }>({
     email: "",
     password: "",
-    role: "customer", // ✅ assign a valid default value here
+    user_role: "customer", // ✅ assign a valid default value here
   });
 
 
@@ -66,7 +66,7 @@ const Login = () => {
     e.preventDefault();
     console.log(registerData);
     const mobileRegex = /^0\d{9}$/; // starts with 0 and has 10 digits total
-    if (!registerData.name || !registerData.email || !registerData.password || !registerData.contact_no || !registerData.confirmpassword) {
+    if (!registerData.name || !registerData.email || !registerData.password || !registerData.contact_number || !registerData.confirmpassword) {
       console.log(" error in data");
       return;
     }
@@ -76,48 +76,48 @@ const Login = () => {
     //     return;
     // }
     try {
-      const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
-      // console.log("Registration successful:");
-      if (res.data.success) {
-        console.log("account created successful ");
-        toast({
-          title: "Account Created!",
-          description: "Successful",
-        });
-        navigate(0);
+      // const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
+      // // console.log("Registration successful:");
+      // if (res.data.success) {
+      //   console.log("account created successful ");
+      //   toast({
+      //     title: "Account Created!",
+      //     description: "Successful",
+      //   });
+      //   navigate(0);
 
         // localStorage.setItem('currentUser', JSON.stringify(foundUser));
         // const loginUser: currentUser = {
         //   customerId: res.data.user_id,
         //   customerName: res.data.user_name,
-        //   role: res.data.user_role,
+        //   user_role: res.data.user_role,
 
         // };
         // localStorage.setItem('currentUser', JSON.stringify(userData));
         // localStorage.setItem('jana', JSON.stringify(loginUser));
         // sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
-        // sessionStorage.setItem("role", JSON.stringify(loginUser));
+        // sessionStorage.setItem("user_role", JSON.stringify(loginUser));
         // console.log(res.data);
-        // if ("customer"===res.data.role){
-        // let role = res.data.user_role;
-        // console.log(role);
-        // navigate('/${role}');
-        // const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
+        // if ("customer"===res.data.user_role){
+        // let user_role = res.data.user_role;
+        // console.log(user_role);
+        // navigate('/${user_role}');
+        // const cleanRole = user_role.trim().toLowerCase(); // Remove spaces & make lowercase
         // navigate(`/${cleanRole}/dashboard`);
         // navigate ("/login");
 
 
-      }
-      else {
-        console.log(res.data);
-        toast({
-          title: "Sign up failed",
-          description: "Email already used use another email",
-          variant: "destructive",
-        });
-        console.log(" error in login"); // show error message from PHP
+      // }
+      // else {
+      //   console.log(res.data);
+      //   toast({
+      //     title: "Sign up failed",
+      //     description: "Email already used use another email",
+      //     variant: "destructive",
+      //   });
+      //   console.log(" error in login"); // show error message from PHP
 
-      }
+      // }
 
 
     } catch (err) {
@@ -133,7 +133,7 @@ const Login = () => {
     e.preventDefault();
     console.log(loginData);
 
-    if (!loginData.email || !loginData.password || !loginData.role) {
+    if (!loginData.email || !loginData.password || !loginData.user_role) {
       console.log(" error in data");
       return;
     }
@@ -162,13 +162,13 @@ const Login = () => {
         // localStorage.setItem('currentUser', JSON.stringify(userData));
         localStorage.setItem('jana', JSON.stringify(loginUser));
         // sessionStorage.setItem("currentUser", JSON.stringify(loginUser));
-        // sessionStorage.setItem("role", JSON.stringify(loginUser));
+        // sessionStorage.setItem("user_role", JSON.stringify(loginUser));
         console.log(res.data);
-        // if ("customer"===res.data.role){
-        let role = res.data.user_role;
-        // console.log(role);
-        // navigate('/${role}');
-        const cleanRole = role.trim().toLowerCase(); // Remove spaces & make lowercase
+        // if ("customer"===res.data.user_role){
+        let user_role = res.data.user_role;
+        // console.log(user_role);
+        // navigate('/${user_role}');
+        const cleanRole = user_role.trim().toLowerCase(); // Remove spaces & make lowercase
         navigate(`/${cleanRole}/dashboard`);
 
         // }
@@ -296,30 +296,30 @@ const Login = () => {
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="customer"
-                              checked={loginData.role === "customer"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              checked={loginData.user_role === "customer"}
+                              onChange={(e) => setLoginData(prev => ({ ...prev, user_role: e.target.value as RoleType }))}
                             />
                             Customer
                           </label>
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="service_provider"
-                              checked={loginData.role === "service_provider"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              checked={loginData.user_role === "service_provider"}
+                              onChange={(e) => setLoginData(prev => ({ ...prev, user_role: e.target.value as RoleType }))}
                             />
                             Service Provider
                           </label>
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="admin"
-                              checked={loginData.role === "admin"}
-                              onChange={(e) => setLoginData(prev => ({ ...prev, role: e.target.value as RoleType }))}
+                              checked={loginData.user_role === "admin"}
+                              onChange={(e) => setLoginData(prev => ({ ...prev, user_role: e.target.value as RoleType }))}
                             />
                             Admin
                           </label>
@@ -471,8 +471,8 @@ const Login = () => {
                           type="tel"
                           placeholder="077xxxxxxx"
                           pattern="^0\d{9}$"
-                          value={registerData.contact_no}
-                          onChange={(e) => setRegisterData(prev => ({ ...prev, contact_no: e.target.value }))}
+                          value={registerData.contact_number}
+                          onChange={(e) => setRegisterData(prev => ({ ...prev, contact_number: e.target.value }))}
                           required
                         />
                       </div>
@@ -508,10 +508,10 @@ const Login = () => {
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="customer"
-                              checked={registerData.role === 'customer'}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                              checked={registerData.user_role === 'customer'}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, user_role: e.target.value }))}
                               required
 
                             />
@@ -520,10 +520,10 @@ const Login = () => {
                           <label className="flex items-center gap-2">
                             <input
                               type="radio"
-                              name="role"
+                              name="user_role"
                               value="service_provider"
-                              checked={registerData.role === 'service_provider'}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value }))}
+                              checked={registerData.user_role === 'service_provider'}
+                              onChange={(e) => setRegisterData(prev => ({ ...prev, user_role: e.target.value }))}
                               required
                             />
                             Service Provider
@@ -532,7 +532,7 @@ const Login = () => {
                       </div>
 
                       {/* Fields for Customer */}
-                      {registerData.role === 'customer1' && (
+                      {registerData.user_role === 'customer' && (
                         <>
                           <div>
                             <Label>Address</Label>
@@ -604,7 +604,7 @@ const Login = () => {
                       )}
 
                       {/* Fields for Service Provider */}
-                      {registerData.role === 'service_provider' && (
+                      {registerData.user_role === 'service_provider' && (
                         <>
                           <div>
                             <Label>Company Name</Label>

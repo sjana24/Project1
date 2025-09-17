@@ -4,11 +4,11 @@ include_once 'Root/User.php';
 class Customer extends User
 {
     protected $customer_id;
+    protected $user_id;
     protected $name;
     protected $email;
     protected $password;
-    protected $contact_no;
-    protected $disable_sts;
+    protected $contact_number;
     // protected $conn;
     public $id = 3;
 
@@ -52,22 +52,20 @@ class Customer extends User
     //         echo json_encode(["message" => "Failed to login. " . $e->getMessage()]);
     //     }
     // }
-    public function Register($name, $email, $contact_no, $password)
+    public function Register($name, $email, $contact_number, $password)
     {
         $this->name = $name;
         $this->email = $email;
-        $this->contact_no = $contact_no;
+        $this->contact_number = $contact_number;
         $this->password = $password;
 
 
         try {
-            $sql = "INSERT INTO customer (customer_id, name, email, contact_no, password) VALUES ( ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO customer (customer_id, user_id, contact_number) VALUES ( ?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(1, $this->id);
-            $stmt->bindParam(2, $this->name);
-            $stmt->bindParam(3, $this->email);
-            $stmt->bindParam(4, $this->contact_no);
-            $stmt->bindParam(5, $this->password);
+            $stmt->bindParam(1, $this->customer_id);
+            $stmt->bindParam(2, $this->user_id);
+            $stmt->bindParam(3, $this->contact_number);
             $result = $stmt->execute();
 
             if ($result) {
