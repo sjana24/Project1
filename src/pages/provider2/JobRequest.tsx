@@ -381,7 +381,7 @@ const JobRequest = () => {
             {1 && (
               <Button asChild size="sm">
                 <a
-                  href={`http://localhost/Git/Project1/uploads/${request.resume}`}
+                  href={`http://localhost/Git/Project1/Backend/uploads/resumes/${request.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
