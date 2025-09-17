@@ -10,11 +10,16 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { provinces, districtsByProvince } from "@/store/commonData";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  // const [isVarificationModel, setVarificationModel] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const [registerData, setRegisterData] = useState({
     full_name: "",
@@ -45,6 +50,7 @@ const Login = () => {
     role: "admin" as RoleType,// ✅ assign a valid default value here
   });
 
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(registerData);
@@ -53,28 +59,8 @@ const Login = () => {
       console.log(" error in data");
       return;
     }
-
     try {
-      const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
-      if (res.data.success) {
-
-        toast({
-          title: "Account Created!",
-          description: "Account created successfully",
-        });
-        navigate(0);
-       
-      }
-      else {
-        toast({
-          title: "Sign up failed",
-          description: "Email already used use another email"+`${res.data.message}`,
-          variant: "destructive",
-        });
-
-      }
-
-
+      handleEmailVarification(registerData.email);
     } catch (err) {
       console.error("Error registering user:", err);
     } finally {
@@ -83,6 +69,69 @@ const Login = () => {
 
     setIsLoading(true);
   };
+
+  const handleConfirmOtp = async () => {
+    try {
+      console.log(otp, registerData);
+      const res = await axios.post("http://localhost/Git/Project1/Backend/ConfirmOtp.php", {
+        email: registerData.email,
+        otp,
+      });
+      if (res.data.success) {
+        console.log("✅ OTP verified, now register user...");
+        toast({
+          title: "Account created ",
+          description: "Account created successfully",
+          // variant:"destructive"
+        });
+        setShowOtpModal(false);
+        navigate('/');
+
+
+
+      } else {
+
+        toast({
+          title: "Varification failed!",
+          description: "❌ Invalid OTP",
+          variant: "destructive"
+        });
+      }
+    } catch (err) {
+      console.error("Error confirming OTP:", err);
+    }
+  };
+
+
+  const handleEmailVarification = async (email: string) => {
+    try {
+      const emailSend = await axios.post("http://localhost/Git/Project1/Backend/RequestEmailVarification.php", { "email": registerData.email }, { withCredentials: true });
+      if (emailSend.data.success) {
+
+        toast({
+          title: "Varification code !",
+          description: "Varification code send successfully",
+        });
+          setShowOtpModal(true);
+
+      }
+      else {
+        toast({
+          title: "Varification code!",
+          description: "Varification code failed, Try again another email",
+          variant: "destructive",
+        });
+
+      }
+    } catch (err) {
+      console.error("Error registering user:", err);
+    } finally {
+      setIsLoading(false);
+    }
+
+    setIsLoading(true);
+
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -521,6 +570,7 @@ const Login = () => {
                               onChange={(e) => setRegisterData(prev => ({ ...prev, website: e.target.value }))}
                               pattern="https?://.+"
                               title="Enter a valid website URL starting with http:// or https://"
+                              required
                             />
                           </div>
                         </>
@@ -547,6 +597,35 @@ const Login = () => {
                 </Link>
               </p>
 
+            </div>
+            <div>
+              {/* OTP Modal */}
+              <Dialog open={showOtpModal} onOpenChange={setShowOtpModal}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Email Verification</DialogTitle>
+                  </DialogHeader>
+                  <p className="text-sm text-gray-500">Enter the 5–6 digit code sent to your email</p>
+                  <Input
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter OTP"
+                    maxLength={6}
+                  />
+                  <DialogFooter>
+                    <div>
+                      <Button
+                        onClick={handleConfirmOtp}
+                      >Confirm OTP</Button>
+                      <Button
+                        className="b"
+                        variant="destructive"
+                        onClick={() => handleEmailVarification(registerData.email)}
+                      >Resend OTP</Button>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
 
 
