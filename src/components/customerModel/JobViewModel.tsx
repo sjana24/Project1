@@ -7,25 +7,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, DollarSign, Briefcase, Building } from "lucide-react";
+import { IJob } from "@/store/commonInterface";
 
-interface Job {
-  job_id: number;
-  title: string;
-  description: string;
-  requirements: string;
-  location: string;
-  job_type: string;
-  salary_range: string;
-  posting_date: string;
-  expiry_date: string;
-  company_name: string;
-  logo: string;
-  min_salary: number;
-  max_salary: number;
-}
+
 
 interface JobViewModalProps {
-  job: Job | null;
+  job: IJob | null;
   open: boolean;
   onClose: () => void;
   onApply: (jobId: number) => void;
@@ -54,9 +41,9 @@ const JobViewModal: React.FC<JobViewModalProps> = ({
           <div className="flex items-start justify-between">
             {/* Left: Logo + Info */}
             <div className="flex items-center gap-4">
-              {job.logo && (
+              {job.profile_image && (
                 <img
-                  src={job.logo}
+                  src={`http://localhost/Git/Project1/Backend/${job.profile_image}`}
                   alt={`${job.company_name} logo`}
                   className="w-14 h-14 rounded-lg object-contain border"
                 />

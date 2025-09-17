@@ -20,6 +20,7 @@ export interface IJob {
   logo: string;
   min_salary: number;
   max_salary: number;
+  profile_image: string;
 
 
 
