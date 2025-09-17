@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, Users, Clock, CheckCircle, XCircle, Eye, Mail, Phone, MapPin, Briefcase, GraduationCap, Calendar } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import axios from 'axios';
 
 // Mock job application data
 const mockJobRequests = [
@@ -89,7 +90,21 @@ const mockJobRequests = [
 const JobRequest = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<typeof mockJobRequests[0] | null>(null);
+
+    useEffect(() => {
+    axios
+      .get("http://localhost/Git/Project1/Backend/GetAllJobRequestsProvider.php", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.success)
+          //  setJobs(res.data.jobs);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
