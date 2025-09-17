@@ -99,90 +99,6 @@ const handleCommentSubmit = (e: React.FormEvent) => {
   );
 };
 
-// Share Section Component
-const ShareSection: React.FC<{ blog: Blog }> = ({ blog }) => {
-  const [showShare, setShowShare] = useState(false);
-  const shareUrl = `https://example.com/blog/${blog.blog_id}`;
-
-  return (
-    <div className="relative">
-      {/* Share Button */}
-      <button
-        onClick={() => setShowShare(!showShare)}
-        className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition"
-      >
-        <Share2 className="w-5 h-5" />
-        <span>Share</span>
-      </button>
-
-      {/* Social Share Options */}
-      {showShare && (
-        <div className="absolute top-full left-0 mt-2 bg-white shadow-lg rounded-lg p-3 z-20 min-w-max">
-          <div className="flex gap-3 items-center">
-            <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-blue-600 hover:underline transition"
-              title="Share on Facebook"
-            >
-              <img
-                src="/public/facebook-logo.png.webp"
-                alt="Facebook"
-                className="w-5 h-5"
-              />
-
-              <span className="text-sm">Facebook</span>
-            </a>
-            <a
-              href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(blog.title)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sky-500 hover:underline transition"
-              title="Share on Twitter"
-            >
-              <img
-                src="/public/Twitter-logo.jpg"
-                alt="Twitter"
-                className="w-5 h-5"
-              />
-              <span className="text-sm">Twitter</span>
-            </a>
-            <a
-              href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${encodeURIComponent(blog.title)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-blue-700 hover:underline transition"
-              title="Share on LinkedIn"
-            >
-              <img
-                src="/public/LinkedIn.png"
-                alt="LinkedIn"
-                className="w-5 h-5"
-              />
-              <span className="text-sm">LinkedIn</span>
-            </a>
-            <a
-              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(blog.title + " " + shareUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-green-600 hover:underline transition"
-              title="Share on WhatsApp"
-            >
-              <img
-                src="/public/whatsapp-logo.jpg"
-                alt="WhatsApp"
-                className="w-5 h-5"
-              />
-              <span className="text-sm">WhatsApp</span>
-            </a>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 
 // BlogModal component
 const BlogModal: React.FC<{
@@ -256,26 +172,6 @@ const BlogModal: React.FC<{
           className="prose max-w-none text-gray-700 px-8 py-6"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
-
-        {/* Buttons Section */}
-        <div className="px-8 pb-6">
-          <div className="relative flex gap-2 items-start">
-            {/* Like Button */}
-            <button
-              onClick={() => alert("You have Liked this Blog!")}
-              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-            >
-              <ThumbsUp className="w-5 h-5" />
-              <span>Like</span>
-            </button>
-
-            {/* Comment Section */}
-            {blog && <CommentSection blogId={blog.blog_id} />}
-
-            {/* Share Section */}
-            <ShareSection blog={blog} />
-          </div>
-        </div>
 
       </div>
     </div>
@@ -428,14 +324,38 @@ const Blogs: React.FC = () => {
                       <User className="h-4 w-4 text-gray-400 mr-1" />
                       <span className="text-sm text-gray-500">Admin</span>
                     </div>
+                  
+                    <div className="p-6">
+          {/* ... (existing blog meta-data and title) ... */}
+          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+  {/* Like Button */}
+  <button
+    onClick={() => alert("You have Liked this Blog!")}
+    className="flex items-center justify-center gap-2 px-4 py-2 h-10 text-sm rounded font-semibold 
+               bg-green-500 text-white hover:bg-green-600 transition"
+  >
+    <ThumbsUp className="w-5 h-5" />
+    Like
+  </button>
 
-                    <Button
-                      onClick={() => fetchBlogContent(blog.blog_id)}
-                      className="bg-white text-[#26B170] border border-[#26B170] font-semibold py-2 px-4 rounded text-sm hover:bg-[#26B170] hover:text-white"
-                    >
-                      Read More
-                    </Button>
-                  </div>
+  {/* Read More button */}
+  <Button
+    onClick={() => fetchBlogContent(blog.blog_id)}
+    className="flex items-center justify-center px-4 py-2 h-10 text-sm rounded font-semibold 
+               bg-white text-[#26B170] border border-[#26B170] 
+               hover:bg-[#26B170] hover:text-white"
+  >
+    Read More
+  </Button>
+</div>
+
+
+
+          </div>
+  
+        </div>
+        </div>
 
                   <div className="flex flex-wrap gap-2 mt-4">
                     {blog.tags

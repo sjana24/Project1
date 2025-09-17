@@ -153,46 +153,94 @@ const Jobs = () => {
     }
 
   }
-  const requestJobApplication = async (formData: any) => {
-    console.log("Submitting job application:", formData);
-    const formDataToSend = new FormData();
+//   const requestJobApplication = async (formData: any) => {
+//     console.log("Submitting job application:", formData);
+//     const formDataToSend = new FormData();
 
-// Append text fields
-formDataToSend.append('jobId', formData.jobId.toString());
-formDataToSend.append('fullName', formData.fullName);
-formDataToSend.append('email', formData.email);
-formDataToSend.append('phone', formData.phone);
-formDataToSend.append('contactMethod', formData.contactMethod);
-formDataToSend.append('jobRole', formData.jobRole);
+// // Append text fields
+// formDataToSend.append('jobId', formData.jobId.toString());
+// formDataToSend.append('fullName', formData.fullName);
+// formDataToSend.append('email', formData.email);
+// formDataToSend.append('phone', formData.phone);
+// formDataToSend.append('contactMethod', formData.contactMethod);
+// formDataToSend.append('jobRole', formData.jobRole);
 
-// Append the resume file if present
-if (formData.resume) {
-  formDataToSend.append('resume', formData.resume); // 'resume' is the key expected by the backend
-}
-    try { 
-      const responce = await axios.post("http://localhost/Git/Project1/Backend/RequestJobApplication.php", {formDataToSend},{headers: { 'Content-Type': 'multipart/form-data' },withCredentials: true});
-      if (responce.data.success) {
-        toast({
-          title: "Application Submitted",
-          description: "Your job application has been submitted successfully.",
-          variant: "default", // optional styling
-        });
-      }else { 
-        toast({
-          title: "Application Failed",
-          description: responce.data.message || "There was an error submitting your application.",
-          variant: "destructive", // optional styling
-        });
-      }   
-    } catch (error) {
-      console.error("Error submitting job application:", error);  
-      toast({
-        title: "Application Error",
-        description: "There was an error submitting your job application. Please try again later.",
-        variant: "destructive", // optional styling
-      }); 
-    }
+// // Append the resume file if present
+// if (formData.resume) {
+//   formDataToSend.append('resume', formData.resume); // 'resume' is the key expected by the backend
+// }
+//     try { 
+//       const responce = await axios.post("http://localhost/Git/Project1/Backend/RequestJobApplication.php", {formDataToSend},{headers: { 'Content-Type': 'multipart/form-data' },withCredentials: true});
+//       if (responce.data.success) {
+//         toast({
+//           title: "Application Submitted",
+//           description: "Your job application has been submitted successfully.",
+//           variant: "default", // optional styling
+//         });
+//       }else { 
+//         toast({
+//           title: "Application Failed",
+//           description: responce.data.message || "There was an error submitting your application.",
+//           variant: "destructive", // optional styling
+//         });
+//       }   
+//     } catch (error) {
+//       console.error("Error submitting job application:", error);  
+//       toast({
+//         title: "Application Error",
+//         description: "There was an error submitting your job application. Please try again later.",
+//         variant: "destructive", // optional styling
+//       }); 
+//     }
+//   }
+const requestJobApplication = async (formData: any) => {
+  console.log("Submitting job application:", formData);
+  const formDataToSend = new FormData();
+
+  // Append text fields
+  formDataToSend.append('jobId', formData.jobId.toString());
+  formDataToSend.append('fullName', formData.fullName);
+  formDataToSend.append('email', formData.email);
+  formDataToSend.append('phone', formData.phone);
+  formDataToSend.append('contactMethod', formData.contactMethod);
+  formDataToSend.append('jobRole', formData.jobRole);
+
+  // Append the resume file if present
+  if (formData.resume) {
+    formDataToSend.append('resume', formData.resume); // ✅ matches backend
   }
+
+  try { 
+    const response = await axios.post(
+      "http://localhost/Git/Project1/Backend/RequestJobApplication.php",
+      formDataToSend,  // ✅ send raw FormData, not {formDataToSend}
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      }
+    );
+
+    if (response.data.success) {
+      toast({
+        title: "Application submitted",
+        description: "Your job application was sent successfully!",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: response.data.errors?.join(", ") || "Failed to apply",
+        variant: "destructive",
+      });
+    }
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Something went wrong. Please try again later.",
+      variant: "destructive",
+    });
+  }
+};
+
 
     const filteredJobs = jobs
 

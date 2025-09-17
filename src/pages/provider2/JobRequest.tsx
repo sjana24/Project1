@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, Users, Clock, CheckCircle, XCircle, Eye, Mail, Phone, MapPin, Briefcase, GraduationCap, Calendar } from 'lucide-react';
+import { Search, Users, Clock, CheckCircle, XCircle, Eye, Mail, Phone, MapPin, Briefcase, GraduationCap, Calendar, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import axios from 'axios';
 
 // Mock job application data
 const mockJobRequests = [
@@ -85,11 +86,62 @@ const mockJobRequests = [
     resume: 'emily-rodriguez-resume.pdf'
   },
 ];
+export interface IJobRequest {
+  request_id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  contactMethod: string;
+  resume: string | null;
+  applied_at: string; // datetime string from DB
+
+  job_id: number;
+  title: string;
+  location: string;
+  job_type: string;
+  min_salary: number;
+  max_salary: number;
+  posting_date: string;
+  expiry_date: string;
+  job_status: string;
+
+  requirements: string;
+  benefits: string;
+}
+
 
 const JobRequest = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<typeof mockJobRequests[0] | null>(null);
+  const [jobReqs,setJobReqs] = useState<IJobRequest[]>([])
+
+    useEffect(() => {
+    axios
+      .get("http://localhost/Git/Project1/Backend/GetAllJobRequestsProvider.php", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.success)
+           setJobReqs(res.data.jobRequests);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+    useEffect(() => {
+    axios
+      .get("http://localhost/Git/Project1/Backend/GetAllJobRequestsProvider.php", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.success)
+          //  setJobs(res.data.jobs);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -117,10 +169,10 @@ const JobRequest = () => {
     }
   };
 
-  const filteredRequests = mockJobRequests.filter(request => {
-    const matchesSearch = request.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.job.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
+  const filteredRequests = jobReqs.filter(request => {
+    const matchesSearch = request.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         request.job_type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || request.job_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -129,12 +181,12 @@ const JobRequest = () => {
     // TODO: Implement status update logic
   };
 
-  const stats = {
-    total: mockJobRequests.length,
-    pending: mockJobRequests.filter(r => r.status === 'pending').length,
-    approved: mockJobRequests.filter(r => r.status === 'approved').length,
-    rejected: mockJobRequests.filter(r => r.status === 'rejected').length
-  };
+  // const stats = {
+  //   total: jobReqs.length,
+  //   pending: jobReqs.filter(r => r.status === 'pending').length,
+  //   approved: jobReqs.filter(r => r.status === 'approved').length,
+  //   rejected: jobReqs.filter(r => r.status === 'rejected').length
+  // };
 
   return (
     <div className="space-y-6">
@@ -147,7 +199,7 @@ const JobRequest = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        {/* <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -157,20 +209,20 @@ const JobRequest = () => {
               <Users className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
-        </Card>
-        <Card>
+        </Card> */}
+        {/* <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                <p className="text-sm font-medium text-muted-foreground">Pending</p>
                 <p className="text-2xl font-bold">{stats.pending}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
         <Card>
-          <CardContent className="p-6">
+          {/* <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Approved</p>
@@ -178,9 +230,9 @@ const JobRequest = () => {
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
-          </CardContent>
+          </CardContent> */}
         </Card>
-        <Card>
+        {/* <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -190,7 +242,7 @@ const JobRequest = () => {
               <XCircle className="h-8 w-8 text-red-500" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Filters */}
@@ -204,7 +256,7 @@ const JobRequest = () => {
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -214,7 +266,7 @@ const JobRequest = () => {
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>
-        </Select>
+        </Select> */}
       </div>
 
       {/* Job Applications List */}
@@ -229,108 +281,189 @@ const JobRequest = () => {
       ) : (
         <div className="space-y-4">
           {filteredRequests.map((request) => (
-            <Card key={request.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={request.customer.avatar} alt={request.customer.name} />
-                      <AvatarFallback>{request.customer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg">{request.customer.name}</CardTitle>
-                        <Badge variant={getStatusVariant(request.status)}>
-                          {getStatusIcon(request.status)}
-                          <span className="ml-1 capitalize">{request.status}</span>
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4" />
-                          {request.job.title}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          Applied: {new Date(request.applicationDate).toLocaleDateString()}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-4 w-4" />
-                          {request.customer.email}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Phone className="h-4 w-4" />
-                          {request.customer.phone}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setSelectedRequest(request)}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                    {request.status === 'pending' && (
-                      <>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleStatusUpdate(request.id, 'approved')}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => handleStatusUpdate(request.id, 'rejected')}
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="font-medium mb-2">Job Details:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Type:</span> {request.job.type}
-                      </div>
-                      <div>
-                        <span className="font-medium">Department:</span> {request.job.department}
-                      </div>
-                      <div>
-                        <span className="font-medium">Salary:</span> {request.job.salary}
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Applicant Background:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <GraduationCap className="h-4 w-4" />
-                        <span className="font-medium">Education:</span> {request.customer.education}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="h-4 w-4" />
-                        <span className="font-medium">Experience:</span> {request.customer.experience}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span className="font-medium">Location:</span> {request.customer.location}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            // <Card key={request.id} className="hover:shadow-md transition-shadow">
+            //   <CardHeader>
+            //     <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+            //       <div className="flex items-start gap-4 flex-1">
+            //         <Avatar className="h-12 w-12">
+            //           <AvatarImage src={request.customer.avatar} alt={request.customer.name} />
+            //           <AvatarFallback>{request.customer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            //         </Avatar>
+            //         <div className="flex-1">
+            //           <div className="flex items-center gap-2 mb-2">
+            //             <CardTitle className="text-lg">{request.customer.name}</CardTitle>
+            //             <Badge variant={getStatusVariant(request.status)}>
+            //               {getStatusIcon(request.status)}
+            //               <span className="ml-1 capitalize">{request.status}</span>
+            //             </Badge>
+            //           </div>
+            //           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+            //             <div className="flex items-center gap-1">
+            //               <Briefcase className="h-4 w-4" />
+            //               {request.job.title}
+            //             </div>
+            //             <div className="flex items-center gap-1">
+            //               <Calendar className="h-4 w-4" />
+            //               Applied: {new Date(request.applicationDate).toLocaleDateString()}
+            //             </div>
+            //             <div className="flex items-center gap-1">
+            //               <Mail className="h-4 w-4" />
+            //               {request.customer.email}
+            //             </div>
+            //             <div className="flex items-center gap-1">
+            //               <Phone className="h-4 w-4" />
+            //               {request.customer.phone}
+            //             </div>
+            //           </div>
+            //         </div>
+            //       </div>
+            //       <div className="flex gap-2">
+            //         <Button variant="outline" size="sm" onClick={() => setSelectedRequest(request)}>
+            //           <Eye className="h-4 w-4 mr-2" />
+            //           View Details
+            //         </Button>
+            //         {request.status === 'pending' && (
+            //           <>
+            //             <Button 
+            //               size="sm" 
+            //               onClick={() => handleStatusUpdate(request.id, 'approved')}
+            //             >
+            //               <CheckCircle className="h-4 w-4 mr-2" />
+            //               Approve
+            //             </Button>
+            //             <Button 
+            //               variant="destructive" 
+            //               size="sm"
+            //               onClick={() => handleStatusUpdate(request.id, 'rejected')}
+            //             >
+            //               <XCircle className="h-4 w-4 mr-2" />
+            //               Reject
+            //             </Button>
+            //           </>
+            //         )}
+            //       </div>
+            //     </div>
+            //   </CardHeader>
+            //   <CardContent>
+            //     <div className="space-y-3">
+            //       <div>
+            //         <h4 className="font-medium mb-2">Job Details:</h4>
+            //         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            //           <div>
+            //             <span className="font-medium">Type:</span> {request.job.type}
+            //           </div>
+            //           <div>
+            //             <span className="font-medium">Department:</span> {request.job.department}
+            //           </div>
+            //           <div>
+            //             <span className="font-medium">Salary:</span> {request.job.salary}
+            //           </div>
+            //         </div>
+            //       </div>
+            //       <div>
+            //         <h4 className="font-medium mb-2">Applicant Background:</h4>
+            //         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            //           <div className="flex items-center gap-1">
+            //             <GraduationCap className="h-4 w-4" />
+            //             <span className="font-medium">Education:</span> {request.customer.education}
+            //           </div>
+            //           <div className="flex items-center gap-1">
+            //             <Briefcase className="h-4 w-4" />
+            //             <span className="font-medium">Experience:</span> {request.customer.experience}
+            //           </div>
+            //           <div className="flex items-center gap-1">
+            //             <MapPin className="h-4 w-4" />
+            //             <span className="font-medium">Location:</span> {request.customer.location}
+            //           </div>
+            //         </div>
+            //       </div>
+            //     </div>
+            //   </CardContent>
+            // </Card>
+             <Card className="hover:shadow-md transition-shadow">
+      <CardHeader>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+          <div>
+            <CardTitle className="text-xl">{request.fullName}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Applied on {new Date(request.applied_at).toLocaleDateString()}
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            {1 && (
+              <Button asChild size="sm">
+                <a
+                  href={`http://localhost/Git/Project1/Backend/uploads/resumes/${request.resume}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Resume
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Applicant Info */}
+        <div>
+          <h4 className="font-medium mb-2">Applicant Info</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4" /> {request.email}
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4" /> {request.phone}
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4" /> Contact Method: {request.contactMethod}
+            </div>
+          </div>
+        </div>
+
+        {/* Job Info */}
+        <div>
+          <h4 className="font-medium mb-2">Job Details</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" /> {request.title}
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" /> {request.location}
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" /> Type: {request.job_type || "N/A"}
+            </div>
+            <div className="flex items-center gap-2">
+              💰 Min Salary: {request.min_salary}
+            </div>
+            <div className="flex items-center gap-2">
+              💰 Max Salary: {request.max_salary}
+            </div>
+            <div className="flex items-center gap-2">
+              📌 Status: {request.job_status}
+            </div>
+          </div>
+        </div>
+
+        {/* Extra Info */}
+        {/* <div>
+          <h4 className="font-medium mb-2">Requirements</h4>
+          <p className="text-sm whitespace-pre-line">{request.requirements}</p>
+        </div>
+        <div>
+          <h4 className="font-medium mb-2">Benefits</h4>
+          <p className="text-sm whitespace-pre-line">{request.benefits}</p>
+        </div> */}
+      </CardContent>
+    </Card>
           ))}
         </div>
-      )}
+      )} 
+      {}
 
       {/* Detail Modal would go here if selectedRequest is not null */}
       {selectedRequest && (

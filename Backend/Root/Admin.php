@@ -90,13 +90,50 @@ class Admin
             ];
         }
     }
+public function getProviderCounts($provider_id)
+{
+    try {
+        // Query to get the count of products for the provider
+        $sql_products = "SELECT COUNT(*) as product_count FROM product WHERE service_provider_id = :provider_id AND is_delete = 0";
+        $stmt_products = $this->conn->prepare($sql_products);
+        $stmt_products->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt_products->execute();
+        $product_count = $stmt_products->fetch(PDO::FETCH_ASSOC)['product_count'];
+
+        // Query to get the count of services for the provider
+        $sql_services = "SELECT COUNT(*) as service_count FROM job_posting WHERE service_provider_id = :provider_id";
+        $stmt_services = $this->conn->prepare($sql_services);
+        $stmt_services->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt_services->execute();
+        $service_count = $stmt_services->fetch(PDO::FETCH_ASSOC)['service_count'];
+
+        return [
+            'success' => true,
+            'products_count' => $product_count,
+            'services_count' => $service_count,
+            'message' => 'Counts fetched successfully.'
+        ];
+    } catch (PDOException $e) {
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch counts: ' . $e->getMessage()
+        ];
+    }
+}
           public function getAllProviders()
     {
         $status="active";
         $user_role="service_provider";
 
         try {
-            $sql = "SELECT * FROM user WHERE  user_role=:user_role ";
+            $sql = "
+                SELECT u.*, sp.contact_number, sp.address, sp.district, sp.profile_image, sp.company_name, 
+                sp.business_registration_number, sp.company_description, sp.website, sp.verification_status
+                FROM user u
+                LEFT JOIN service_provider sp ON u.user_id = sp.user_id
+                WHERE u.user_role = :user_role
+                ";
+
             $stmt = $this->conn->prepare($sql);
              $stmt->bindParam(':user_role', $user_role); 
             //  $stmt->bindParam(':status', $status); 

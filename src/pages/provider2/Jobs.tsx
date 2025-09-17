@@ -9,6 +9,9 @@ import {
   Eye,
   Search,
   Filter,
+  CheckCircle,
+  XCircle,
+  DoorOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -163,35 +166,93 @@ export default function Jobs() {
         }} />
 
       </div>
-
-      {/* Stats Section */}
+      {/* Stats Overview */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Applications</p>
+                      <p className="text-2xl font-bold">{stats.total}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                      <p className="text-2xl font-bold">{stats.pending}</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-yellow-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Approved</p>
+                      <p className="text-2xl font-bold">{stats.approved}</p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Rejected</p>
+                      <p className="text-2xl font-bold">{stats.rejected}</p>
+                    </div>
+                    <XCircle className="h-8 w-8 text-red-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div> */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          {
-            label: "Total Jobs",
-            value: jobs.length,
-            color: "from-indigo-500 to-purple-600",
-          },
-          {
-            label: "Active Jobs",
-            value: jobs.filter((j) => !isExpired(j.expiry_date)).length,
-            color: "from-green-500 to-emerald-600",
-          },
-          {
-            label: "Expired Jobs",
-            value: jobs.filter((j) => isExpired(j.expiry_date)).length,
-            color: "from-red-500 to-pink-600",
-          },
-        ].map((stat, idx) => (
-          <div
-            key={idx}
-            className={`p-6 rounded-2xl shadow-md text-white bg-gradient-to-r ${stat.color}`}
-          >
-            <p className="text-sm opacity-80">{stat.label}</p>
-            <p className="text-3xl font-bold">{stat.value}</p>
+  {[
+    {
+      label: "Total Jobs",
+      value: jobs.length,
+      icon: (
+        <Briefcase className="h-8 w-8 text-muted-foreground" />
+      ),
+    },
+    {
+      label: "Active Jobs",
+      value: jobs.filter((j) => !isExpired(j.expiry_date)).length,
+      icon: (
+        <CheckCircle className="h-8 w-8 text-green-500" />
+      ),
+    },
+    {
+      label: "Expired Jobs",
+      value: jobs.filter((j) => isExpired(j.expiry_date)).length,
+      icon: (
+        <XCircle className="h-8 w-8 text-red-500" />
+      ),
+    },
+    
+  ].map((stat, idx) => (
+    <Card key={idx}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">
+              {stat.label}
+            </p>
+            <p className="text-2xl font-bold">{stat.value}</p>
           </div>
-        ))}
-      </div>
+          {stat.icon}
+        </div>
+      </CardContent>
+    </Card>
+  ))}
+</div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl shadow">
