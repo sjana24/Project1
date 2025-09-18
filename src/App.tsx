@@ -45,12 +45,13 @@ import JobRequest from "./pages/provider2/JobRequest";
 // import Message from "./pages/Message";
 import MessagePro from "./pages/provider2/MessagePro";
 import Message from "./pages/Messsage";
-import ProductsAndOrders  from "./pages/provider2/ProductsAndOrders";
+import ProductsAndOrders  from "./pages/provider2/Productsnew";
 import CustomersPage from "./pages/admin/customerPage";
 import ProviderPage from "./pages/admin/providerPage";
 import ProductPage from "./pages/admin/productPage";
 import ServicesPage1 from "./pages/admin/ServicePage1";
 import JobsPage from "./pages/admin/JobOpenings";
+import ProductStuffs from "./pages/provider2/ProductStuffs";
 
 const queryClient = new QueryClient();
 
@@ -146,10 +147,10 @@ const App = () => (
                       <Route path="/job_request" element={<JobsAndRequests />} />
                       <Route path="/product_order" element={<ProductsAndOrders />} />
                       <Route path="/service_order" element={<ServicesAndOrders />} />
-                      {/* <Route path="/service" element={<ServiceProvider />} />
-                      <Route path="/service_req" element={<Service_Request />} />
-                      <Route path="/project_order" element={<ProjectOrder />} /> */}
-                      <Route path="/chat" element={<Chat />} />
+                       <Route path="/product" element={<ProductStuffs />} />
+                      {/* <Route path="/service_req" element={<Service_Request />} /> */}
+                      {/* <Route path="/project_order" element={<ProjectOrder />} /> */} 
+                      {/* <Route path="/chat" element={<Chat />} /> */}
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
                       {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
                       <Route path="/MessagePro" element={<MessagePro />} />

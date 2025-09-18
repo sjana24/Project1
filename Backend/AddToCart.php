@@ -8,7 +8,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // echo "hi";
-require_once "./Root/Product.php";
+require_once "./Root/Cart.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
@@ -21,7 +21,7 @@ if (isset($_SESSION['user'])) {
     $user_id = $_SESSION['user']['user_id'];
     $user_role = $_SESSION['user']['user_role'];
 
-    echo "$user_name,$user_id,$user_role";
+    // echo "$user_name,$user_id,$user_role";
     if ("customer" === $user_role) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['product_Details'];
@@ -31,7 +31,7 @@ if (isset($_SESSION['user'])) {
         $product_id = htmlspecialchars(strip_tags($array['product_id']));
         $provider_id = htmlspecialchars(strip_tags($array['provider_id']));
         // echo "$product_id,$provider_id";
-        $addToCart = new Product();
+        $addToCart = new Cart();
         $Result = $addToCart->AddToCart($user_id, $product_id, 1);
 
           if($Result) {
