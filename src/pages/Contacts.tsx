@@ -1,60 +1,207 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageSquare, Search, ThumbsUp, ThumbsDown, Send, HelpCircle, CheckCircle2, Contact } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import Footer from "@/components/Footer";
+import Navigation from "@/components/Navigation";
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    full_name: "",
+interface QAItem {
+  id: number;
+  question: string;
+  answer?: string;
+  asker: string;
+  answerer?: string;
+  category: string;
+  status: 'pending' | 'answered' | 'flagged';
+  created_at: string;
+  answered_at?: string;
+  is_featured: boolean;
+  views: number;
+  votes: number;
+  userVote?: 'up' | 'down' | null;
+}
+
+const Contacts = () => {
+  const [questionForm, setQuestionForm] = useState({
+    question: "",
+    category: "",
     email: "",
-    subject: "",
-    // category: "",
-    message: ""
+    name: ""
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [qaItems, setQaItems] = useState<QAItem[]>([
+    {
+      id: 1,
+      question: 'What is the average lifespan of solar panels?',
+      answer: 'Solar panels typically last 25-30 years with proper maintenance. Most manufacturers offer warranties of 20-25 years, and panels often continue producing electricity well beyond their warranty period, albeit at slightly reduced efficiency.',
+      asker: 'John Doe',
+      answerer: 'Solar Expert Team',
+      category: 'Technical',
+      status: 'answered',
+      created_at: '2024-01-15',
+      answered_at: '2024-01-16',
+      is_featured: true,
+      views: 234,
+      votes: 12,
+      userVote: null
+    },
+    {
+      id: 2,
+      question: 'How much does solar installation cost in Sri Lanka?',
+      answer: 'Solar installation costs in Sri Lanka typically range from LKR 150,000 to LKR 500,000 for residential systems, depending on system size, panel quality, and installation complexity. We offer free consultations to provide accurate quotes based on your specific needs.',
+      asker: 'Jane Smith',
+      answerer: 'Pricing Specialist',
+      category: 'Pricing',
+      status: 'answered',
+      created_at: '2024-01-18',
+      answered_at: '2024-01-19',
+      is_featured: false,
+      views: 89,
+      votes: 8,
+      userVote: null
+    },
+    {
+      id: 3,
+      question: 'Do solar panels work during cloudy days?',
+      answer: 'Yes, solar panels do work on cloudy days, though at reduced efficiency. Modern panels can generate 20-30% of their peak output even on overcast days. Our systems are designed to maximize energy capture in various weather conditions.',
+      asker: 'Mike Johnson',
+      answerer: 'Technical Team',
+      category: 'Technical',
+      status: 'answered',
+      created_at: '2024-01-20',
+      answered_at: '2024-01-21',
+      is_featured: true,
+      views: 156,
+      votes: 15,
+      userVote: null
+    },
+    {
+      id: 4,
+      question: 'What maintenance is required for solar panels?',
+      asker: 'Sarah Wilson',
+      category: 'Maintenance',
+      status: 'pending',
+      created_at: '2024-01-22',
+      is_featured: false,
+      views: 23,
+      votes: 2,
+      userVote: null
+    }
+  ]);
+
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const categories = ["Technical", "Pricing", "Installation", "Maintenance", "General"];
+
+  const handleQuestionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // const $responce=await axios
-    try {
-      const res = await axios.post("http://localhost/Git/Project1/Backend/ContactUsCustomer.php", formData, { withCredentials: true });
-
-      if (res.data.success) {
-        // console.log("messge send successful ");
-        toast({
-          title: "Message Sent!",
-          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-        });
-
-        // console.log(res.data);
-      }
-      else {
-        // console.log(res.data);
-        toast({
-          title: "Message Sent failed!",
-          description: "Try again, please try later.",
-          variant: "destructive",
-        });
-        // console.log(" error in send message"); // show error message from PHP
-
-      }
-    } catch (err) {
-      console.error("Error login user:", err);
-    } finally {
-
+    
+    // Validate that the name only contains letters and spaces
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(questionForm.name)) {
+      toast({
+        title: "Validation Error",
+        description: "Your name can only contain letters and spaces.",
+        variant: "destructive",
+      });
+      return; // Stop the form submission
     }
 
-    setFormData({ full_name: "", email: "", subject: "", message: "" });
+    try {
+      // Backend integration
+      const res = await axios.post("http://localhost/Git/Project1/Backend/SubmitQuestion.php", questionForm, { withCredentials: true });
+
+      if (res.data.success) {
+        toast({
+          title: "Question Submitted!",
+          description: "Your question has been submitted. We'll answer it soon.",
+        });
+        
+        // Add to local state for immediate feedback
+        const newQuestion: QAItem = {
+          id: Date.now(),
+          question: questionForm.question,
+          asker: questionForm.name,
+          category: questionForm.category,
+          status: 'pending',
+          created_at: new Date().toISOString().split('T')[0],
+          is_featured: false,
+          views: 0,
+          votes: 0,
+          userVote: null
+        };
+        
+        setQaItems(prev => [newQuestion, ...prev]);
+        setQuestionForm({ question: "", category: "", email: "", name: "" });
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Error submitting question:", err);
+      toast({
+        title: "Submission Failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleVote = (qaId: number, voteType: 'up' | 'down') => {
+    setQaItems(prev => prev.map(item => {
+      if (item.id === qaId) {
+        const currentVote = item.userVote;
+        let newVotes = item.votes;
+        let newUserVote: 'up' | 'down' | null = voteType;
+
+        // Remove previous vote
+        if (currentVote === 'up') newVotes--;
+        if (currentVote === 'down') newVotes++;
+
+        // Apply new vote
+        if (voteType === 'up') {
+          if (currentVote === 'up') {
+            newVotes--;
+            newUserVote = null;
+          } else {
+            newVotes++;
+          }
+        } else {
+          if (currentVote === 'down') {
+            newVotes++;
+            newUserVote = null;
+          } else {
+            newVotes--;
+          }
+        }
+
+        return { ...item, votes: newVotes, userVote: newUserVote };
+      }
+      return item;
+    }));
+  };
+
+  const filteredQAs = qaItems.filter(qa => {
+    const matchesSearch = qa.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          qa.answer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          qa.asker.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || qa.category === selectedCategory;
+    return matchesSearch && matchesCategory && qa.status !== 'flagged';
+  });
+
+  const featuredQAs = filteredQAs.filter(qa => qa.is_featured && qa.status === 'answered');
+  const regularQAs = filteredQAs.filter(qa => !qa.is_featured);
 
   const contactInfo = [
     {
@@ -76,7 +223,7 @@ const Contact = () => {
       title: "Visit Us",
       description: "Our headquarters",
       details: "123 Solar Street, Green City, CA 90210",
-      action: "#"
+      action: "https://www.google.com/maps"
     },
     {
       icon: Clock,
@@ -87,98 +234,83 @@ const Contact = () => {
     }
   ];
 
-
   return (
-    <div className="min-h-screen">
-      <Navigation />
-
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+      <Navigation/>
       <div className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Contact Us
+              Contact Us & Ask Questions 
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Have questions about solar energy? Need help with our platform? We're here to help!
+              Have questions about solar energy? Browse our Q&A or ask your own question!
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Contact Information */}
             <div className="lg:col-span-1 space-y-6">
-              <Card className="border-0 glass-effect">
+              <Card className="glass-effect qa-shadow">
                 <CardHeader>
-                  <CardTitle>Get in Touch</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-green-600">
+                    <HelpCircle className="h-5 w-5 text-text-600" />
+                    Need Direct Help?
+                  </CardTitle>
                   <CardDescription>
-                    We're here to help with all your solar energy needs
+                    For urgent matters, contact us directly
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {contactInfo.map((info, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <div className="w-10 h-10 rounded-lg bg-[#26B170]/10 flex items-center justify-center flex-shrink-0">
-                        <info.icon className="h-5 w-5 text-[#26B170]" />
+                      <div className="w-10 h-10 rounded-lg bg-qa-primary/10 flex items-center justify-center flex-shrink-0">
+                        <info.icon className="h-5 w-5 text-qa-primary" />
                       </div>
-
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">{info.title}</h3>
                         <p className="text-sm text-muted-foreground mb-2">{info.description}</p>
-                        <p className="text-sm font-medium text-foreground">{info.details}</p>
+                        {info.action !== "#" ? (
+                          <a href={info.action} className="text-sm font-medium text-qa-primary hover:underline">
+                            {info.details}
+                          </a>
+                        ) : (
+                          <p className="text-sm font-medium text-foreground">{info.details}</p>
+                        )}
                       </div>
                     </div>
                   ))}
                 </CardContent>
               </Card>
-
-              {/* Quick Actions */}
-              {/* <Card className="border-0 glass-effect">
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Schedule Consultation
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Phone className="mr-2 h-4 w-4" />
-                    Request Quote
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Find Local Agent
-                  </Button>
-                </CardContent>
-              </Card> */}
             </div>
 
-            {/* Contact Form */}
-            <div className="lg:col-span-2">
-              <Card className="border-0 glass-effect">
+            {/* Ask Question Form & Q&A List */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Ask Question Form */}
+              <Card className="glass-effect qa-shadow">
                 <CardHeader>
-                  <CardTitle>Send us a Message</CardTitle>
+                  <CardTitle className="qa-gradient bg-clip-text text-green-600">Ask a Question</CardTitle>
                   <CardDescription>
-                    Fill out the form below and we'll get back to you as soon as possible
+                    Submit your question and our experts will answer it
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleQuestionSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label htmlFor="full_name" className="text-sm font-medium text-foreground">
-                          Full Name *
+                        <label htmlFor="name" className="text-sm font-medium text-foreground">
+                          Your Name *
                         </label>
                         <Input
-                          type="text"
-                          name="full_name"
-                          placeholder="John Wick"
+                          id="name"
+                          placeholder="Your full name"
                           required
-                          minLength={2}
-                          value={formData.full_name}
-                          onChange={e => setFormData({ ...formData, full_name: e.target.value })}
-                          pattern="^[A-Za-z., ]+$"
-                          title="Name can only contain letters, spaces, commas, and periods."
-                          className="w-full p-2 border rounded"
+                          value={questionForm.name}
+                          onChange={e => {
+                            // Validate that the input is a string (letters and spaces only)
+                            const sanitizedValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                            setQuestionForm({ ...questionForm, name: sanitizedValue });
+                          }}
                         />
                       </div>
                       <div className="space-y-2">
@@ -188,114 +320,209 @@ const Contact = () => {
                         <Input
                           id="email"
                           type="email"
-                          name="email"
-                          placeholder="john@example.com"
+                          placeholder="your@email.com"
                           required
-                          value={formData.email}
-                          onChange={e => setFormData({ ...formData, email: e.target.value })}
-                          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$"
-                          title="Please enter a valid email address (e.g. john@example.com)"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* <div className="space-y-2">
-                        <label htmlFor="category" className="text-sm font-medium text-foreground">
-                          Category *
-                        </label>
-                        <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-                          <SelectTrigger
-                            className="border border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 rounded-md"
-                          >
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((category) => (
-                              <SelectItem key={category} value={category}>
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div> */}
-                      <div className="space-y-2">
-                        <label htmlFor="subject" className="text-sm font-medium text-foreground">
-                          Subject *
-                        </label>
-                        <Input
-                          id="subject"
-                          name="subject"
-                          placeholder="How can we help you?"
-                          required
-                          minLength={3}
-                          value={formData.subject}
-                          onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                          value={questionForm.email}
+                          onChange={e => setQuestionForm({ ...questionForm, email: e.target.value })}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="message" className="text-sm font-medium text-foreground">
-                        Message *
+                      <label htmlFor="category" className="text-sm font-medium text-foreground">
+                        Category *
+                      </label>
+                      <Select value={questionForm.category} onValueChange={(value) => setQuestionForm(prev => ({ ...prev, category: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="question" className="text-sm font-medium text-foreground">
+                        Your Question *
                       </label>
                       <Textarea
-                        id="message"
-                        name="message"
-                        placeholder="Please describe your inquiry in detail..."
-                        rows={6}
+                        id="question"
+                        placeholder="Please describe your question in detail..."
+                        rows={4}
                         required
-                        minLength={10}
-                        value={formData.message}
-                        onChange={e => setFormData({ ...formData, message: e.target.value })}
-                        className="focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                        value={questionForm.question}
+                        onChange={e => setQuestionForm({ ...questionForm, question: e.target.value })}
                       />
-
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">
-                        * Required fields
-                      </p>
-                      <Button type="submit" className="bg-[#26B170] text-white hover:bg-[#26B170]">
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Message
-                      </Button>
-                    </div>
+                    <Button type="submit" className="bg-green-500 hover:bg-qa-primary/90 text-qa-primary-foreground">
+                      <Send className="mr-2 h-4 w-4" />
+                      Submit Question
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
 
-              {/* FAQ Section */}
-              {/* <Card className="mt-8 border-0 glass-effect">
-                <CardHeader>
-                  <CardTitle>Frequently Asked Questions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">How quickly do you respond to inquiries?</h4>
-                      <p className="text-sm text-muted-foreground">We typically respond to all inquiries within 24 hours during business days.</p>
+              {/* Search and Filter */}
+              <Card className="glass-effect">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Search questions and answers..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">Do you offer free consultations?</h4>
-                      <p className="text-sm text-muted-foreground">Yes! We offer free initial consultations for all residential and commercial solar projects.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">What areas do you serve?</h4>
-                      <p className="text-sm text-muted-foreground">We have certified agents and service providers across the United States. Contact us to find services in your area.</p>
-                    </div>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="w-full md:w-48">
+                        <SelectValue placeholder="All Categories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
-              </Card> */}
+              </Card>
+
+              {/* Featured Q&As */}
+              {featuredQAs.length > 0 && (
+                <Card className="glass-effect qa-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-600">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      Featured Questions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {featuredQAs.map((qa) => (
+                      <div key={qa.id} className="p-4 rounded-lg border border-qa-primary/20 bg-qa-primary/5">
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge className="bg-qa-primary text-green-600-foreground">Featured</Badge>
+                          <div className="text-xs text-muted-foreground">{qa.views} views</div>
+                        </div>
+                        <h3 className="font-semibold text-foreground mb-2">{qa.question}</h3>
+                        {qa.answer && (
+                          <div className="bg-background/50 p-3 rounded-md mb-3">
+                            <p className="text-sm text-foreground">{qa.answer}</p>
+                            <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                              <span>Answered by {qa.answerer}</span>
+                              <span>{qa.answered_at}</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Asked by {qa.asker}</span>
+                            <Badge variant="outline">{qa.category}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2 text-green-500">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleVote(qa.id, 'up')}
+                              className={qa.userVote === 'up' ? 'text-qa-success' : ''}
+                            >
+                              <ThumbsUp className="h-3 w-3 mr-1" />
+                              {qa.votes > 0 ? qa.votes : ''}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleVote(qa.id, 'down')}
+                              className={qa.userVote === 'down' ? 'text-qa-flagged' : ''}
+                            >
+                              <ThumbsDown className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* All Q&As */}
+              <Card className="glass-effect">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-green-600">All Questions ({regularQAs.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {regularQAs.map((qa) => (
+                    <div key={qa.id} className="p-4 rounded-lg border border-border hover:border-qa-primary/30 transition-colors">
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge variant={qa.status === 'answered' ? 'default' : 'secondary'}>
+                          {qa.status === 'answered' ? 'Answered' : 'Pending'}
+                        </Badge>
+                        <div className="text-xs text-muted-foreground">{qa.views} views</div>
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-2">{qa.question}</h3>
+                      {qa.answer && (
+                        <div className="bg-muted/30 p-3 rounded-md mb-3">
+                          <p className="text-sm text-foreground">{qa.answer}</p>
+                          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                            <span>Answered by {qa.answerer}</span>
+                            <span>{qa.answered_at}</span>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>Asked by {qa.asker}</span>
+                          <Badge variant="outline">{qa.category}</Badge>
+                          <span>{qa.created_at}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-green-500">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleVote(qa.id, 'up')}
+                            className={qa.userVote === 'up' ? 'text-qa-success' : ''}
+                          >
+                            <ThumbsUp className="h-3 w-3 mr-1" />
+                            {qa.votes > 0 ? qa.votes : ''}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleVote(qa.id, 'down')}
+                            className={qa.userVote === 'down' ? 'text-qa-flagged' : ''}
+                          >
+                            <ThumbsDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {regularQAs.length === 0 && (
+                    <div className="text-center py-8">
+                      <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No questions found matching your search.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );
 };
 
-export default Contact;
+export default Contacts;
