@@ -13,29 +13,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCartStore } from "@/store/useCartStore";
 import { Star } from "lucide-react";
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
+import { productCategorys } from "@/store/commonData";
+import { IProduct, IUser } from "@/store/commonInterface";
 
-interface Product {
-  product_id: number;
-  provider_id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  specifications: string;
-  average_rating: number;
-  /// rating add pannale
-  images: string; // this is a JSON string (array in string)
-  is_approved: number;
-  created_at: string;
-  updated_at: string;
-  success?: boolean;
-}
+
+
 
 
 const Products = () => {
@@ -47,11 +29,12 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [currentUser, setCurrentUser] = useState<IUser | null>(() => null);
   const { checkSession } = useAuth();
   const { setCartItemsCount, updateCartCount, cartUpdated } = useCartStore();
   const { triggerCartUpdate } = useCartStore();
+  const [categoryFilter, setCategoryFilter] = useState("all");
   useEffect(() => {
     (async () => {
       if (!currentUser) {
@@ -87,14 +70,14 @@ const Products = () => {
       .then(response => {
         const data = response.data;
         if (response.data.success) {
-          console.log("data got");
-
-          setProducts(data.products);
+           setProducts(data.products);
         }
         else {
-          // setError('Failed to load products.');
-          console.log(response.data);
-          console.log(" sorry we cant get ur products");
+          toast({
+            title: "Fetch job",
+            description: "Fetch jobs failed.",
+            variant: "destructive",
+          });
         }
         setLoading(false);
       })
@@ -106,11 +89,16 @@ const Products = () => {
 
   }, []);
 
+
   const filteredProducts = products
 
+
     .filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (categoryFilter === "all" || product.category === categoryFilter) &&
+
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.provider_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -224,187 +212,208 @@ const Products = () => {
                 <SelectItem value="rating">Highest Rated</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder="Job Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {productCategorys.map((category) => (
+                  <SelectItem key={category.key} value={category.value}>
+                    {category.value === "all" ? "All Categories" : category.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <Card
-                key={product.product_id}
-                onClick={() => handleClick(product)}
-                className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect"
-              >
-                <div className="hidden md:block">
-                  <CardHeader>
-                    <div className="w-full h-48 bg-secondary/30 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/50 transition-colors">
-                      <img
-                        src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
-                        className="h-full w-full text-primary" />
-                    </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <CardTitle className="text-lg">{product.name}</CardTitle>
-                      <div className="flex items-center space-x-1">
 
-                        {/* <span className="text-sm font-light p-1 bg-green-300 rounded-lg">{product.category}</span> */}
-                      </div>
-                    </div>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      {product.description}
+          {filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+              {/* <img
+                src="/no-products.svg" // optional illustration if you want
+                alt="No products"
+                className="w-40 h-40 mb-4 opacity-70"
+              /> */}
+              <h2 className="text-xl font-semibold text-gray-700">
+                No Products Available
+              </h2>
+              <p className="text-sm text-gray-500 mt-2">
+                Try adjusting your filters or check back later.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.map((product) => (
+                <Card
+                  key={product.product_id}
+                  onClick={() => handleClick(product)}
+                  className="group hover:shadow-xl transition-all duration-300 hover:scale-105 border rounded-2xl overflow-hidden cursor-pointer"
+                >
+                  {/* Product Image */}
+                  <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                    <img
+                      src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
+                      alt={product.name}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg font-semibold line-clamp-1 text-gray-800">
+                      {product.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-500 line-clamp-2">
+                      {product.description || "No description available"}
                     </CardDescription>
-                    <div className="text-xs text-muted-foreground mt-2">
-                      <div className="flex items-center space-x-1">
-                        {product.average_rating != null ? (
-                          <>
-                            <Star size={20} className="text-yellow-500" />
-                            <span className="text-sm font-medium">{product.average_rating}</span>
-                          </>
-                        ) : (
-                          <span className="text-sm font-medium">New Product</span>
-                        )}
-                      </div>
+                  </CardHeader>
+
+                  <CardContent className="px-4 pb-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-[#26B170]">
+                        Rs {Number(product.price).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-500">
+
+
+                      {product.average_rating != null ? (
+                        <>
+                          <Star size={20} className="text-yellow-500" />
+                          <span className="text-sm font-medium">{product.average_rating}</span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-medium">New Product</span>
+                      )}
+
+
+
+
 
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-2xl font-bold text-primary">
-                        Rs {product.price.toLocaleString()}
-                      </div>
-                    </div>
+
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
-                      className="w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
+                      className="w-full bg-[#26B170] hover:bg-[#21965F] text-white font-medium rounded-xl mt-2"
                     >
                       Add to Cart
                     </Button>
                   </CardContent>
-                </div>
+                </Card>
+              ))}
+            </div>
+          )}
 
-                {/* Mobile view */}
-                <div className="flex md:hidden p-4 items-start gap-4 border-b">
-
-                  <img
-
-                    src={`http://localhost/Git/Project1/Backend/${product.images.split(',')[0]}`}
-                    alt={product.name}
-                    className="w-24 h-24 object-cover rounded-md border"
-                  />
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-base font-semibold line-clamp-1">{product.name}</h3>
-                      <div className="flex gap-2 items-center mt-1">
-                        <span className="text-xs   font-medium px-2 py-0.5 rounded">
-                          {/* <span className="text-xs bg-yellow-100 text-yellow-700 font-medium px-2 py-0.5 rounded"></span> */}
-                          {product.description}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                        Colombo, Mobile Accessories
-                      </p>
-                      <p className="text-lg font-bold  mt-1">
-                        Rs {product.price.toLocaleString()}
-                      </p>
-                    </div>
-                    <span className="text-xs text-gray-400 text-right mt-2">just now</span>
-                  </div>
-                </div>
-
-              </Card>
-            ))}
-
-          </div>
 
 
         </div>
       </div>
       {/* Product Modal */}
       {isModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center overflow-y-auto px-2 py-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl h-[90vh] overflow-hidden relative">
-
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-2 py-4"
+          onClick={closeModal} // Close when clicking the overlay
+        >
+          <div
+            className="bg-white rounded-xl shadow-lg w-full max-w-4xl h-[70vh] relative flex"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+          >
             {/* Close Button */}
             <button
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground text-lg"
               onClick={closeModal}
             >
               ✕
             </button>
 
-            {/* Scrollable Content */}
-            <div className="flex flex-col md:flex-row h-full overflow-y-auto">
-
-              {/* Image Section */}
-              <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-4 border-r">
+            {/* Left Section (Image + Details) */}
+            <div className="w-2/3 p-6 flex flex-col gap-4 overflow-y-auto border-r">
+              {/* Product Image */}
+              <div className="w-full flex items-center justify-center bg-gray-50 p-4 rounded-lg">
                 <img
-                  
                   alt={selectedProduct.name}
-                  // src="../one.jpeg"
                   src={`http://localhost/Git/Project1/Backend/${selectedProduct.images.split(',')[0]}`}
-                  className="w-full max-w-xs h-auto object-contain rounded-lg"
+                  className="w-full max-w-sm h-auto object-contain rounded-md"
                 />
               </div>
 
-              {/* Info Section */}
-              <div className="w-full md:w-1/2 p-6 space-y-4 overflow-y-auto">
+              {/* Product Info */}
+              <div className="space-y-3">
                 <h2 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h2>
-                <Badge variant="default" className="mt-1 bg-blue-300">
-                  {/* {service.category} */}
-                  <p className="text-sm text-muted-foreground">{selectedProduct.category} </p>
+
+                <Badge variant="default" className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                  {selectedProduct.category || "Uncategorized"}
                 </Badge>
-          
-                <div className="text-gray-600 text-sm">
+
+                <div className="text-sm text-gray-600">
                   <strong>Provider:</strong> {selectedProduct.provider_name}
                 </div>
 
-                <p className="text-sm text-gray-700">{selectedProduct.description}</p>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {selectedProduct.description || "No description available"}
+                </p>
 
-                <div className="text-sm">
-                  <strong>Specifications:</strong>
-                  <p className="mt-1 text-gray-600">{selectedProduct.specifications}</p>
+                {selectedProduct.specifications && (
+                  <div className="text-sm">
+                    <strong>Specifications:</strong>
+                    <p className="mt-1 text-gray-600">{selectedProduct.specifications}</p>
+                  </div>
+                )}
+
+                <div className="text-xl font-semibold text-green-600">
+                  Rs {Number(selectedProduct.price).toLocaleString()}
                 </div>
 
-                <div className="text-lg font-semibold text-green-600">
-                  Rs {selectedProduct.price.toLocaleString()}
-                </div>
                 {/* Actions */}
-                <div className="pt-4 border-t flex justify-between items-center">
-                 
+                <div className="pt-4 border-t">
                   <Button
                     onClick={() => handleAddToCart(selectedProduct)}
-                    className="bg-[#26B170] hover:bg-[#21965F] text-white"
+                    className="bg-[#26B170] hover:bg-[#21965F] text-white w-full rounded-lg"
                   >
                     Add to Cart
                   </Button>
                 </div>
+              </div>
+            </div>
 
-                {/* Reviews Section */}
-                <div className="pt-4 border-t">
-                  <h3 className="text-md font-bold text-gray-800 mb-2">Reviews</h3>
+            {/* Right Section (Reviews) */}
+            <div className="w-1/3 p-6 flex flex-col">
+              <h3 className="text-lg font-bold text-gray-800 mb-3">Customer Reviews</h3>
 
-                  <ul className="space-y-2 text-sm text-gray-600 max-h-32 overflow-y-auto pr-1">
-                    {selectedProduct.reviews && selectedProduct.reviews.length > 0 ? (
-                      selectedProduct.reviews.map((review, index) => (
-                        <li key={index}>
-                          {"⭐".repeat(Math.floor(review.rating))}{"☆".repeat(5 - Math.floor(review.rating))} - “{review.comment}” – <i>{review.reviewer_name}</i>
-                        </li>
-                      ))
-                    ) : (
-                      <li>No reviews yet.</li>
-                    )}
-                  </ul>
-                </div>
-
-               
-
-
+              <div className="flex-1 overflow-y-auto pr-2">
+                <ul className="space-y-3 text-sm text-gray-600">
+                  {selectedProduct.reviews && selectedProduct.reviews.length > 0 ? (
+                    selectedProduct.reviews.map((review, index) => (
+                      <li
+                        key={index}
+                        className="bg-gray-50 p-3 rounded-lg shadow-sm border"
+                      >
+                        <div className="flex items-center mb-1">
+                          <span className="text-yellow-500">
+                            {"⭐".repeat(Math.floor(review.rating))}
+                            {"☆".repeat(5 - Math.floor(review.rating))}
+                          </span>
+                        </div>
+                        <p className="italic">“{review.comment}”</p>
+                        <p className="text-xs text-gray-500 mt-1">– {review.reviewer_name}</p>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">No reviews yet.</li>
+                  )}
+                </ul>
               </div>
             </div>
           </div>
         </div>
       )}
+
+
+
 
 
       <Footer />

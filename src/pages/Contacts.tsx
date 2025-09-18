@@ -13,10 +13,10 @@ import axios from "axios";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    full_name: "",
     email: "",
     subject: "",
-    category: "",
+    // category: "",
     message: ""
   });
   const { toast } = useToast();
@@ -29,22 +29,22 @@ const Contact = () => {
       const res = await axios.post("http://localhost/Git/Project1/Backend/ContactUsCustomer.php", formData, { withCredentials: true });
 
       if (res.data.success) {
-        console.log("messge send successful ");
+        // console.log("messge send successful ");
         toast({
           title: "Message Sent!",
           description: "Thank you for contacting us. We'll get back to you within 24 hours.",
         });
 
-        console.log(res.data);
+        // console.log(res.data);
       }
       else {
-        console.log(res.data);
+        // console.log(res.data);
         toast({
-          title: "Message Sent!",
-          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+          title: "Message Sent failed!",
+          description: "Try again, please try later.",
           variant: "destructive",
         });
-        console.log(" error in send message"); // show error message from PHP
+        // console.log(" error in send message"); // show error message from PHP
 
       }
     } catch (err) {
@@ -53,7 +53,7 @@ const Contact = () => {
 
     }
 
-    setFormData({ name: "", email: "", subject: "", category: "", message: "" });
+    setFormData({ full_name: "", email: "", subject: "", message: "" });
   };
 
   const contactInfo = [
@@ -87,15 +87,6 @@ const Contact = () => {
     }
   ];
 
-
-  const categories = [
-    "General Inquiry",
-    "Product Support",
-    "Service Request",
-    "Partnership",
-    "Technical Issue",
-    "Billing Question"
-  ];
 
   return (
     <div className="min-h-screen">
@@ -140,7 +131,7 @@ const Contact = () => {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="border-0 glass-effect">
+              {/* <Card className="border-0 glass-effect">
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
@@ -158,7 +149,7 @@ const Contact = () => {
                     Find Local Agent
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             {/* Contact Form */}
@@ -174,15 +165,20 @@ const Contact = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label htmlFor="name" className="text-sm font-medium text-foreground">
+                        <label htmlFor="full_name" className="text-sm font-medium text-foreground">
                           Full Name *
                         </label>
                         <Input
-                          id="name"
-                          placeholder="John Doe"
-                          value={formData.name}
-                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          type="text"
+                          name="full_name"
+                          placeholder="John Wick"
                           required
+                          minLength={2}
+                          value={formData.full_name}
+                          onChange={e => setFormData({ ...formData, full_name: e.target.value })}
+                          pattern="^[A-Za-z., ]+$"
+                          title="Name can only contain letters, spaces, commas, and periods."
+                          className="w-full p-2 border rounded"
                         />
                       </div>
                       <div className="space-y-2">
@@ -192,16 +188,19 @@ const Contact = () => {
                         <Input
                           id="email"
                           type="email"
+                          name="email"
                           placeholder="john@example.com"
-                          value={formData.email}
-                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                           required
+                          value={formData.email}
+                          onChange={e => setFormData({ ...formData, email: e.target.value })}
+                          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$"
+                          title="Please enter a valid email address (e.g. john@example.com)"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      {/* <div className="space-y-2">
                         <label htmlFor="category" className="text-sm font-medium text-foreground">
                           Category *
                         </label>
@@ -219,17 +218,19 @@ const Contact = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
+                      </div> */}
                       <div className="space-y-2">
                         <label htmlFor="subject" className="text-sm font-medium text-foreground">
                           Subject *
                         </label>
                         <Input
                           id="subject"
+                          name="subject"
                           placeholder="How can we help you?"
-                          value={formData.subject}
-                          onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
                           required
+                          minLength={3}
+                          value={formData.subject}
+                          onChange={e => setFormData({ ...formData, subject: e.target.value })}
                         />
                       </div>
                     </div>
@@ -240,11 +241,13 @@ const Contact = () => {
                       </label>
                       <Textarea
                         id="message"
+                        name="message"
                         placeholder="Please describe your inquiry in detail..."
                         rows={6}
-                        value={formData.message}
-                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                         required
+                        minLength={10}
+                        value={formData.message}
+                        onChange={e => setFormData({ ...formData, message: e.target.value })}
                         className="focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                       />
 
@@ -264,7 +267,7 @@ const Contact = () => {
               </Card>
 
               {/* FAQ Section */}
-              <Card className="mt-8 border-0 glass-effect">
+              {/* <Card className="mt-8 border-0 glass-effect">
                 <CardHeader>
                   <CardTitle>Frequently Asked Questions</CardTitle>
                 </CardHeader>
@@ -284,7 +287,7 @@ const Contact = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
           </div>
         </div>

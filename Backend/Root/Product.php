@@ -23,7 +23,7 @@ class Product
         $this->conn = $dbObj->connect();
     }
 
-    public function getAllProductsCustomer()
+    public function getAllProductsCustomer1()
     {
         try {
             $is_approved = 1;
@@ -95,6 +95,94 @@ class Product
             ];
         }
     }
+    public function getAllProductsCustomer()
+{
+    try {
+        $is_approved = 1;
+        $is_delete = 0;
+        $is_blocked = 0; // ✅ ensure provider's user account is active
+
+        // ✅ Fetch only approved + not deleted products
+        // ✅ Ensure provider user is active (is_blocked = 0)
+        $sql = "SELECT p.*, 
+                       sp.company_name, 
+                       sp.profile_image,
+                       u.username AS provider_name
+                FROM product p
+                JOIN service_provider sp ON p.provider_id = sp.provider_id
+                JOIN user u ON sp.user_id = u.user_id
+                WHERE p.is_approved = :is_approved 
+                  AND p.is_delete = :is_delete
+                  AND u.is_blocked = :is_blocked"; 
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+        $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
+        $stmt->bindParam(':is_blocked', $is_blocked, PDO::PARAM_INT);
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($products) {
+            foreach ($products as &$product) {
+                $product_id = $product['product_id'];
+
+                // ✅ Fetch only approved reviews + reviewers not blocked
+                $reviewSql = "SELECT 
+                                r.review_id,
+                                r.customer_id,
+                                r.rating,
+                                r.comment,
+                                r.created_at,
+                                u.username AS reviewer_name
+                              FROM review r
+                              JOIN user u ON r.customer_id = u.user_id
+                              WHERE r.product_id = :product_id
+                                AND r.is_approved = 1
+                                AND u.is_blocked = 0
+                              ORDER BY r.created_at DESC";
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // ✅ Average rating only from approved reviews + active users
+                $avgRatingSql = "SELECT ROUND(AVG(r.rating), 1) AS average_rating
+                                 FROM review r
+                                 JOIN user u ON r.customer_id = u.user_id
+                                 WHERE r.product_id = :product_id
+                                   AND r.is_approved = 1
+                                   AND u.is_blocked = 0";
+                $avgStmt = $this->conn->prepare($avgRatingSql);
+                $avgStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                $avgStmt->execute();
+                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+                // Attach extra info
+                $product['reviews'] = $reviews;
+                $product['average_rating'] = $avgRating['average_rating'] ?? null;
+                $product['total_reviews'] = count($reviews);
+            }
+
+            return [
+                'success' => true,
+                'products' => $products,
+                'message' => 'Products with reviews fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No products found.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch products. ' . $e->getMessage()
+        ];
+    }
+}
+
 
     public function getAllProductsAdmin()
     {

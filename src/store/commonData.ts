@@ -122,3 +122,10 @@ export const districts = [
   { value: "Kegalle", key: "Kegalle" },
 ];
 
+
+  export const productCategorys = [
+  {value: "all", key: "All"},
+  { value: "solar", key: "solar" },
+  { value: "Part Time", key: "Part Time" },
+  { value: "Internship", key: "Internship" },
+];

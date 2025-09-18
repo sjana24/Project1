@@ -25,3 +25,28 @@ export interface IJob {
 
 
 }
+
+export interface IProduct {
+  product_id: number;
+  provider_id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  specifications: string;
+  average_rating: number;
+  /// rating add pannale
+  images: string; // this is a JSON string (array in string)
+  is_approved: number;
+  created_at: string;
+  updated_at: string;
+  success?: boolean;
+  provider_name:string;
+}
+
+export interface IUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}

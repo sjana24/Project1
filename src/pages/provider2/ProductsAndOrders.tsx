@@ -233,29 +233,29 @@ export default function Products() {
 
       let res;
       console.log("Form Data:", formDataToSend);
-      // if (formData.product_id) {
-      //   formDataToSend.append("product_id", String(formData.product_id));
-      //   res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
-      //     withCredentials: true,
-      //     headers: { "Content-Type": "multipart/form-data" }
-      //   });
-      //   if (res.data.success) {
-      //     toast({ title: "Updated", description: "Product updated successfully" });
-      //   }
-      // } else {
-      //   res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
-      //     withCredentials: true,
-      //     headers: { "Content-Type": "multipart/form-data" }
-      //   });
-      //   if (res.data.success) {
-      //     toast({ title: "Added", description: "Product added successfully" });
-      //   }
-      // }
-      // fetchProducts();
-      // setIsDialogOpen(false);
-      // setFormData({ name: '', description: '', price: 0, category: '', specifications: '' });
-      // setImageFile(null);
-      // setImagePreview(null);
+      if (formData.product_id) {
+        formDataToSend.append("product_id", String(formData.product_id));
+        res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (res.data.success) {
+          toast({ title: "Updated", description: "Product updated successfully" });
+        }
+      } else {
+        res = await axios.post("http://localhost/Git/Project1/Backend/editProductProvider.php", formDataToSend, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (res.data.success) {
+          toast({ title: "Added", description: "Product added successfully" });
+        }
+      }
+      fetchProducts();
+      setIsDialogOpen(false);
+      setFormData({ name: '', description: '', price: 0, category: '', specifications: '' });
+      setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
     }
