@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 require_once './Root/Customer.php';
 $data = json_decode(file_get_contents("php://input"), true); // For JSON input
 
-$name = htmlspecialchars(strip_tags(trim($data['name'] ?? '')));
+$name = htmlspecialchars(strip_tags(trim($data['full_name'] ?? '')));
 $email = htmlspecialchars(strip_tags(trim($data['email'] ?? '')));
 $contact_no = htmlspecialchars(strip_tags(trim($data['contact_no'] ?? '')));
 $password = htmlspecialchars(strip_tags(trim($data['password'] ?? '')));
@@ -46,7 +46,7 @@ else{
 }
 
 if ($responce['success']) {
-    http_response_code(200);
+    // http_response_code(200);
     
     echo json_encode($responce);
     

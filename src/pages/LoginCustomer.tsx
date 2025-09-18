@@ -78,15 +78,29 @@ const Login = () => {
         otp,
       });
       if (res.data.success) {
-        console.log("✅ OTP verified, now register user...");
-        toast({
-          title: "Account created ",
-          description: "Account created successfully",
-          // variant:"destructive"
-        });
-        setShowOtpModal(false);
-        navigate('/');
+        const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
+        //     const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", {
+        //   email: registerData.email,
+        //   otp,
+        // });
+        if (res.data.success) {
+          console.log("✅ OTP verified, now register user...");
+          toast({
+            title: "Account created ",
+            description: "Account created successfully",
+            // variant:"destructive"
+          });
 
+          navigate('/');
+        } else {
+          toast({
+            title: "Account created failed ",
+            description: "Something went wrong",
+            variant: "destructive"
+          });
+        }
+
+        setShowOtpModal(false);
 
 
       } else {
@@ -112,7 +126,7 @@ const Login = () => {
           title: "Varification code !",
           description: "Varification code send successfully",
         });
-          setShowOtpModal(true);
+        setShowOtpModal(true);
 
       }
       else {
