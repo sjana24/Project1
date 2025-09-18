@@ -1,12 +1,12 @@
 
 import { Link } from "react-router-dom";
-import { Mail,Phone ,Sun} from "lucide-react";
+import { Mail, Phone, Sun } from "lucide-react";
 
 
 const Footer = () => {
 
-  const mobile_number="+1 (555) 123-4567";
-  const email="contact@solax.com";
+  const mobile_number = "+1 (555) 123-4567";
+  const email = "contact@solax.com";
   return (
     <footer className="bg-[#b2d8d8] border-t">
       <div className="container mx-auto px-4 py-12">
@@ -14,24 +14,29 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-             
+
               <span className="font-bold text-xl text-foreground">SolaX</span>
             </div>
             <p className="text-muted-foreground mb-4">
-              Leading the solar energy revolution with trusted products, expert services, 
+              Leading the solar energy revolution with trusted products, expert services,
               and innovative solutions for a sustainable future.
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>{email}</span>
+                <a href={`mailto:${email}`}>
+                  <span>{email}</span>
+                </a>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>{mobile_number}</span>
+                <a href={`tel:${mobile_number}`}>
+                  <span>{mobile_number}</span>
+                </a>
               </div>
             </div>
           </div>
+          
 
           {/* Quick Links */}
           <div>
@@ -56,7 +61,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Support</h3>
             <div className="space-y-2">
-              <Link to="/forum" className="block text-muted-foreground hover:text-green-700 transition-colors">
+              <Link to="/contacts" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Q&A Forum
               </Link>
               <Link to="/contacts" className="block text-muted-foreground hover:text-green-700 transition-colors">
@@ -65,7 +70,7 @@ const Footer = () => {
               <Link to="/jobs" className="block text-muted-foreground hover:text-green-700 transition-colors">
                 Careers
               </Link>
-             
+
             </div>
           </div>
         </div>
