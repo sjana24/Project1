@@ -74,8 +74,8 @@ const Products = () => {
         }
         else {
           toast({
-            title: "Fetch job",
-            description: "Fetch jobs failed.",
+            title: "Fetch Data",
+            description: "Fetch datas failed.",
             variant: "destructive",
           });
         }

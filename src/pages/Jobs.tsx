@@ -70,9 +70,9 @@ const Jobs = () => {
           setJobs(data.jobs);
         }
         else {
-          toast({
-            title: "Fetch job",
-            description: "Fetch jobs failed.",
+         toast({
+            title: "Fetch Data",
+            description: "Fetch datas failed.",
             variant: "destructive",
           });
 
