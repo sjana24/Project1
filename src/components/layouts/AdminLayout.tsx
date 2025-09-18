@@ -20,7 +20,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
 
 const navigation = [
@@ -30,11 +31,13 @@ const navigation = [
   { name: 'Products', href: '/admin/product', icon: Package },
   { name: 'Services', href: '/admin/service', icon: ShoppingCart },
   { name: 'Orders', href: '/admin/order', icon: ShoppingCart },
-  // { name: 'Reviews', href: '/admin/reviews', icon: Star },
-  // { name: 'Jobs', href: '/admin/jobs', icon: Briefcase },
-  // { name: 'Blogs', href: '/admin/blogs', icon: FileText },
-  // { name: 'Notifications', href: '/admin/notifications', icon: Bell },
-  // { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Jobs', href: '/admin/jobs', icon: Briefcase },
+  { name: 'Blogs', href: '/admin/blogs', icon: FileText },
+  { name: 'Reviews', href: '/admin/reviews', icon: Star },
+  { name: 'Notifications', href: '/admin/notifications', icon: Bell },
+  { name: 'Q & A', href: '/admin/questions', icon: MessageSquare },
+  { name: 'Transaction', href: '/admin/transactions', icon: Settings },
+
 ];
 
 interface AdminLayoutProps {
