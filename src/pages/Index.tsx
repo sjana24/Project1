@@ -51,7 +51,7 @@ const Index = () => {
       icon: Users,
       title: "Certified Agents",
       description: "Connect with experienced solar energy professionals in your area.",
-      link: "/agents"
+      link: "/services"
     },
     {
       icon: BookOpen,

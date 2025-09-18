@@ -52,6 +52,13 @@ import ProductPage from "./pages/admin/productPage";
 import ServicesPage1 from "./pages/admin/ServicePage1";
 import JobsPage from "./pages/admin/JobOpenings";
 import ProductStuffs from "./pages/provider2/ProductStuffs";
+import BlogPage from "./pages/admin/Blogs";
+import ReviewPage from "./pages/admin/Review";
+import QAPage from "./pages/admin/Question_forum";
+import TransactionPage from "./pages/admin/Transaction";
+import NotificationPage from "./pages/admin/Notification";
+
+
 
 const queryClient = new QueryClient();
 
@@ -114,6 +121,11 @@ const App = () => (
                       <Route path="provider" element={<ProviderPage />} />
                       <Route path="products" element={<ProductPage />} />
                       <Route path="jobs" element={<JobsPage />} />
+                      <Route path="blogs" element={<BlogPage />} />
+                      <Route path="reviews" element={<ReviewPage />} />
+                      <Route path="questions" element={<QAPage />} />
+                      <Route path="transactions" element={<TransactionPage />} />
+                      <Route path="notifications" element={<NotificationPage />} /> 
 
 
                       <Route path="" element={<Navigate to="dashboard" replace />} />
