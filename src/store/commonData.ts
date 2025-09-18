@@ -122,3 +122,65 @@ export const districts = [
   { value: "Kegalle", key: "Kegalle" },
 ];
 
+
+  export const productCategorys = [
+  {value: "all", key: "All"},
+  { value: "solar", key: "solar" },
+  { value: "Part Time", key: "Part Time" },
+  { value: "Internship", key: "Internship" },
+];
+
+ export const serviceCategorys = [
+  {value: "all", key: "All"},
+  { value: "maintenance", key: "maintenance" },
+  { value: "Part Time", key: "Part Time" },
+  { value: "Internship", key: "Internship" },
+];
+
+
+export interface IService {
+  service_id: number;
+  provider_id: number;
+  provider_name: string;
+  company_name: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  average_rating: number;
+  // specifications: string;
+  /// rating add pannale
+  rating: number;
+  company_image: string;
+  images: string; // this is a JSON string (array in string)
+  is_approved: number;
+  created_at: string;
+  updated_at: string;
+  reviews: string[];
+  // success?: boolean;
+}
+
+export interface ISelectedServices {
+  address: string;
+  battery: string;
+  capacity: string;
+  city: string;
+  email: string;
+  fullName: string;
+  locationLink: string;
+  newAddress: string;
+  oldAddress: string;
+  phone: string;
+  preferredDate: string;
+  preferredTime: string;
+  problem: string;
+  province: string;
+  roofHeight: string;
+  roofHeightCurrent: string;
+  roofHeightNew: string;
+  roofSize: string;
+  roofType: string;
+  profile_image: string;
+  serviceType: "installation" | "relocate" | "maintainance";
+  zip: string;
+}

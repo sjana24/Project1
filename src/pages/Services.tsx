@@ -9,64 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 import { useToast } from "@/hooks/use-toast";
-import { X, Star } from "lucide-react";
+import {Star } from "lucide-react";
 import axios from "axios";
 import ServiceRequestModal from "@/components/ui/ServiceRequestModel";
 import { useAuth } from "@/contexts/AuthContext";
+import { ISelectedServices, IService, serviceCategorys } from "@/store/commonData";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
   name: string;
   email: string;
   role: string;
-}
-interface Service {
-  service_id: number;
-  provider_id: number;
-  provider_name: string;
-  company_name: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  average_rating: number;
-  // specifications: string;
-  /// rating add pannale
-  rating: number;
-  company_image: string;
-  images: string; // this is a JSON string (array in string)
-  is_approved: number;
-  created_at: string;
-  updated_at: string;
-  reviews: string[];
-  // success?: boolean;
-
-
-
-}
-interface SelectedServices {
-  address: string;
-  battery: string;
-  capacity: string;
-  city: string;
-  email: string;
-  fullName: string;
-  locationLink: string;
-  newAddress: string;
-  oldAddress: string;
-  phone: string;
-  preferredDate: string;
-  preferredTime: string;
-  problem: string;
-  province: string;
-  roofHeight: string;
-  roofHeightCurrent: string;
-  roofHeightNew: string;
-  roofSize: string;
-  roofType: string;
-  profile_image: string;
-  serviceType: "installation" | "relocate" | "maintainance";
-  zip: string;
 }
 interface formData {
   message: string;
@@ -79,17 +33,21 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const { toast } = useToast();
+   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeService, setTypeservice] = useState("");
   // const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [currentUser, setCurrentUser] = useState<User | null>(() => null);
-  const [services, setServices] = useState<Service[]>([]);
-  const [servicesA, setServicesA] = useState<Service[]>([]);
-  const [selectedServices, setSelectedServices] = useState<SelectedServices[]>([]);
+  const [services, setServices] = useState<IService[]>([]);
+  const [servicesA, setServicesA] = useState<IService[]>([]);
+  // const [selectedServices, setSelectedServices] = useState<ISelectedServices[]>([]);
   const [loading, setLoading] = useState(true);/// itha check pannum ellathukum podananu
-  const [selectedFormData, setSelectedFormData] = useState<formData[]>([]);
-  const [selectedServiceReviews, setSelectedServiceReviews] = useState([]);
-  const [selectedServiceName, setSelectedServiceName] = useState('');
+  // const [selectedFormData, setSelectedFormData] = useState<formData[]>([]);
+  // const [selectedServiceReviews, setSelectedServiceReviews] = useState([]);
+  // const [selectedServiceName, setSelectedServiceName] = useState('');
+  const [selectedService, setSelectedService] = useState(null);
+
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
 
   const { checkSession } = useAuth();
@@ -103,101 +61,6 @@ const Services = () => {
   }, []);
 
 
-
-  // const services1 = [
-  //   {
-  //     id: 1,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     img: "one.jpeg",
-  //     email: "contact@solartechpro.com"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     img: "one.jpeg",
-  //     email: "contact@solartechpro.com"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     img: "one.jpeg",
-  //     email: "contact@solartechpro.com"
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     img: "one.jpeg",
-  //     email: "contact@solartechpro.com"
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     img: "one.jpeg",
-  //     email: "contact@solartechpro.com"
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Solar Panel Installation",
-  //     provider: "SolarTech Pro",
-  //     description: "Professional residential and commercial solar panel installation with warranty",
-  //     price: 100,
-  //     priceUnit: "per panel",
-  //     rating: 4.9,
-  //     image: "/placeholder.svg",
-  //     category: "installation",
-  //     features: ["Free consultation", "25-year warranty", "Same-day installation"],
-  //     phone: "+1 (555) 123-4567",
-  //     email: "contact@solartechpro.com",
-  //     img: "one.jpeg",
-  //   },
-
-  // ]
-
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServicesCustomer.php")
       .then(response => {
@@ -208,9 +71,11 @@ const Services = () => {
           setServices(data.services);
         }
         else {
-          // setError('Failed to load products.');
-          console.log(response.data);
-          console.log(" sorry we cant get ur products");
+        toast({
+            title: "Fetch Data",
+            description: "Fetch datas failed.",
+            variant: "destructive",
+          });
         }
         setLoading(false);
       })
@@ -230,38 +95,39 @@ const Services = () => {
 
   const filteredServices = services
     .filter(service =>
-
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (categoryFilter === "all" || service.category === categoryFilter) &&
+      (service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           service.provider_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase()))
     )
-
-
     .sort((a, b) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
-        // case "rating":
-        // return b.rating - a.rating;
-        // case "provider":
-        // return a.provider.localeCompare(b.provider);
+        case "rating":
+          return b.rating - a.rating;
+        case "name":
+        return a.name.localeCompare(b.name);
         default:
           return a.name.localeCompare(b.name);
       }
     });
+     
 
   const handleServiceClick = async (service: any) => {
 
-
-    if (!currentUser) {
+  if (!currentUser) {
       toast({
         title: "Please log in",
-        description: "You must be logged in to add items to your cart.",
+        description: "You must be logged in to send request.",
         variant: "destructive", // optional styling
 
       });
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+      return;
     }
     else {
       // const response=await axios.post("http://localhost/Git/Project1/Backend/RequestServiceCustomer.php");
@@ -272,16 +138,16 @@ const Services = () => {
     }
 
   }
-  const handleViewReviews = async (serviceId: number, service: any) => {
-    try {
-      // const response = await fetch(`http://localhost/Git/Project1/Backend/get_reviews.php?service_id=${serviceId}`);
-      // const data = await response.json();
-      setSelectedServiceReviews(service.reviews); // assuming backend sends { reviews: [] }
-      setSelectedServiceName(service.name); // assuming service has a name property
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    }
-  };
+  // const handleViewReviews = async (serviceId: number, service: any) => {
+  //   try {
+  //     // const response = await fetch(`http://localhost/Git/Project1/Backend/get_reviews.php?service_id=${serviceId}`);
+  //     // const data = await response.json();
+  //     setSelectedServiceReviews(service.reviews); // assuming backend sends { reviews: [] }
+  //     setSelectedServiceName(service.name); // assuming service has a name property
+  //   } catch (error) {
+  //     console.error("Error fetching reviews:", error);
+  //   }
+  // };
 
   // const closeModel = () => {
   //   setIsModalOpen(false);
@@ -289,20 +155,20 @@ const Services = () => {
   // };
   const handleSendRequestContact = async (service: any) => {
 
-    if (!currentUser) {
+      if (!currentUser) {
       toast({
         title: "Please log in",
-        description: "You must be logged in to add items to your cart.",
+        description: "You must be logged in to send request.",
         variant: "destructive", // optional styling
 
       });
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+      return;
     }
     else {
-      // console.log(FormData);
       const response = await axios.post("http://localhost/Git/Project1/Backend/RequestContactCustomer.php", service, { withCredentials: true })
 
       if (response.data.success) {
-        console.log("Request sent successful");
         toast({
           title: "Request sent!",
           description: ` request sended to ${service.name}.`,
@@ -311,20 +177,15 @@ const Services = () => {
 
 
       } else {
-        console.log(response.data);
         toast({
-          title: "Request already sent",
-          description: "Try another service provider",
+          title: "Request sent failed!",
+          description: `"Try another service provider",${response.data.message}`,
           variant: "destructive",
         });
-        // toast({
-        //   title: "Request sent!",
-        //   description: ` request sended to ${service.product_id}.`,
-        //   // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
-        // });
+       
       }
     }
-    // setIsModalOpen(false);
+
   }
   const sendRequestToDb = async (formData: any) => {
     //  console.log(formData.message);
@@ -404,149 +265,28 @@ const Services = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="name">Service Name</SelectItem>
-                <SelectItem value="provider">Provider</SelectItem>
+                {/* <SelectItem value="provider">Provider</SelectItem> */}
                 <SelectItem value="price-low">Price: Low to High</SelectItem>
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
                 <SelectItem value="rating">Highest Rated</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder="Job Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceCategorys.map((category) => (
+                  <SelectItem key={category.key} value={category.value}>
+                    {category.value === "all" ? "All Categories" : category.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
           {/* Services Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filteredServices.map((service) => (
-              <Card key={service.service_id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-0 glass-effect relative shadow overflow-hidden">
-
-                <div className="absolute inset-0 bg-cover bg-center opacity-40"
-                  style={{
-                    backgroundImage: `url("http://localhost/Git/Project1/Backend/${service.company_image}")`,
-                  }}
-                ></div>
-                <div className="relative ">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                          {/*  */}
-                          <img
-                            src={`http://localhost/Git/Project1/Backend/${service.company_image}`}
-                            alt={service.company_image} className="h-full rounded-lg w-full text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-xl">{service.company_name}</CardTitle>
-                          <p className="text-sm text-muted-foreground font-medium">{service.provider_name}</p>
-                          <div className="">
-                            <Badge variant="default" className="mt-1 bg-blue-300">
-                              {service.category}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        {/* <Star size={20} className="text-yellow-500" />
-                      <span className="text-sm font-medium">
-                        {service.average_rating}
-                        </span>
-                      {/* </Star> */}
-
-                        {service.average_rating != null ? (
-                          <>
-                            <Star size={20} className="text-yellow-500" />
-                            <span className="text-sm font-medium">{service.average_rating}</span>
-                          </>
-                        ) : (
-                          <span className="text-sm font-medium">New Service</span>
-                        )}
-                      </div>
-                    </div>
-                    <CardDescription className="text-muted-foreground mb-4">
-                      {service.description}
-                    </CardDescription>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {/* 123456789 */}
-                      {/* {service.features.map((feature, index) => (
-                      <h1 key={index} className="text-xs">
-                        {feature}
-                      </h1>
-                    ))} */}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-2xl font-bold text-primary">
-                            {service.price === 0 ? "Free" : `Rs ${service.price}`}
-                          </div>
-                          <div className="text-sm text-muted-foreground">{service.price}</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Phone className="h-4 w-4" />
-                        <span>{service.phone}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Mail className="h-4 w-4" />
-                        <span>{service.email}</span>
-                      </div> */}
-                      </div>
-
-                      <div className="  flex flex-col sm:flex-row gap-6 justify-center">
-
-                        <Button size="lg"
-                          className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
-                          onClick={() => handleServiceClick(service)}
-
-                        >
-                          Request Service
-                        </Button>
-
-                        <Button size="lg"
-                          className="  w-full bg-[#26B170] hover:bg-[#21965F] text-white group-hover:scale-105 transition-transform"
-                          onClick={() => handleSendRequestContact(service)}
-                        >
-
-                          Request for Contact
-                        </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className="text-sm text-blue-600 hover:text-blue-800"
-                              onClick={() => handleViewReviews(service.service_id, service)}
-                            >
-                              View Reviews
-                            </Button>
-                          </DialogTrigger>
-
-                          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Reviews for {selectedServiceName}</DialogTitle>
-                            </DialogHeader>
-
-                            {selectedServiceReviews.length > 0 ? (
-                              selectedServiceReviews.map((review, index) => (
-                                <div key={index} className="border-b py-3">
-                                  <p className="text-sm text-muted-foreground">Rating: ⭐ {review.rating}</p>
-                                  <p className="text-base">{review.comment}</p>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-muted-foreground">No reviews available.</p>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-
-
-                      </div>
-                    </div>
-                  </CardContent>
-                </div>
-                {/* </div> */}
-              </Card>
-            ))}
-          </div>
+          
 
           {/* No Results */}
           {filteredServices.length === 0 && (
@@ -557,6 +297,141 @@ const Services = () => {
             </div>
           )}
         </div>
+
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredServices.map((service) => (
+          <Card
+            key={service.service_id}
+            className="relative group hover:shadow-xl hover:scale-105 transition-all duration-300 rounded-2xl overflow-hidden bg-white/90 backdrop-blur-md border border-gray-200"
+          >
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity"
+              // style={{
+              //   backgroundImage: `url("http://localhost/Git/Project1/Backend/${service.company_image}")`,
+              // }}
+            ></div>
+
+            <div className="relative z-10">
+              <CardHeader className="p-5">
+                <div className="flex items-center gap-4 mb-3">
+                  <img
+                    src={`http://localhost/Git/Project1/Backend/${service.company_image}`}
+                    alt={service.company_name}
+                    className="w-14 h-14 rounded-xl object-cover border shadow"
+                  />
+                  <div>
+                    <CardTitle className="text-xl font-semibold">{service.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{service.company_name}</p>
+                  </div>
+                </div>
+
+                <CardDescription className="line-clamp-2 text-sm text-gray-600">
+                  {service.description}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="px-5 pb-5 space-y-3">
+                {/* Price + Category */}
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-[#26B170]">
+                    {service.price === 0.00 ? "Free" : `Rs ${Number(service.price).toLocaleString()}`}
+                  </span>
+                  <Badge variant="secondary" className="capitalize">
+                    {service.category}
+                  </Badge>
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center text-sm text-gray-600">
+                  {service.average_rating ? (
+                    <>
+                      <Star size={18} className="text-yellow-500 mr-1" />
+                      {service.average_rating}
+                    </>
+                  ) : (
+                    <span className="italic">New Service</span>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-3 mt-4">
+                  <Button
+                    className="bg-[#26B170] hover:bg-[#21965F] text-white w-full"
+                    // onClick={() => console.log("Request Service", service)}
+                     onClick={() => handleServiceClick(service)}
+                  >
+                    Request Service
+                  </Button>
+
+                  <Button
+                    className="bg-[#26B170] hover:bg-[#21965F] text-white w-full"
+                    // onClick={() => console.log("Request Contact", service)}
+                      onClick={() => handleSendRequestContact(service)}
+                  >
+                    Request for Contact
+                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full border border-gray-300 hover:bg-gray-50"
+                        onClick={() => setSelectedService(service)}
+                      >
+                        View Details & Reviews
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>{selectedService?.name}</DialogTitle>
+                      </DialogHeader>
+
+                      {/* Service Full Details */}
+                      <div className="space-y-4">
+                        {/* <img
+                          // src={`http://localhost/Git/Project1/Backend/${selectedService?.company_image}`}
+                          alt={selectedService?.company_name}
+                          className="w-full max-h-48 object-cover rounded-lg shadow"
+                        /> */}
+                        <p className="text-gray-700">{selectedService?.description}</p>
+                        <p className="text-gray-600 text-sm">
+                          <strong>Category:</strong> {selectedService?.category}
+                        </p>
+                        <p className="text-gray-600 text-sm">
+                          <strong>Price:</strong>{" "}
+                          {selectedService?.price === "0.00"
+                            ? "Free"
+                            : `Rs ${Number(selectedService?.price).toLocaleString()}`}
+                        </p>
+
+                        {/* Reviews */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">Customer Reviews</h3>
+                          {selectedService?.reviews?.length > 0 ? (
+                            selectedService.reviews.map((review, i) => (
+                              <div key={i} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                                <p className="text-sm text-gray-600">
+                                  Rating: ⭐ {review.rating}
+                                </p>
+                                <p className="text-gray-800">{review.comment}</p>
+                                <p className="text-xs text-gray-500 mt-1">– {review.reviewer_name}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-gray-500">No reviews yet.</p>
+                          )}
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </div>
+          </Card>
+        ))}
+      </div>
 
         {/* // isModalOpen && */}
         {/* //  ( */}

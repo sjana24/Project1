@@ -29,7 +29,7 @@ $otp_var="12345";
         $email = $data['email'];
         $otp = $data['otp'];
 
-        if (($email_var === $email) && ($otp === $otp_var) ){
+        if (($email_var !== $email) && ($otp === $otp_var) ){
             echo json_encode([
         "success" => true,
         "message" => "email successfully varified",
