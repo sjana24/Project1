@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 if (isset($_SESSION['varification']) || 1) {
     // $email_var = $_SESSION['varification']['email'];
     // $otp_var = $_SESSION['varifivation']['otp'];
-$email_var="provider1@gmail.com";
+$email_var="provider21@gmail.com";
 $otp_var="12345";
 
     // echo "$email,$otp;

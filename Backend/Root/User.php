@@ -103,13 +103,20 @@ abstract class User
 
         $dash = 0;
         $count=$this->isExistingUser($this->email,$this->role);
+        $email_var=1;
+        $is_blocked=0;
 
         if (0==$count){
             try {
             // 1. Insert into `user` table
-            $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `password`, `user_role`, `created_at`, `updated_at`, `status`) 
-                                  VALUES (?, ?, ?, ?, NOW(), NOW(), 'active')");
-            $stmt->execute([$this->name, $this->email, $this->password, $this->role]);
+            $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `email_verified`, `password`,`is_blocked`, `user_role`, `created_at`, `updated_at`) 
+                                  VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->execute([$this->name,
+             $this->email,
+             $email_var,
+              $this->password, 
+              $is_blocked,
+               $this->role]);
 
             // 2. Get auto-incremented user_id
             $userId = $this->conn->lastInsertId();
