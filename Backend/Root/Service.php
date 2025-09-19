@@ -1051,6 +1051,65 @@ public function updateRequestStatus($request_id, $provider_id, $new_status)
         }
     }
 
+    public function getOngoingProjectsByCustomer($customer_id)
+{
+    try {
+        $sql = "
+            SELECT 
+                op.project_id,
+                op.project_name,
+                op.status AS project_status,
+                op.start_date,
+                op.due_date,
+                op.completed_date,
+                op.payment_id,
+                sr.request_id,
+                sr.request_date,
+                sr.payment_status,
+                s.service_id,
+                s.name AS service_name,
+                s.description AS service_description,
+                s.price,
+                s.category AS service_category,
+                sp.provider_id,
+                sp.company_name AS provider_name,
+                sp.verification_status
+            FROM ongoing_project op
+            INNER JOIN service_request sr ON op.request_id = sr.request_id
+            INNER JOIN service s ON sr.service_id = s.service_id
+            INNER JOIN service_provider sp ON s.provider_id = sp.provider_id
+            WHERE sr.customer_id = :customer_id
+            ORDER BY op.start_date DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($projects) {
+            return [
+                'success' => true,
+                'projects' => $projects,
+                'message' => 'Ongoing projects fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'projects' => [],
+                'message' => 'No ongoing projects found for this customer.'
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            'success' => false,
+            'message' => 'Database error: ' . $e->getMessage()
+        ];
+    }
+}
+
+
 
 
 
