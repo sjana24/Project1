@@ -139,7 +139,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
           </button>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-6 py-6 space-y-4 overflow-y-auto">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -204,10 +204,38 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
         </div>
 
 
+        
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="bg-white/80 backdrop-blur-lg border-b border-white/20 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-white/50"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="text-sm text-gray-600">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="animate-slide-in">{children}</div>
+        </main>
         {/* Profile Modal */}
         {isProfileModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-md max-h-screen overflow-y-auto p-6 relative">              <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
+          <div className=" pt-10 fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-2xl max-h-screen overflow-y-auto p-6 relative">    
+             <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -380,32 +408,6 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white/80 backdrop-blur-lg border-b border-white/20 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-white/50"
-            >
-              <Menu size={20} />
-            </button>
-            <div className="text-sm text-gray-600">
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="animate-slide-in">{children}</div>
-        </main>
       </div>
     </div>
   );
