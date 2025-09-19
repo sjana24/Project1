@@ -114,17 +114,17 @@ export default function Chat() {
 
   }, []);
 
-  const mapMessages = (rawMessages: any[]): Message[] => {
-    return rawMessages.map(msg => ({
-      message_id: msg.message_id,
-      chatSession_id: msg.chatSession_id,
-      sender_id: msg.sender_id,
-      receiver_id: msg.receiver_id,
-      message: msg.message,
-      is_read: msg.is_read,
-      sent_at: new Date(msg.sent_at),
-    }));
-  };
+  // const mapMessages = (rawMessages: any[]): Message[] => {
+  //   // return rawMessages.map(msg => ({
+  //   //   message_id: msg.message_id,
+  //   //   chatSession_id: msg.chatSession_id,
+  //   //   sender_id: msg.sender_id,
+  //   //   receiver_id: msg.receiver_id,
+  //   //   message: msg.message,
+  //   //   is_read: msg.is_read,
+  //   //   sent_at: new Date(msg.sent_at),
+  //   // }));
+  // };
   const [openChats, setOpenChats] = useState<number[]>([]);
 
   const openConversation = async (request_id: number) => {
@@ -149,35 +149,35 @@ export default function Chat() {
           const rawMessages = response.data.messages || [];
           const rawMessages2 = response.data.messages[0] || [];    // messages from backend
           console.log(rawMessages);
-          const messages = mapMessages(rawMessages);
+          // const messages = mapMessages(rawMessages);
 
           // Determine last activity from last message sent date or fallback
-          const lastActivity =
-            messages.length > 0
-              ? messages[messages.length - 1].sent_at
-              : new Date();
+          // const lastActivity =
+          //   messages.length > 0
+          //     ? messages[messages.length - 1].sent_at
+          //     : new Date();
 
-          const newChatSession: ChatSession = {
-            chatSession_id: convData.chatSession_id,
-            participantName: convData.customer_username || "hi", // You must supply this or fetch separately
-            messages: messages,
-            isOpen: true,
-            user_id: rawMessages2.sender_id || 0,    // you must get this from backend or from auth context
-            sender_id: rawMessages2.receiver_id || 0, // usually current logged in user id
-            lastActivity: lastActivity,
-          };
-          console.log(newChatSession);
+          // const newChatSession: ChatSession = {
+          //   chatSession_id: convData.chatSession_id,
+          //   participantName: convData.customer_username || "hi", // You must supply this or fetch separately
+          //   messages: messages,
+          //   isOpen: true,
+          //   user_id: rawMessages2.sender_id || 0,    // you must get this from backend or from auth context
+          //   sender_id: rawMessages2.receiver_id || 0, // usually current logged in user id
+          //   lastActivity: lastActivity,
+          // };
+          // console.log(newChatSession);
 
-          if (!openChats.includes(newChatSession.chatSession_id)) {
-            console.log(" this is zhat open ")
-            // setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
-            setChatSessions((prev) => [...prev, newChatSession]);
-            console.log("Chat sessions now:", [...chatSessions, newChatSession]);
-            setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
-            console.log("Open chats now:", [...openChats, newChatSession.chatSession_id]);
+          // if (!openChats.includes(newChatSession.chatSession_id)) {
+          //   console.log(" this is zhat open ")
+          //   // setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
+          //   setChatSessions((prev) => [...prev, newChatSession]);
+          //   console.log("Chat sessions now:", [...chatSessions, newChatSession]);
+          //   setOpenChats((prev) => [...prev, newChatSession.chatSession_id]);
+          //   console.log("Open chats now:", [...openChats, newChatSession.chatSession_id]);
 
 
-          }
+          // }
         }
       }
     }
@@ -371,10 +371,16 @@ export default function Chat() {
                       <Button variant="destructive" size="sm" onClick={() => handleStatusChange(request.request_id, request.customer_id, 'rejected')}>Reject</Button>
                     </>
                   ) :
+                   null
+
+                  }
+                  {request.status === 'accepted' ? (
                     <>
                       <Button size="sm" onClick={() => openConversation(request.request_id)}>Open chat</Button>
                       {/* <Button variant="destructive" size="sm" onClick={() => handleStatusChange(request.id, 'Rejected')}>Reject</Button> */}
                     </>
+                  ) :
+null
 
                   }
                   <Dialog>
@@ -405,7 +411,7 @@ export default function Chat() {
             </CardContent>
           </Card>
         ))}
-        {openChatSessions
+        {/* {openChatSessions
           .filter((chat) => {
             const isOpen = openChats.includes(chat.chatSession_id);
             // console.log(`Checking chat ${chat.chatSession_id}, isOpen: ${isOpen}`);
@@ -414,15 +420,15 @@ export default function Chat() {
           .map((chat, index) => {
             // console.log("Rendering ChatWindow for:", chat);
             return (
-              <ChatWindow
-                // key={chat.chatSession_id}
-                chat={openChatSessions[0]}
-                // position={{ bottom: 100, right: 100 }}
-                position={getChatPosition(index)}
-                onClose={() => handleCloseChat(chat.chatSession_id)}
-              />
+              // <ChatWindow
+              //   // key={chat.chatSession_id}
+              //   chat={openChatSessions[0]}
+              //   // position={{ bottom: 100, right: 100 }}
+              //   position={getChatPosition(index)}
+              //   onClose={() => handleCloseChat(chat.chatSession_id)}
+              // />
             );
-          })}
+          })} */}
 
 
         {/* {openChatSessions.map((chatSessions, index) => (

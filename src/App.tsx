@@ -159,12 +159,12 @@ const App = () => (
                     <Routes>
                       <Route path="/dashboard" element={<ProviderDashboard />} />
                       <Route path="/job_request" element={<JobsAndRequests />} />
-                      <Route path="/product_order" element={<ProductsAndOrders />} />
+                      {/* <Route path="/product_order" element={<ProductsAndOrders />} /> */}
                       <Route path="/service_order" element={<ServicesAndOrders />} />
-                       <Route path="/product" element={<ProductStuffs />} />
+                       <Route path="/product_order" element={<ProductStuffs />} />
                       <Route path="/payment" element={<PaymentHistory />} />
                       <Route path="/qa" element={<QAProviderPage />} /> 
-                      {/* <Route path="/chat" element={<Chat />} /> */}
+                      <Route path="/chat" element={<Chat />} />
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
                       {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
                       <Route path="/MessagePro" element={<MessagePro />} />
