@@ -263,7 +263,7 @@ const fetchCustomerOrders = async () => {
         setProductOrders(updatedOrders);
       } else {
         const updatedOrders = projectOrders.map(order =>
-          order.order_id === selectedOrder.order_id
+          order.project_id === selectedOrder.order_id
             ? { ...order, status: 'cancelled' }
             : order
         );
@@ -276,12 +276,12 @@ const fetchCustomerOrders = async () => {
   };
 
   const handleViewDetails = (order: OngoingProject | Order) => {
-    setSelectedOrder(order);
+    // setSelectedOrder(order);
     setViewDetailsDialogOpen(true);
   };
 
   const canCancelOrder = (order: OngoingProject | Order) => {
-    return ['pending', 'shipped'].includes(order.status);
+    return ['pending', 'shipped'].includes(order.payment_status);
   };
 
   const filteredProductOrders = productOrders.filter(order => {
