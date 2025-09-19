@@ -26,15 +26,15 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
-  { name: 'Users', href: '/admin/user', icon: Users },
+  { name: 'Customers', href: '/admin/user', icon: Users },
   { name: 'Providers', href: '/admin/provider', icon: Building2 },
-  { name: 'Products', href: '/admin/product', icon: Package },
+  { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Services', href: '/admin/service', icon: ShoppingCart },
   { name: 'Orders', href: '/admin/order', icon: ShoppingCart },
   { name: 'Jobs', href: '/admin/jobs', icon: Briefcase },
   { name: 'Blogs', href: '/admin/blogs', icon: FileText },
-  { name: 'Reviews', href: '/admin/reviews', icon: Star },
-  { name: 'Notifications', href: '/admin/notifications', icon: Bell },
+  // { name: 'Reviews', href: '/admin/reviews', icon: Star },
+  // { name: 'Notifications', href: '/admin/notifications', icon: Bell },
   { name: 'Q & A', href: '/admin/questions', icon: MessageSquare },
   { name: 'Transaction', href: '/admin/transactions', icon: Settings },
 

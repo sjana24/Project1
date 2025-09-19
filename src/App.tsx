@@ -114,9 +114,9 @@ const App = () => (
                     <Routes>
                       <Route path="dashboard" element={<AdminDashboard />} />
                       {/* <Route path="provider" element={<ProvidersPage />} /> */}
-                      <Route path="product" element={<ProductsPage />} />
-                      <Route path="service" element={<ServicesPage />} />
-                      <Route path="service1" element={<ServicesPage1 />} />
+                      {/* <Route path="product" element={<ProductsPage />} /> */}
+                      {/* <Route path="service" element={<ServicesPage />} /> */}
+                      <Route path="service" element={<ServicesPage1 />} />
                       {/* <Route path="user" element={<UsersPage />} /> */}
                       <Route path="order" element={<OrderPage />} />
                       <Route path="user" element={<CustomersPage />} />

@@ -267,7 +267,7 @@ const OrderPage = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-muted-foreground">Total Revenue</p>
-                                <p className="text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
+                                <p className="text-2xl font-bold">Rs 3900</p>
                             </div>
                             <div className="h-12 w-12 bg-yellow-50 rounded-lg flex items-center justify-center">
                                 <DollarSign className="h-6 w-6 text-yellow-600" />
@@ -335,11 +335,11 @@ const OrderPage = () => {
                                 <Card key={order.id} className={`hover:shadow-lg transition-shadow ${!order.visible ? 'opacity-50' : ''}`}>
                                     <CardContent className="p-6">
                                         <div className="flex flex-col md:flex-row gap-4">
-                                            <img
+                                            {/* <img
                                                 src={order.productImage}
                                                 alt={order.productName}
                                                 className="w-full md:w-24 h-24 object-cover rounded-lg"
-                                            />
+                                            /> */}
                                             <div className="flex-1 space-y-2">
                                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                                                     <h3 className="font-semibold text-lg">{order.productName}</h3>
@@ -376,7 +376,7 @@ const OrderPage = () => {
                                                     </div>
                                                     <div>
                                                         <span className="text-muted-foreground">Price:</span>
-                                                        <p className="font-medium">${order.price}</p>
+                                                        <p className="font-medium">Rs {order.price}</p>
                                                     </div>
                                                     <div>
                                                         <span className="text-muted-foreground">Quantity:</span>
@@ -384,7 +384,7 @@ const OrderPage = () => {
                                                     </div>
                                                     <div>
                                                         <span className="text-muted-foreground">Total:</span>
-                                                        <p className="font-medium">${order.total}</p>
+                                                        <p className="font-medium">Rs {order.total}</p>
                                                     </div>
                                                     <div>
                                                         <span className="text-muted-foreground">Date:</span>
@@ -459,7 +459,7 @@ const OrderPage = () => {
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                                 <div>
                                                     <span className="text-muted-foreground text-sm">Budget:</span>
-                                                    <p className="font-semibold text-lg">${order.budget.toLocaleString()}</p>
+                                                    <p className="font-semibold text-lg">Rs {order.budget.toLocaleString()}</p>
                                                 </div>
                                                 <div>
                                                     <span className="text-muted-foreground text-sm">Provider:</span>
