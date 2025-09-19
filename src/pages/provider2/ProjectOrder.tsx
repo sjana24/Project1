@@ -396,7 +396,7 @@ const handleUpdateDates =async (project_id:number) => {
   <div className="flex flex-col gap-2">
   {order.status !== "terminated" ? 
   <> 
-  <p>payment add pannaum</p>
+  {/* <p>payment add pannaum</p> */}
   {!editingDates  ? (
     <div  className="flex gap-5">
       {/* <p className="text-sm">

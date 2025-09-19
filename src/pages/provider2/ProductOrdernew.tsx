@@ -326,10 +326,7 @@ export default function ProductOrdernew() {
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Contact Customer
-                  </Button>
+                  
                 </div>
               </CardContent>
             </Card>
