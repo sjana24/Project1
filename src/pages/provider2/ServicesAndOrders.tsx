@@ -16,7 +16,7 @@ export default function ServicesAndOrders() {
         <TabsList className="mb-6 grid w-full grid-cols-3">
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="requests">Service Requests</TabsTrigger>
-           <TabsTrigger value="ongoingProjects">Orders</TabsTrigger>
+           <TabsTrigger value="ongoingProjects">Oongoing Projects</TabsTrigger>
         </TabsList>
 
         {/* Services Tab */}
