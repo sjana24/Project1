@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from 'react';
-// import { getData, setData, User } from '../../utils/localStorage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Search, Users, UserCheck, UserX } from 'lucide-react';
+
 export interface User {
   id: string;
   name: string;
@@ -22,10 +21,36 @@ const UsersPage = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // const userData = getData<User>('users');
-     const userData =[];
-    setUsers(userData);
-    setFilteredUsers(userData);
+    // Backend data
+    const backendData = [
+      {
+        user_id: 1,
+        username: "JohnCustomer",
+        email: "customer1@gmail.com",
+        is_blocked: 0,
+        created_at: "2024-07-05 12:11:48",
+      },
+      {
+        user_id: 56,
+        username: "janakan",
+        email: "provider21@gmail.com",
+        is_blocked: 0,
+        created_at: "2025-09-17 19:11:35",
+      }
+    ];
+
+    // Map backend data to UI model
+    const mappedUsers: User[] = backendData.map(u => ({
+      id: u.user_id.toString(),
+      name: u.username,
+      email: u.email,
+      status: u.is_blocked === 0 ? 'active' : 'disabled',
+      joinDate: u.created_at,
+      orders: Math.floor(Math.random() * 10), // Mock order count
+    }));
+
+    setUsers(mappedUsers);
+    setFilteredUsers(mappedUsers);
   }, []);
 
   useEffect(() => {
@@ -50,7 +75,6 @@ const UsersPage = () => {
     });
 
     setUsers(updatedUsers);
-    // setData('users', updatedUsers);
   };
 
   const getStatusBadge = (status: string) => {
@@ -171,7 +195,7 @@ const UsersPage = () => {
                     onClick={() => toggleUserStatus(user.id)}
                     className={user.status === 'active' ? 'hover:bg-red-50 hover:text-red-700' : 'hover:bg-green-50 hover:text-green-700'}
                   >
-                    {user.status === 'active' ? 'Disable' : 'Enable'}
+                    {user.status !== 'active' ? 'Disable' : 'Enable'}
                   </Button>
                 </div>
               </div>
