@@ -26,7 +26,7 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
-  { name: 'Users', href: '/admin/user', icon: Users },
+  { name: 'Customers', href: '/admin/user', icon: Users },
   { name: 'Providers', href: '/admin/provider', icon: Building2 },
   { name: 'Products', href: '/admin/product', icon: Package },
   { name: 'Services', href: '/admin/service', icon: ShoppingCart },
