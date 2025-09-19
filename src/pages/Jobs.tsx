@@ -395,7 +395,7 @@ const Jobs = () => {
 
 
 
-                <Button type="submit" className="w-full bg-blue-600 text-white">
+                <Button type="submit" className="w-full bg-green-600 text-white">
                   Submit Application
                 </Button>
               </form>
