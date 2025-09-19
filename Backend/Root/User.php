@@ -166,4 +166,33 @@ abstract class User
             return ["success" => false, "message" => "User already exit."];
         }
     }
+    // New method to update username
+    public function updateUsername($user_id, $username) {
+        $sql = "UPDATE user SET username = ? WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $username);
+        $stmt->bindParam(2, $user_id);
+        return $stmt->execute();
+    }
+
+    // New method to update email
+    public function updateEmail($user_id, $email) {
+        // First, check if the email already exists for another user
+        $sql = "SELECT user_id FROM user WHERE email = ? AND user_id != ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $email);
+        $stmt->bindParam(2, $user_id);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return false; // Email already exists, so prevent the update
+        }
+
+        // If the email is unique, proceed with the update
+        $sql = "UPDATE user SET email = ? WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $email);
+        $stmt->bindParam(2, $user_id);
+        return $stmt->execute();
+    }
 }

@@ -20,6 +20,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ChatWindow } from "./ui/ChatWindow";
 import { useCartStore } from "@/store/useCartStore";
 import axios from "axios";
+
+export interface CustomerProfileData {
+  username: string;
+  email: string;
+  contact_number: string;
+}
+
 export interface Message {
   message_id: number;
   text: string;
@@ -102,6 +109,142 @@ const Navigation = () => {
   //     const [currentUser, setCurrentUser] = useState(() => {
   //   return JSON.parse(sessionStorage.getItem("currentUser") || "null");
   const [currentUser, setCurrentUser] = useState<User | null>(() => null);
+  //const navigate = useNavigate();
+  const location = useLocation();
+
+   // State for the Edit Profile form
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    contact_number: '',
+    current_password: '',
+    new_password: '',
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
+
+  // Function to fetch current user's profile data
+  const fetchProfileData = useCallback(async () => {
+    if (!currentUser) return;
+    setProfileLoading(true);
+    setProfileError(null);
+    try {
+      const response = await axios.get("http://localhost/Git/Project1/Backend/EditProfile.php", {
+        withCredentials: true,
+      });
+
+      const result = response.data;
+      if (result.success) {
+        setFormData({
+          username: result.data.username,
+          email: result.data.email,
+          contact_number: result.data.contact_number,
+          current_password: '',
+          new_password: '',
+        });
+      } else {
+        setProfileError(result.message);
+      }
+    } catch (err) {
+      console.error("Error fetching profile data:", err);
+      setProfileError('Failed to fetch profile data.');
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [currentUser]);
+
+  // Handle modal open/close and fetch data
+  useEffect(() => {
+    if (isProfileModalOpen) {
+      fetchProfileData();
+    }
+  }, [isProfileModalOpen, fetchProfileData]);
+
+  // Handle form field changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  // Handle form submission to update profile
+  const handleSaveProfile = async () => {
+    // Client-side validation
+    setProfileError(null);
+    setProfileSuccess(null);
+   
+      const { username, email, contact_number, current_password, new_password } = formData;
+
+    if (!formData.username || !formData.email || !formData.contact_number) {
+      setProfileError('All fields are required.');
+      return;
+    }
+    // Username validation: letters, spaces, and hyphens.
+  const nameRegex = /^[A-Za-z\s-]+$/;
+  if (!nameRegex.test(username)) {
+    setProfileError('Name can only contain letters, spaces, and hyphens.');
+    return;
+  }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setProfileError('Please enter a valid email address.');
+      return;
+    }
+   const contactRegex = /^07\d{8}$/;
+  if (!contactRegex.test(contact_number)) {
+    setProfileError('Please enter a valid 10-digit mobile number starting with 07.');
+    return;
+  }
+
+
+    if (formData.new_password && formData.new_password.length < 8) {
+      setProfileError('New password must be at least 8 characters long.');
+      return;
+    }
+
+    setProfileLoading(true);
+
+    try {
+      const response = await axios.put('http://localhost/Git/Project1/Backend/EditProfile.php',
+        { ...formData, user_id: currentUser?.id, user_role: currentUser?.role },
+        { withCredentials: true }
+      );
+
+      const result = response.data;
+
+      if (result.success) {
+        setProfileSuccess('Profile updated successfully!');
+        // Update currentUser in state to reflect new data
+        setCurrentUser(prevUser => ({
+          ...prevUser!,
+          name: formData.username,
+          email: formData.email,
+        }));
+        // Optional: Close modal after a delay
+        setTimeout(() => setIsProfileModalOpen(false), 1500);
+      } else {
+        setProfileError(result.message || 'Failed to update profile.');
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setProfileError('An unexpected error occurred. Please try again.');
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await checkSession();
+      setCurrentUser(user);
+      setLoading(false);
+    };
+
+    if (!currentUser && !loading) {
+      fetchUser();
+    }
+  }, [currentUser, checkSession, loading]);
   //   useEffect(() => {
   //     const fetchRole = async () => {
   //       const user = await checkSession();
@@ -134,37 +277,7 @@ const Navigation = () => {
       });
   }, []);
 
-  // const notifications1 :Notification[]= [
-
-  //       {
-  //           id: 1,
-  //           type: 'message',
-  //           title: 'John sent you a message',
-  //           message: 'Hey! How are you doing today?',
-  //           chatId: 11,
-  //           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  //           isRead: false,
-  //         },
-  //           {
-  //           id: 2,
-  //           type: 'message',
-  //           title: 'John sent you a message',
-  //           message: 'Hey! How are you doing today?',
-  //           chatId: 10,
-  //           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  //           isRead: false,
-  //         },
-  //           {
-  //           id: 3,
-  //           type: 'message',
-  //           title: 'John sent you a message',
-  //           message: 'Hey! How are you doing today?',
-  //           chatId: 12,
-  //           timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  //           isRead: false,
-  //         },
-
-  // ]
+  
   const [openChats, setOpenChats] = useState<number[]>([]);
 
   const handleNotificationClick = useCallback((notification: Notification) => {
@@ -198,33 +311,7 @@ const Navigation = () => {
     // onMarkAsRead(notification.id);
 
   };
-  //   const handleSendMessage = useCallback((chatSession_id: number, messageText: string) => {
-  //     // const newMessage=5;
-  //     const newMessage: Message = {
-  //       chat_s: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  //       text: messageText,
-  //       sender: 'user',
-  //       timestamp: new Date(),
-  //       chatId,
-  //     };
-  // });
-
-  // const handleLogout = async () => {
-  //   console.log("log out buddy");
-  //   try {
-  //     await axios.get("http://localhost/Git/Project1/Backend/logout.php", {
-  //       withCredentials: true, // send session cookies
-  //     });
-
-
-
-  //     // Redirect to home or login
-  //     navigate("/");
-  //   } catch (err) {
-  //     console.error("Logout failed:", err);
-  //   }
-  // };
-
+  
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -580,56 +667,86 @@ const Navigation = () => {
     </nav>
 
 <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Edit Profile</DialogTitle>
-      <DialogDescription>Update your account details below.</DialogDescription>
-    </DialogHeader>
-
-    <div className="space-y-4 py-4">
-      <div>
-        <label className="block text-sm font-medium">Name</label>
-        <input
-          type="text"
-          defaultValue={currentUser?.name}
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium">Email</label>
-        <input
-          type="email"
-          defaultValue={currentUser?.email}
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium">Mobile Number</label>
-        <input
-          type="text"
-          placeholder="Enter mobile number"
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium">Password</label>
-        <input
-          type="password"
-          placeholder="Enter new password"
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-    </div>
-
-    <DialogFooter>
-      <Button variant="outline" onClick={() => setIsProfileModalOpen(false)}>
-        Cancel
-      </Button>
-      <Button onClick={() => setIsProfileModalOpen(false)}>Save</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-</>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>Update your account details below.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {profileLoading && <div className="text-center text-blue-500">Loading...</div>}
+            {profileError && <div className="text-center text-red-500">{profileError}</div>}
+            {profileSuccess && <div className="text-center text-green-500">{profileSuccess}</div>}
+            <div>
+              <label className="block text-sm font-medium">Name</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded"
+                disabled={profileLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded"
+                disabled={profileLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Mobile Number</label>
+              <input
+                type="text"
+                name="contact_number"
+                value={formData.contact_number}
+                onChange={handleChange}
+                placeholder="Enter mobile number"
+                className="w-full border px-3 py-2 rounded"
+                disabled={profileLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Current Password</label>
+              <input
+                type="password"
+                name="current_password"
+                value={formData.current_password}
+                onChange={handleChange}
+                placeholder="Enter current password"
+                className="w-full border px-3 py-2 rounded"
+                disabled={profileLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">New Password</label>
+              <input
+                type="password"
+                name="new_password"
+                value={formData.new_password}
+                onChange={handleChange}
+                placeholder="Enter new password"
+                className="w-full border px-3 py-2 rounded"
+                disabled={profileLoading}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsProfileModalOpen(false)} disabled={profileLoading}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveProfile} disabled={profileLoading}>
+              {profileLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
+
 export default Navigation;
