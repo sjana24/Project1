@@ -254,6 +254,13 @@ const Login = () => {
                           onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
                           required
                         />
+                        <div className="text-right">
+
+                          <a href="/forgot-password" className="text-sm font-medium text-blue-500 hover:underline"
+                          >
+                            Forgot Password?
+                          </a>
+                        </div>
                       </div>
 
                       {/* Radio Button Group */}
