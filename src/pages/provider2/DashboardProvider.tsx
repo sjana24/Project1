@@ -1,27 +1,45 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-// import { useDashboardStore } from '@/store/dashboardStore';
-import { Package, Wrench, ShoppingCart, Star, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { Package, Wrench, ShoppingCart, Star, TrendingUp } from 'lucide-react';
 
 export default function Dashboard() {
-  // const { products, services, orders, reviews } = useDashboardStore();
+  // --- Mock Data ---
+  const products = [
+    { id: 1, name: 'Solar Panel A', status: 'Active' },
+    { id: 2, name: 'Solar Panel B', status: 'Active' },
+    { id: 3, name: 'Battery Storage', status: 'Inactive' },
+  ];
 
-  // const completedOrders = orders.filter(order => order.status === 'Completed').length;
-  // const averageRating = reviews.length > 0 
-  //   ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-  //   : '0.0';
-    const completedOrders =[];
-    const products=[];
-    const services=[];
-     const orders=[];
-    const reviews=[];
+  const services = [
+    { id: 1, name: 'Installation', status: 'Active' },
+    { id: 2, name: 'Maintenance', status: 'Active' },
+    { id: 3, name: 'Consultation', status: 'Inactive' },
+  ];
+
+  const orders = [
+    { id: 1, customerName: 'John Doe', total: 120000, status: 'Completed', orderDate: '2025-09-01', expectedDelivery: '2025-09-05' },
+    { id: 2, customerName: 'Jane Smith', total: 85000, status: 'Pending', orderDate: '2025-09-02', expectedDelivery: '2025-09-07' },
+    { id: 3, customerName: 'Michael Lee', total: 56000, status: 'Completed', orderDate: '2025-09-03', expectedDelivery: '2025-09-08' },
+    { id: 4, customerName: 'Alice Brown', total: 102000, status: 'In Progress', orderDate: '2025-09-04', expectedDelivery: '2025-09-10' },
+    { id: 5, customerName: 'Bob Johnson', total: 78000, status: 'Pending', orderDate: '2025-09-05', expectedDelivery: '2025-09-12' },
+  ];
+
+  const recentProjects = [
+    { id: 1, projectName: 'Residential Solar Installation', status: 'Pending', customerName: 'Alice Brown', startDate: '2025-09-01', dueDate: '2025-09-10' },
+    { id: 2, projectName: 'Commercial Solar Maintenance', status: 'In Progress', customerName: 'Bob Johnson', startDate: '2025-09-03', dueDate: '2025-09-15' },
+    { id: 3, projectName: 'Solar Battery Upgrade', status: 'Completed', customerName: 'Charlie Davis', startDate: '2025-08-25', dueDate: '2025-09-05' },
+    { id: 4, projectName: 'Solar Panel Replacement', status: 'Pending', customerName: 'Diana Green', startDate: '2025-09-05', dueDate: '2025-09-12' },
+    { id: 5, projectName: 'Commercial Roof Installation', status: 'In Progress', customerName: 'Edward King', startDate: '2025-09-06', dueDate: '2025-09-20' },
+    { id: 6, projectName: 'Solar Inverter Upgrade', status: 'Completed', customerName: 'Fiona White', startDate: '2025-08-28', dueDate: '2025-09-08' },
+  ];
+
+  const completedOrders = orders.filter(order => order.status === 'Completed').length;
 
   const stats = [
     {
       title: 'Total Products',
-      value: products.length,
+      value: 10,
       icon: Package,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
@@ -42,7 +60,7 @@ export default function Dashboard() {
     },
     {
       title: 'Average Rating',
-      // value: averageRating,
+      value: '4.5', // mock value
       icon: Star,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
@@ -50,7 +68,6 @@ export default function Dashboard() {
   ];
 
   const recentOrders = orders.slice(0, 5);
-  const recentReviews = reviews.slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -91,14 +108,16 @@ export default function Dashboard() {
             <div className="space-y-4">
               {recentOrders.length > 0 ? (
                 recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div>
+                  <div key={order.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex justify-between mb-1">
                       <p className="font-medium">{order.customerName}</p>
-                      <p className="text-sm text-gray-500">Rs. {order.total.toLocaleString()}</p>
+                      <Badge variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}>
+                        {order.status}
+                      </Badge>
                     </div>
-                    <Badge variant={order.status === 'Completed' ? 'default' : 'secondary'}>
-                      {order.status}
-                    </Badge>
+                    <p className="text-sm text-gray-500">Order Date: {order.orderDate}</p>
+                    <p className="text-sm text-gray-500">Expected Delivery: {order.expectedDelivery}</p>
+                    <p className="text-sm text-gray-500 font-semibold">Total: Rs. {order.total.toLocaleString()}</p>
                   </div>
                 ))
               ) : (
@@ -108,34 +127,38 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Reviews */}
+        {/* Recent Project Requests */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Star className="w-5 h-5" />
-              <span>Recent Reviews</span>
+              <TrendingUp className="w-5 h-5" />
+              <span>Recent Project Requests</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentReviews.map((review) => (
-                <div key={review.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-medium">{review.customerName}</p>
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
+              {recentProjects.length > 0 ? (
+                recentProjects.map((project) => (
+                  <div key={project.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex justify-between mb-1">
+                      <p className="font-medium">{project.projectName}</p>
+                      <Badge variant={
+                        project.status === 'Completed'
+                          ? 'default'
+                          : project.status === 'Pending'
+                          ? 'secondary'
+                          : 'destructive'
+                      }>
+                        {project.status}
+                      </Badge>
                     </div>
+                    <p className="text-sm text-gray-500">Customer: {project.customerName}</p>
+                    <p className="text-sm text-gray-500">Start: {project.startDate} | Due: {project.dueDate}</p>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{review.comment}</p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No project requests yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
