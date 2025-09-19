@@ -31,36 +31,64 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+export interface OngoingProject {
+  // Ongoing Project table
+  project_id: number;
+  project_name: string;
+  project_status: string; // status from ongoing_project
+  start_date: string;     // ISO string
+  due_date: string;       // ISO string
+  completed_date?: string | null;
+  payment_id?: number | null;
+
+  // Service Request table
+  request_id: number;
+  request_date: string;   // ISO string
+  payment_status: string;
+
+  // Service table
+  service_id: number;
+  service_name: string;
+  service_description: string;
+  price: number;
+  service_category: string;
+
+  // Service Provider table
+  provider_id: number;
+  provider_name: string;  // company_name
+  verification_status: string;
+}
+
 import axios from 'axios';
 
-const mockOrders = [
-  {
-    order_id: 101,
-    order_type: 'product',
-    order_date: '2024-07-20',
-    status: 'delivered',
-    payment_status: 'Paid',
-    total_amount: 2999.99,
-    delivery_charge: 150,
-    shipping_address: '123 Main Street, Colombo',
-    image: 'https://images.unsplash.com/photo-1625758473106-391bfec90871?w=400&h=300&fit=crop',
-    product_name: 'Solar Panel 400W Premium',
-    quantity: 2,
-    price: 599.99,
-  },
-  {
-    order_id: 102,
-    order_type: 'project',
-    order_date: '2024-07-21',
-    status: 'processing',
-    payment_status: 'Paid',
-    total_amount: 12000,
-    delivery_charge: 0,
-    shipping_address: '',
-    project_title: 'Solar Power Installation - School Project',
-    project_description: '5kW system for local school with battery backup and monitoring system.',
-  }
-];
+// const mockOrders = [
+//   {
+//     order_id: 101,
+//     order_type: 'product',
+//     order_date: '2024-07-20',
+//     status: 'delivered',
+//     payment_status: 'Paid',
+//     total_amount: 2999.99,
+//     delivery_charge: 150,
+//     shipping_address: '123 Main Street, Colombo',
+//     image: 'https://images.unsplash.com/photo-1625758473106-391bfec90871?w=400&h=300&fit=crop',
+//     product_name: 'Solar Panel 400W Premium',
+//     quantity: 2,
+//     price: 599.99,
+//   },
+//   {
+//     order_id: 102,
+//     order_type: 'project',
+//     order_date: '2024-07-21',
+//     status: 'processing',
+//     payment_status: 'Paid',
+//     total_amount: 12000,
+//     delivery_charge: 0,
+//     shipping_address: '',
+//     project_title: 'Solar Power Installation - School Project',
+//     project_description: '5kW system for local school with battery backup and monitoring system.',
+//   }
+// ];
 
 type PaymentStatus = "paid" | "unpaid" | "pending";
 type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled" | "";
@@ -119,7 +147,7 @@ export interface OrderItem {
 const Orders = () => {
   const { user } = useAuth();
   const [productOrders, setProductOrders] = useState<Order[]>([]);
-  const [projectOrders, setProjectOrders] = useState<OrderItem[]>([]);
+  const [projectOrders, setProjectOrders] = useState<OngoingProject[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -128,28 +156,62 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | Order | null>(null);
   const [viewDetailsDialogOpen, setViewDetailsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const projects = mockOrders.filter(order => order.order_type === 'project');
-    // setProjectOrders(projects);
-  }, []);
+  // useEffect(() => {
+  //   const projects = mockOrders.filter(order => order.order_type === 'project');
+  //   // setProjectOrders(projects);
+  // }, []);
 
+const fetchCustomerOrders = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetOrdersCustomer.php",
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        console.log("Data received successfully");
+        setProductOrders(response.data.orders);
+      } else {
+        console.log("Failed to get orders:", response.data);
+        setError("Failed to fetch orders");
+      }
+    } catch (err) {
+      console.error("API Error:", err);
+      setError("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchCustomerProjects = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetProjectsCustomer.php",
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        console.log("Data received successfully");
+        setProjectOrders(response.data.projects);
+      } else {
+        console.log("Failed to get orders:", response.data);
+        setError("Failed to fetch orders");
+      }
+    } catch (err) {
+      console.error("API Error:", err);
+      setError("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Call the function inside useEffect
   useEffect(() => {
-    axios.get("http://localhost/Git/Project1/Backend/GetOrdersCustomer.php", { withCredentials: true })
-      .then(response => {
-        const data = response.data;
-        if (response.data.success) {
-          console.log("Data received successfully");
-          setProductOrders(data.orders);
-        } else {
-          console.log("Failed to get orders:", response.data);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Something went wrong.');
-        setLoading(false);
-        console.error("API Error:", err);
-      });
+    fetchCustomerOrders();
+    fetchCustomerProjects();
   }, []);
 
   const getStatusColor = (status: string) => {
@@ -184,8 +246,8 @@ const Orders = () => {
     }
   };
 
-  const handleCancelOrder = (order: OrderItem | Order) => {
-    setSelectedOrder(order);
+  const handleCancelOrder = (order: OngoingProject | Order) => {
+    // setSelectedOrder(order);
     setCancelDialogOpen(true);
   };
 
@@ -201,7 +263,7 @@ const Orders = () => {
         setProductOrders(updatedOrders);
       } else {
         const updatedOrders = projectOrders.map(order =>
-          order.order_id === selectedOrder.order_id
+          order.project_id === selectedOrder.order_id
             ? { ...order, status: 'cancelled' }
             : order
         );
@@ -213,13 +275,13 @@ const Orders = () => {
     }
   };
 
-  const handleViewDetails = (order: OrderItem | Order) => {
-    setSelectedOrder(order);
+  const handleViewDetails = (order: OngoingProject | Order) => {
+    // setSelectedOrder(order);
     setViewDetailsDialogOpen(true);
   };
 
-  const canCancelOrder = (order: OrderItem | Order) => {
-    return ['pending', 'shipped'].includes(order.status);
+  const canCancelOrder = (order: OngoingProject | Order) => {
+    return ['pending', 'shipped'].includes(order.payment_status);
   };
 
   const filteredProductOrders = productOrders.filter(order => {
@@ -232,9 +294,9 @@ const Orders = () => {
 
   const filteredProjectOrders = projectOrders.filter(order => {
     const matchesSearch =
-      order.project_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.order_id.toString().includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+      order.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.project_id.toString().includes(searchTerm);
+    const matchesStatus = statusFilter === 'all' || order.payment_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -459,23 +521,23 @@ const Orders = () => {
               ) : (
                 <div className="grid gap-6">
                   {filteredProjectOrders.map((order) => (
-                    <Card key={order.order_id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 rounded-xl">
+                    <Card key={order.project_id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 rounded-xl">
                       <CardHeader className="bg-gradient-to-r from-gray-50 to-white pb-4 border-b">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                           <div>
-                            <CardTitle className="text-2xl font-bold text-gray-800">{order.project_title}</CardTitle>
+                            <CardTitle className="text-2xl font-bold text-gray-800">{order.project_name}</CardTitle>
                             <CardDescription className="flex items-center mt-2 text-gray-500">
                               <Calendar className="w-4 h-4 mr-2" />
-                              Order #{order.order_id} • {new Date(order.order_date).toLocaleDateString('en-US', { 
+                              Order #{order.project_id} • {new Date(order.start_date).toLocaleDateString('en-US', { 
                                 year: 'numeric', 
                                 month: 'long', 
                                 day: 'numeric'
                               })}
                             </CardDescription>
                           </div>
-                          <Badge className={`mt-2 sm:mt-0 border ${getStatusColor(order.status)} px-3 py-1 rounded-full`}>
-                            {getStatusIcon(order.status)}
-                            <span className="ml-1">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                          <Badge className={`mt-2 sm:mt-0 border ${getStatusColor(order.payment_status)} px-3 py-1 rounded-full`}>
+                            {getStatusIcon(order.payment_status)}
+                            <span className="ml-1">{order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}</span>
                           </Badge>
                         </div>
                       </CardHeader>
@@ -483,18 +545,18 @@ const Orders = () => {
                         <div className="space-y-6">
                           <div>
                             <h4 className="font-semibold text-gray-800 mb-3 text-lg">Project Description</h4>
-                            <p className="text-gray-600 leading-relaxed">{order.project_description}</p>
+                            <p className="text-gray-600 leading-relaxed">{order.service_description}</p>
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
                             <div className="space-y-3">
                               <div className="flex justify-between">
                                 <span className="text-gray-600">Order ID:</span>
-                                <span className="font-medium">#{order.order_id}</span>
+                                <span className="font-medium">#{order.project_id}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-gray-600">Order Date:</span>
-                                <span className="font-medium">{new Date(order.order_date).toLocaleDateString()}</span>
+                                <span className="font-medium">{new Date(order.start_date).toLocaleDateString()}</span>
                               </div>
                             </div>
                             
@@ -507,7 +569,7 @@ const Orders = () => {
                               </div>
                               <div className="flex justify-between text-base font-semibold">
                                 <span>Total Amount:</span>
-                                <span className="text-[#26B170]">Rs {order.total_amount.toFixed(2)}</span>
+                                <span className="text-[#26B170]">Rs {order.price}</span>
                               </div>
                             </div>
                           </div>

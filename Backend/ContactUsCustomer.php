@@ -1,5 +1,5 @@
 <?php
-// session_start();
+session_start();
 
 // --- CORS headers ---
 header("Access-Control-Allow-Origin: http://localhost:8080");
@@ -8,7 +8,7 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-require_once "./Root/Contact.php"; // if you plan to save contact messages
+require_once "./Root/QA.php"; // Class to handle DB insert
 
 // --- Handle preflight (OPTIONS) ---
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -17,24 +17,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // --- Ensure user is logged in ---
-// if (!isset($_SESSION['user'])) {
-//     http_response_code(401);
-//     echo json_encode([
-//         "success" => false,
-//         "message" => "You need to login first."
-//     ]);
-//     exit();
-// }
+if (!isset($_SESSION['user'])) {
+    http_response_code(401);
+    echo json_encode([
+        "success" => false,
+        "message" => "You need to login first."
+    ]);
+    exit();
+}
 
-// $user_name = $_SESSION['user']['user_name'] ?? '';
-// $user_id   = $_SESSION['user']['user_id'] ?? '';
-// $user_role = $_SESSION['user']['user_role'] ?? '';
+$user_name = $_SESSION['user']['user_name'] ?? '';
+$user_id   = $_SESSION['user']['user_id'] ?? '';
+$user_role = $_SESSION['user']['user_role'] ?? '';
 
 if ($user_role !== "customer") {
     http_response_code(403);
     echo json_encode([
         "success" => false,
-        "message" => "Only customers can send messages, not $user_role."
+        "message" => "Only customers can send messages, not '$user_role'."
     ]);
     exit();
 }
@@ -48,7 +48,7 @@ function sanitize($value) {
 }
 
 // --- Extract + sanitize ---
-$full_name = sanitize($data['full_name'] ?? '');
+$full_name = sanitize($data['name'] ?? '');
 $email     = sanitize($data['email'] ?? '');
 $subject   = sanitize($data['subject'] ?? '');
 $message   = sanitize($data['message'] ?? '');
@@ -56,7 +56,7 @@ $message   = sanitize($data['message'] ?? '');
 // --- Validation ---
 $errors = [];
 
-if (!preg_match("/^[A-Za-z., ]+$/", $full_name)) {
+if (!preg_match("/^[A-Za-z\s.,]+$/", $full_name)) {
     $errors[] = "Full name must contain only letters, spaces, commas, and periods.";
 }
 
@@ -82,11 +82,12 @@ if (!empty($errors)) {
     exit();
 }
 
-// --- Example: save to DB / Contact.php ---
+// --- Save to DB using Contact.php ---
 try {
-    $contact = new Contact();
-    $result = $contact->customerQueryInsert( $full_name, $email, $subject, $message);
-
+    $contact = new QA();
+    $result = $contact->customerQueryInsert($user_id, $full_name, $email, $subject, $message);
+    echo ($full_name.$subject.$email. $message);
+$result=1;
     if ($result) {
         http_response_code(200);
         echo json_encode([
@@ -94,7 +95,7 @@ try {
             "message" => "Message sent successfully."
         ]);
     } else {
-        throw new Exception("DB insert failed.");
+        throw new Exception("Database insert failed.");
     }
 } catch (Exception $e) {
     http_response_code(500);

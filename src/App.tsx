@@ -57,6 +57,8 @@ import ReviewPage from "./pages/admin/Review";
 import QAPage from "./pages/admin/Question_forum";
 import TransactionPage from "./pages/admin/Transaction";
 import NotificationPage from "./pages/admin/Notification";
+import PaymentHistory from "./pages/provider2/PaymentHistory";
+import QAProviderPage from "./pages/provider2/QAProvider";
 
 
 
@@ -160,8 +162,8 @@ const App = () => (
                       <Route path="/product_order" element={<ProductsAndOrders />} />
                       <Route path="/service_order" element={<ServicesAndOrders />} />
                        <Route path="/product" element={<ProductStuffs />} />
-                      {/* <Route path="/service_req" element={<Service_Request />} /> */}
-                      {/* <Route path="/project_order" element={<ProjectOrder />} /> */} 
+                      <Route path="/payment" element={<PaymentHistory />} />
+                      <Route path="/qa" element={<QAProviderPage />} /> 
                       {/* <Route path="/chat" element={<Chat />} /> */}
                       <Route path="/OnGoing_projects" element={<OnGoing />} />
                       {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
