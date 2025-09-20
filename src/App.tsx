@@ -158,10 +158,11 @@ const App = () => (
 
                     <Routes>
                       <Route path="/dashboard" element={<ProviderDashboard />} />
+                      <Route path="/product_order" element={<ProductStuffs />} />
                       <Route path="/job_request" element={<JobsAndRequests />} />
                       {/* <Route path="/product_order" element={<ProductsAndOrders />} /> */}
                       <Route path="/service_order" element={<ServicesAndOrders />} />
-                       <Route path="/product_order" element={<ProductStuffs />} />
+                      
                       <Route path="/payment" element={<PaymentHistory />} />
                       <Route path="/qa" element={<QAProviderPage />} /> 
                       <Route path="/chat" element={<Chat />} />

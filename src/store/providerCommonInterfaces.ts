@@ -73,3 +73,23 @@ export interface IOngoingProject {
   created_at: string;
   updated_at: string;
 }
+
+export interface IReview {
+  review_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
+export interface IProduct {
+  product_id: number;
+  name: string;
+  description: string;
+  price: number;
+  images: string; // stored path from backend
+  category: string;
+  specifications: string;
+  is_approved: number;
+  created_at: string;
+  reviews?: IReview[];
+}

@@ -1,13 +1,6 @@
-import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Import your existing 3 components
-import Services from "./Services";
-import Orders from "./ProjectOrder";
-import ServiceRequests from "./Service_Request";
-import OngoingProject from "./ProjectOrder";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductOrdernew from "./ProductOrdernew";
-import ProductOrder from "./ProductOrder";
 import Products from "./Productsnew";
 
 export default function ProductStuffs() {
@@ -18,12 +11,12 @@ export default function ProductStuffs() {
         {/* Tab Navigation */}
         <TabsList className="mb-6 grid w-full grid-cols-2">
           <TabsTrigger value="products">Products</TabsTrigger>
-           <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
         </TabsList>
 
         {/* Products Tab */}
         <TabsContent value="products">
-          <Products/>
+          <Products />
         </TabsContent>
 
         {/* Orders Tab */}
