@@ -68,6 +68,9 @@ export default function ProductOrdernew() {
         if (res.data.success) {
           setOrders(res.data.orders);
         }
+        else{
+          toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
+        }
       })
       .catch(() => console.log("Failed to fetch orders"));
   };

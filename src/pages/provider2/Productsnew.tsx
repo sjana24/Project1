@@ -41,6 +41,9 @@ export default function Productsnew() {
         if (res.data.success) {
           setProducts(res.data.products);
         }
+        else{
+           toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
+        }
       })
       .catch(() => console.log("Failed to fetch products"));
   };
