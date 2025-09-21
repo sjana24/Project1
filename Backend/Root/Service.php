@@ -22,12 +22,6 @@ class Service
 
     protected $fullName;
     protected $phone;
-    // protected $email;
-    // protected $province;
-    // protected $city;
-    // protected $address;
-    // protected $zip;
-    // protected $locationLink;
 
     protected $fullAddressInstallation;
     protected $fullAddressOld;
@@ -68,16 +62,20 @@ class Service
 
         try {
             $sql = "SELECT 
-            s.*, 
-            u.username AS provider_name,
-            sp.company_name AS company_name,
-            sp.profile_image AS company_image
+                s.*, 
+                u.username AS provider_name,
+                sp.company_name AS company_name,
+                sp.profile_image AS company_image
             FROM 
-            service s
+                service s
             JOIN 
-            service_provider sp ON s.provider_id = sp.provider_id
+                service_provider sp ON s.provider_id = sp.provider_id
             JOIN 
-            user u ON sp.user_id = u.user_id";
+                user u ON sp.user_id = u.user_id
+            WHERE 
+                u.is_blocked = 0
+
+                        ";
 
             $stmt = $this->conn->prepare($sql);
 
@@ -144,6 +142,53 @@ class Service
             ];
         }
     }
+
+    public function getAllServicesProvider($provider_id)
+    {
+        try {
+            $sql = "SELECT * FROM service WHERE provider_id = :provider_id AND is_delete = 0";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':provider_id', $provider_id);
+            $stmt->execute();
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($services) {
+                // Now fetch reviews for each service
+                foreach ($services as &$service) {
+                    $reviewSql = "SELECT review_id, customer_id, service_id, rating, comment, created_at, updated_at, is_approved 
+                              FROM service_review 
+                              WHERE service_id = :service_id";
+
+                    $reviewStmt = $this->conn->prepare($reviewSql);
+                    $reviewStmt->bindParam(':service_id', $service['service_id']);
+                    $reviewStmt->execute();
+                    $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Attach reviews to the service
+                    $service['reviews'] = $reviews;
+                }
+
+                return [
+                    'success' => true,
+                    'services' => $services,
+                    'message' => 'Services and reviews fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No services found.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Failed to get services. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch services. ' . $e->getMessage()
+            ];
+        }
+    }
+
     public function getAllServicesAdmin()
     {
 
@@ -176,82 +221,7 @@ class Service
         }
     }
 
-    // public function getAllServicesProvider($provider_id)
-    // {
 
-    //     try {
-    //         $sql = "SELECT * FROM service WHERE  provider_id=:provider_id";
-    //         $stmt = $this->conn->prepare($sql);
-    //         $stmt->bindParam(':provider_id', $provider_id);
-    //         $stmt->execute();
-    //         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    //         if ($services) {
-    //             return [
-    //                 'success' => true,
-    //                 'services' => $services,
-    //                 'message' => 'Services fetched successfully.'
-    //             ];
-    //         } else {
-    //             return [
-    //                 'success' => false,
-    //                 'message' => 'No services found.'
-    //             ];
-    //         }
-    //     } catch (PDOException $e) {
-    //         http_response_code(500);
-    //         echo json_encode(["message" => "failed get all services. " . $e->getMessage()]);
-    //         return [
-    //             'success' => false,
-    //             'message' => 'Failed to fetch services. ' . $e->getMessage()
-    //         ];
-    //     }
-    // }
-    public function getAllServicesProvider($provider_id)
-{
-    try {
-        $sql = "SELECT * FROM service WHERE provider_id = :provider_id AND is_delete = 0";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':provider_id', $provider_id);
-        $stmt->execute();
-        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($services) {
-            // Now fetch reviews for each service
-            foreach ($services as &$service) {
-                $reviewSql = "SELECT review_id, customer_id, service_id, rating, comment, created_at, updated_at, is_approved 
-                              FROM service_review 
-                              WHERE service_id = :service_id";
-                
-                $reviewStmt = $this->conn->prepare($reviewSql);
-                $reviewStmt->bindParam(':service_id', $service['service_id']);
-                $reviewStmt->execute();
-                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Attach reviews to the service
-                $service['reviews'] = $reviews;
-            }
-
-            return [
-                'success' => true,
-                'services' => $services,
-                'message' => 'Services and reviews fetched successfully.'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'No services found.'
-            ];
-        }
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(["message" => "Failed to get services. " . $e->getMessage()]);
-        return [
-            'success' => false,
-            'message' => 'Failed to fetch services. ' . $e->getMessage()
-        ];
-    }
-}
 
 
     public function isExistingServiceRequest($customer_id, $service_id, $service_type)
@@ -308,24 +278,6 @@ class Service
         $this->customer_id = $customer_id;
 
 
-
-        // try {
-        //     $sql = "INSERT INTO service_request ( customer_id, provider_id, service_id, request_date, status, payment_status, created_at, updated_at)
-        //             VALUES ( ?, ?, NOW(), ?, 'pending', 'pending', NOW(), NOW())";
-        //     $stmt = $this->conn->prepare($sql);
-        //     $result = $stmt->execute([
-        //         // $this->request_id,
-        //         (int)$this->customer_id,
-        //         (int)$this->provider_id,
-        //        (int) $this->service_id,
-        //         // $this->request_date,
-        //         // $this->status,
-        //         // $this->payment_status,
-        //         // $this->created_at,
-        //         // $this->updated_at
-        //     ]);
-        //         public function insertServiceRequest($customer_id, $provider_id, $service_id, $serviceType, $extraData)
-        // {
         try {
 
             if ($this->isExistingServiceRequest($this->customer_id, $this->service_id, $this->serviceType)) {
@@ -333,12 +285,7 @@ class Service
                     "success" => false,
                     "message" => "Request already exists for this service."
                 ];
-            }
-            // 1. Insert into service_request (common table)
-            // echo "Inserting service request: ";
-            // echo "$this->customer_id, $this->service_id, $this->serviceType";
-            // echo "Inserting service request: end";
-            else {
+            } else {
                 $sql = "INSERT INTO service_request (
                     customer_id, service_id, request_date, status, payment_status, created_at, updated_at,service_type
                 ) VALUES (?, ?, NOW(), 'pending', 'pending', NOW(), NOW(),?)";
@@ -419,15 +366,6 @@ class Service
         }
     }
 
-
-    //     if ($result) {
-    //         return true;
-    //     }
-    //     return false;
-    // } catch (PDOException $e) {
-    //     http_response_code(500);
-    //     echo json_encode(["message" => "Failed to insert request. " . $e->getMessage()]);
-    // }
     public function isExistingService($provider_id, $name, $type)
     {
         try {
@@ -507,6 +445,7 @@ class Service
             ];
         }
     }
+
     public function updateService($service_id, $provider_id, $name, $description, $price, $type, $status, $visible)
     {
         $this->service_id   = $service_id;
@@ -515,7 +454,7 @@ class Service
         $this->description  = $description;
         $this->price        = $price;
         $this->type         = $type;
-        $this->status       = $status;
+        $this->status       = 0;
         $this->visible      = $visible;
 
 
@@ -565,14 +504,16 @@ class Service
     {
         $this->service_id = (int)$service_id;
         $this->visible = (bool)$visible;
+        $approval = (bool)0;
 
         try {
             $sql = "UPDATE service 
-                SET is_active = :visible, updated_at = NOW() 
+                SET is_active = :visible,is_approved=:approval, updated_at = NOW() 
                 WHERE service_id = :service_id";
 
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':visible', $this->visible, PDO::PARAM_BOOL);
+            $stmt->bindParam(':approval', $approval, PDO::PARAM_BOOL);
             $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
@@ -597,8 +538,8 @@ class Service
     public function deleteServiceProvider($service_id, $provider_id)
     {
         $this->service_id = (int)$service_id;
-        $this->provider_id= (int)$provider_id;
-        $is_delete=1;
+        $this->provider_id = (int)$provider_id;
+        $is_delete = 1;
 
         try {
             $sql = "UPDATE service 
@@ -628,79 +569,14 @@ class Service
             ];
         }
     }
-    // public function deleteService($service_id, $provider_id)
-    // {
-    //     $this->service_id = (int)$service_id;
-    //     $this->provider_id = (int)$provider_id;
 
-    //     try {
-    //         $sql = "DELETE FROM service WHERE service_id = :service_id AND provider_id = :provider_id";
-    //         $stmt = $this->conn->prepare($sql);
-    //         $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
-    //         $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
-
-    //         if ($stmt->execute()) {
-    //             return [
-    //                 "success" => true,
-    //                 "message" => "Service deleted successfully."
-    //             ];
-    //         } else {
-    //             return [
-    //                 "success" => false,
-    //                 "message" => "Failed to delete service."
-    //             ];
-    //         }
-    //     } catch (PDOException $e) {
-    //         return [
-    //             "success" => false,
-    //             "message" => "Error deleting service: " . $e->getMessage()
-    //         ];
-    //     }
-    // }
 
     public function getAllServiceRequestsByProvider1($provider_id)
     {
         try {
-            // $sql = "SELECT * FROM service_request WHERE provider_id = :provider_id";
-    //         $sql="SELECT 
-    // sr.*,
-    // -- c.name AS customer_name,
-    // -- c.email AS customer_email,
-    // -- c.phone AS customer_phone,
-    // -- s.name AS service_name,
-    // -- s.type AS service_type,
 
-    // -- Installation fields
-    // ir.*,
-    // -- ir.installation_date,
-    // -- ir.device_type,
-    // -- ir.location AS installation_location,
 
-    // -- Maintenance fields
-    // mr.*,
-    // -- mr.maintenance_date,
-    // -- mr.issue_description,
-    // -- mr.location AS maintenance_location,
-
-    // -- Relocation fields
-    // -- rr.relocation_date,
-    // -- rr.old_address,
-    // -- rr.new_address
-    // rr.*
-
-// FROM service_request sr
-// JOIN service s ON sr.service_id = s.service_id
-// JOIN customer c ON sr.customer_id = c.customer_id
-
-// LEFT JOIN installation_request ir ON sr.request_id = ir.request_id
-// LEFT JOIN maintenance_request_details mr ON sr.request_id = mr.request_id
-// LEFT JOIN relocated_request rr ON sr.request_id = rr.request_id
-
-// WHERE s.provider_id = :provider_id AND sr.status =:status
-
-// ";
-
-$sql="SELECT 
+            $sql = "SELECT 
     sr.*,
     c.name AS customer_name,
     s.name AS service_name,
@@ -750,119 +626,119 @@ LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
         }
     }
 
-// function getServiceRequestsByProvider($providerId) {
-//     $sql = "
-//         SELECT 
-//             sr.request_id,
-//             sr.customer_id,
-//             sr.service_id,
-//             sr.status,
-//             sr.payment_status,
-//             sr.request_date,
+    // function getServiceRequestsByProvider($providerId) {
+    //     $sql = "
+    //         SELECT 
+    //             sr.request_id,
+    //             sr.customer_id,
+    //             sr.service_id,
+    //             sr.status,
+    //             sr.payment_status,
+    //             sr.request_date,
 
-//             c.name  AS customer_name,
-//             c.email AS customer_email,
-//             c.phone AS customer_phone,
+    //             c.name  AS customer_name,
+    //             c.email AS customer_email,
+    //             c.phone AS customer_phone,
 
-//             s.name  AS service_name,
-//             s.type  AS service_type,
-//             s.category AS service_category,
-//             s.price    AS service_price,
+    //             s.name  AS service_name,
+    //             s.type  AS service_type,
+    //             s.category AS service_category,
+    //             s.price    AS service_price,
 
-//             ir.installation_date,
-//             ir.device_type,
-//             ir.location AS installation_location,
-//             ir.roof_height AS installation_roof_height,
+    //             ir.installation_date,
+    //             ir.device_type,
+    //             ir.location AS installation_location,
+    //             ir.roof_height AS installation_roof_height,
 
-//             mr.maintenance_date,
-//             mr.issue_description,
-//             mr.location AS maintenance_location,
+    //             mr.maintenance_date,
+    //             mr.issue_description,
+    //             mr.location AS maintenance_location,
 
-//             rr.relocation_date,
-//             rr.old_address,
-//             rr.new_address,
-//             rr.current_roof_height,
-//             rr.new_roof_height
+    //             rr.relocation_date,
+    //             rr.old_address,
+    //             rr.new_address,
+    //             rr.current_roof_height,
+    //             rr.new_roof_height
 
-//         FROM service_request sr
-//         JOIN customer c ON sr.customer_id = c.id
-//         JOIN service s  ON sr.service_id = s.id
+    //         FROM service_request sr
+    //         JOIN customer c ON sr.customer_id = c.id
+    //         JOIN service s  ON sr.service_id = s.id
 
-//         LEFT JOIN installation_request ir 
-//                ON sr.request_id = ir.request_id AND s.type = 'installation'
-//         LEFT JOIN maintenance_request_details mr 
-//                ON sr.request_id = mr.request_id AND s.type = 'maintenance'
-//         LEFT JOIN relocated_request rr 
-//                ON sr.request_id = rr.request_id AND s.type = 'relocation'
+    //         LEFT JOIN installation_request ir 
+    //                ON sr.request_id = ir.request_id AND s.type = 'installation'
+    //         LEFT JOIN maintenance_request_details mr 
+    //                ON sr.request_id = mr.request_id AND s.type = 'maintenance'
+    //         LEFT JOIN relocated_request rr 
+    //                ON sr.request_id = rr.request_id AND s.type = 'relocation'
 
-//         WHERE s.provider_id = :provider_id
-//     ";
+    //         WHERE s.provider_id = :provider_id
+    //     ";
 
-//     $stmt = $this->conn->prepare($sql);
-//     $stmt->execute(['provider_id' => $providerId]);
-//     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->execute(['provider_id' => $providerId]);
+    //     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//     $requests = [];
-//     foreach ($rows as $row) {
-//         $details = [];
+    //     $requests = [];
+    //     foreach ($rows as $row) {
+    //         $details = [];
 
-//         if ($row['service_type'] === 'installation') {
-//             $details = [
-//                 "installation_date" => $row['installation_date'],
-//                 "device_type"       => $row['device_type'],
-//                 "location"          => $row['installation_location'],
-//                 "roof_height"       => $row['installation_roof_height']
-//             ];
-//         } elseif ($row['service_type'] === 'maintenance') {
-//             $details = [
-//                 "maintenance_date"  => $row['maintenance_date'],
-//                 "issue_description" => $row['issue_description'],
-//                 "location"          => $row['maintenance_location']
-//             ];
-//         } elseif ($row['service_type'] === 'relocation') {
-//             $details = [
-//                 "relocation_date"    => $row['relocation_date'],
-//                 "old_address"        => $row['old_address'],
-//                 "new_address"        => $row['new_address'],
-//                 "current_roof_height"=> $row['current_roof_height'],
-//                 "new_roof_height"    => $row['new_roof_height']
-//             ];
-//         }
+    //         if ($row['service_type'] === 'installation') {
+    //             $details = [
+    //                 "installation_date" => $row['installation_date'],
+    //                 "device_type"       => $row['device_type'],
+    //                 "location"          => $row['installation_location'],
+    //                 "roof_height"       => $row['installation_roof_height']
+    //             ];
+    //         } elseif ($row['service_type'] === 'maintenance') {
+    //             $details = [
+    //                 "maintenance_date"  => $row['maintenance_date'],
+    //                 "issue_description" => $row['issue_description'],
+    //                 "location"          => $row['maintenance_location']
+    //             ];
+    //         } elseif ($row['service_type'] === 'relocation') {
+    //             $details = [
+    //                 "relocation_date"    => $row['relocation_date'],
+    //                 "old_address"        => $row['old_address'],
+    //                 "new_address"        => $row['new_address'],
+    //                 "current_roof_height"=> $row['current_roof_height'],
+    //                 "new_roof_height"    => $row['new_roof_height']
+    //             ];
+    //         }
 
-//         $requests[] = [
-//             "request_id"      => $row['request_id'],
-//             "customer_id"     => $row['customer_id'],
-//             "service_id"      => $row['service_id'],
-//             "status"          => $row['status'],
-//             "payment_status"  => $row['payment_status'],
-//             "request_date"    => $row['request_date'],
-//             "customer_name"   => $row['customer_name'],
-//             "customer_email"  => $row['customer_email'],
-//             "customer_phone"  => $row['customer_phone'],
-//             "service_name"    => $row['service_name'],
-//             "service_type"    => $row['service_type'],
-//             "service_category"=> $row['service_category'],
-//             "service_price"   => $row['service_price'],
-//             "details"         => $details
-//         ];
-//     }
+    //         $requests[] = [
+    //             "request_id"      => $row['request_id'],
+    //             "customer_id"     => $row['customer_id'],
+    //             "service_id"      => $row['service_id'],
+    //             "status"          => $row['status'],
+    //             "payment_status"  => $row['payment_status'],
+    //             "request_date"    => $row['request_date'],
+    //             "customer_name"   => $row['customer_name'],
+    //             "customer_email"  => $row['customer_email'],
+    //             "customer_phone"  => $row['customer_phone'],
+    //             "service_name"    => $row['service_name'],
+    //             "service_type"    => $row['service_type'],
+    //             "service_category"=> $row['service_category'],
+    //             "service_price"   => $row['service_price'],
+    //             "details"         => $details
+    //         ];
+    //     }
 
-//     return [
-//         "success"  => true,
-//         "requests" => $requests,
-//         "message"  => "Service requests fetched successfully for provider."
-//     ];
-// }
+    //     return [
+    //         "success"  => true,
+    //         "requests" => $requests,
+    //         "message"  => "Service requests fetched successfully for provider."
+    //     ];
+    // }
 
 
 
     public function getServiceRequestsByProvider($provider_id)
-{
-    try {
-        $finalResults = [];
-        $status = 'pending'; // You can change this to any status you want to filter by
-        // Step 1: Get all service requests for the given provider with related user, customer, and service info
-        $sql = "SELECT 
+    {
+        try {
+            $finalResults = [];
+            $status = 'pending'; // You can change this to any status you want to filter by
+            // Step 1: Get all service requests for the given provider with related user, customer, and service info
+            $sql = "SELECT 
                     sr.*,
                     u.username AS customer_name,
                     u.email AS customer_email,
@@ -878,93 +754,92 @@ LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
                 JOIN service s ON sr.service_id = s.service_id
                 WHERE s.provider_id = :provider_id  AND sr.status =:status";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':provider_id', $provider_id);
-        $stmt->bindParam(':status', $status);
-        $stmt->execute();
-        $serviceRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':provider_id', $provider_id);
+            $stmt->bindParam(':status', $status);
+            $stmt->execute();
+            $serviceRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Step 2: Get detailed info from the appropriate table for each service_type
-        foreach ($serviceRequests as $request) {
-            $requestId = $request['request_id'];
-            // $type = strtolower($request['service_type']);
-              $type = strtolower($request['service_category']);
+            // Step 2: Get detailed info from the appropriate table for each service_type
+            foreach ($serviceRequests as $request) {
+                $requestId = $request['request_id'];
+                // $type = strtolower($request['service_type']);
+                $type = strtolower($request['service_category']);
 
-            $extraDetails = [];
+                $extraDetails = [];
 
-            switch ($type) {
-                case 'installation':
-                    $detailSql = "SELECT installation_address, roof_height 
+                switch ($type) {
+                    case 'installation':
+                        $detailSql = "SELECT installation_address, roof_height 
                                   FROM installation_request 
                                   WHERE request_id = :request_id";
-                    break;
+                        break;
 
-                case 'maintenance':
-                    $detailSql = "SELECT device_condition, service_notes, last_maintenance_date, roof_height 
+                    case 'maintenance':
+                        $detailSql = "SELECT device_condition, service_notes, last_maintenance_date, roof_height 
                                   FROM maintenance_request_details 
                                   WHERE request_id = :request_id";
-                    break;
+                        break;
 
-                case 'relocation':
-                    $detailSql = "SELECT current_address, new_address, current_roof_height, new_roof_height 
+                    case 'relocation':
+                        $detailSql = "SELECT current_address, new_address, current_roof_height, new_roof_height 
                                   FROM relocated_request 
                                   WHERE request_id = :request_id";
-                    break;
+                        break;
 
-                default:
-                    $detailSql = null;
+                    default:
+                        $detailSql = null;
+                }
+
+                if ($detailSql) {
+                    $detailStmt = $this->conn->prepare($detailSql);
+                    $detailStmt->bindParam(':request_id', $requestId);
+                    $detailStmt->execute();
+                    $extraDetails = $detailStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+                }
+
+                $finalResults[] = array_merge($request, ['details' => $extraDetails]);
             }
 
-            if ($detailSql) {
-                $detailStmt = $this->conn->prepare($detailSql);
-                $detailStmt->bindParam(':request_id', $requestId);
-                $detailStmt->execute();
-                $extraDetails = $detailStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-            }
-
-            $finalResults[] = array_merge($request, ['details' => $extraDetails]);
+            return [
+                'success' => true,
+                'requests' => $finalResults,
+                'message' => 'Service requests fetched successfully for provider.'
+            ];
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return [
+                'success' => false,
+                'message' => 'Error fetching service requests: ' . $e->getMessage()
+            ];
         }
-
-        return [
-            'success' => true,
-            'requests' => $finalResults,
-            'message' => 'Service requests fetched successfully for provider.'
-        ];
-
-    } catch (PDOException $e) {
-        http_response_code(500);
-        return [
-            'success' => false,
-            'message' => 'Error fetching service requests: ' . $e->getMessage()
-        ];
     }
-}
-public function updateRequestStatus($request_id, $provider_id, $new_status)
-{
-    $this->request_id = (int)$request_id;
-    $this->provider_id = (int)$provider_id;
-    $this->status = $new_status;
+    public function updateRequestStatus($request_id, $provider_id, $new_status)
+    {
+        $this->request_id = (int)$request_id;
+        $this->provider_id = (int)$provider_id;
+        $this->status = $new_status;
 
-    try {
-        // 1. Update request status
-        $sql = "UPDATE service_request sr
+        try {
+            // 1. Update request status
+            $sql = "UPDATE service_request sr
                 JOIN service s ON sr.service_id = s.service_id
                 SET sr.status = :status, sr.updated_at = NOW()
                 WHERE sr.request_id = :request_id 
                   AND s.provider_id = :provider_id";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
-        $stmt->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
-        $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
+            $stmt->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+            $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
 
-        if ($stmt->execute()) {
+            if ($stmt->execute()) {
 
-            // 2. If status is accepted, insert into ongoing_project
-            if (strtolower($this->status) === "accepted") {
+                // 2. If status is accepted, insert into ongoing_project
+                if (strtolower($this->status) === "accepted") {
 
-                // Fetch customer name + service name
-                $query = "SELECT u.username AS customer_name, s.name AS service_name
+                    // Fetch customer name + service name
+                    $query = "SELECT u.username AS customer_name, s.name AS service_name
                           FROM service_request sr
                           JOIN customer c ON sr.customer_id = c.customer_id
                           JOIN user u ON c.user_id = u.user_id
@@ -972,54 +847,54 @@ public function updateRequestStatus($request_id, $provider_id, $new_status)
                           WHERE sr.request_id = :request_id
                             AND s.provider_id = :provider_id
                           LIMIT 1";
-                $stmt2 = $this->conn->prepare($query);
-                $stmt2->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
-                $stmt2->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
-                $stmt2->execute();
-                $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+                    $stmt2 = $this->conn->prepare($query);
+                    $stmt2->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+                    $stmt2->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+                    $stmt2->execute();
+                    $row = $stmt2->fetch(PDO::FETCH_ASSOC);
 
-                if ($row) {
-                    $project_name = $row['customer_name'] . " - " . $row['service_name'];
+                    if ($row) {
+                        $project_name = $row['customer_name'] . " - " . $row['service_name'];
 
-                    $insert = "INSERT INTO ongoing_project 
+                        $insert = "INSERT INTO ongoing_project 
                                (request_id, project_name, status, start_date, due_date, completed_date, payment_id, created_at, updated_at) 
                                VALUES (:request_id, :project_name, 'new', NULL, NULL, NULL, NULL, NOW(), NOW())";
 
-                    $stmt3 = $this->conn->prepare($insert);
-                    $stmt3->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
-                    $stmt3->bindParam(':project_name', $project_name, PDO::PARAM_STR);
-                    $stmt3->execute();
+                        $stmt3 = $this->conn->prepare($insert);
+                        $stmt3->bindParam(':request_id', $this->request_id, PDO::PARAM_INT);
+                        $stmt3->bindParam(':project_name', $project_name, PDO::PARAM_STR);
+                        $stmt3->execute();
+                    }
                 }
-            }
 
-            return [
-                "success" => true,
-                "message" => "Service request status updated successfully."
-            ];
-        } else {
+                return [
+                    "success" => true,
+                    "message" => "Service request status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update service request status."
+                ];
+            }
+        } catch (PDOException $e) {
             return [
                 "success" => false,
-                "message" => "Failed to update service request status."
+                "message" => "Error updating service request: " . $e->getMessage()
             ];
         }
-    } catch (PDOException $e) {
-        return [
-            "success" => false,
-            "message" => "Error updating service request: " . $e->getMessage()
-        ];
     }
-}
 
 
-  public function updateRequestStatus1($request_id,$provider_id, $new_status)
+    public function updateRequestStatus1($request_id, $provider_id, $new_status)
     {
-        $this->request_id= (int)$request_id;
-        $this->provider_id= (int)$provider_id;
-        $this->status= $new_status;
+        $this->request_id = (int)$request_id;
+        $this->provider_id = (int)$provider_id;
+        $this->status = $new_status;
         // $is_delete=1;
 
         try {
-           $sql = "UPDATE service_request sr
+            $sql = "UPDATE service_request sr
         JOIN service s ON sr.service_id = s.service_id
         SET sr.status = :status, sr.updated_at = NOW()
         WHERE sr.request_id = :request_id 
@@ -1032,7 +907,7 @@ public function updateRequestStatus($request_id, $provider_id, $new_status)
             $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
-                
+
                 return [
                     "success" => true,
                     "message" => "Service request status updated successfully."
@@ -1052,9 +927,9 @@ public function updateRequestStatus($request_id, $provider_id, $new_status)
     }
 
     public function getOngoingProjectsByCustomer($customer_id)
-{
-    try {
-        $sql = "
+    {
+        try {
+            $sql = "
             SELECT 
                 op.project_id,
                 op.project_name,
@@ -1082,35 +957,30 @@ public function updateRequestStatus($request_id, $provider_id, $new_status)
             ORDER BY op.start_date DESC
         ";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_INT);
-        $stmt->execute();
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_INT);
+            $stmt->execute();
 
-        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($projects) {
-            return [
-                'success' => true,
-                'projects' => $projects,
-                'message' => 'Ongoing projects fetched successfully.'
-            ];
-        } else {
+            if ($projects) {
+                return [
+                    'success' => true,
+                    'projects' => $projects,
+                    'message' => 'Ongoing projects fetched successfully.'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'projects' => [],
+                    'message' => 'No ongoing projects found for this customer.'
+                ];
+            }
+        } catch (PDOException $e) {
             return [
                 'success' => false,
-                'projects' => [],
-                'message' => 'No ongoing projects found for this customer.'
+                'message' => 'Database error: ' . $e->getMessage()
             ];
         }
-    } catch (PDOException $e) {
-        return [
-            'success' => false,
-            'message' => 'Database error: ' . $e->getMessage()
-        ];
     }
-}
-
-
-
-
-
 }

@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import OrderDetailsModal from '@/components/uiProvider/orderDetailsModel';
+import { useDashboardStore } from '@/store/orderProviderState';
 
 // Single order item
 export interface OrderItem {
@@ -55,6 +56,8 @@ export default function ProductOrdernew() {
   const [sortBy, setSortBy] = useState<"date" | "price-low" | "price-high">("date");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const { fetchCounts } = useDashboardStore.getState();
+
 
   // Fetch orders
   useEffect(() => {
@@ -121,7 +124,9 @@ export default function ProductOrdernew() {
       );
       if (res.data.success) {
         toast({ title: "Updated", description: "Order status updated successfully" });
+        await fetchCounts();
         fetchOrders(); // refresh
+         
       }
     } catch (err) {
       console.error(err);
