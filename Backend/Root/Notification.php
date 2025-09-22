@@ -271,15 +271,17 @@ public function GetDashboardCounts2($provider_id) {
 public function GetDashboardCounts($provider_id) {
     $status_SReq="pending";
     $status_OnGoing="new";
+    $statusOrder="pending";
     try {
         // ------------------- Orders -------------------
         $sqlOrders = "SELECT COUNT(DISTINCT o.order_id) as order_count
                       FROM `order` o
                       INNER JOIN `order_item` oi ON o.order_id = oi.order_id
                       INNER JOIN `product` p ON oi.product_id = p.product_id
-                      WHERE p.provider_id = :provider_id";
+                      WHERE p.provider_id = :provider_id AND status= :status";
         $stmt = $this->conn->prepare($sqlOrders);
         $stmt->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+        $stmt->bindParam(':status', $statusOrder, PDO::PARAM_STR);
         $stmt->execute();
         $orders = $stmt->fetch(PDO::FETCH_ASSOC);
 
