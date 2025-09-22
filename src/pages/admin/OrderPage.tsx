@@ -215,10 +215,6 @@ const OrderPage = () => {
                     <h1 className="text-3xl font-bold">Orders Management</h1>
                     <p className="text-muted-foreground">Monitor and manage all customer orders</p>
                 </div>
-                <Button onClick={exportOrders} variant="outline">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Orders
-                </Button>
             </div>
 
             {/* Stats Overview */}
