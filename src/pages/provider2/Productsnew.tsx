@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Package, Eye ,Star} from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Eye, Star, CheckCircle, Clock, AlertCircle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,35 +10,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { IProduct } from '@/store/providerCommonInterfaces';
 
-export interface Review {
-  review_id: number;
-  rating: number;
-  comment: string;
-  created_at: string;
-}
-
-export interface Product {
-  product_id: number;
-  name: string;
-  description: string;
-  price: number;
-  images: string; // stored path from backend
-  category: string;
-  specifications: string;
-  is_approved: boolean;
-  created_at: string;
-  reviews?: Review[];
-}
 
 
 export default function Productsnew() {
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<Product>>({
+  const [formData, setFormData] = useState<Partial<IProduct>>({
     name: '',
     description: '',
     price: 0,
@@ -58,6 +40,9 @@ export default function Productsnew() {
       .then(res => {
         if (res.data.success) {
           setProducts(res.data.products);
+        }
+        else{
+           toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
         }
       })
       .catch(() => console.log("Failed to fetch products"));
@@ -99,6 +84,7 @@ export default function Productsnew() {
   const filteredProducts = products
     .filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
@@ -121,6 +107,7 @@ export default function Productsnew() {
     if (res.data.success) {
       toast({ title: "Deleted", description: "Product deleted successfully", variant: "destructive" });
       setProducts(products.filter(p => p.product_id !== id));
+      fetchProducts();
     }
     else {
       toast({ title: "Failed", description: "Product deleted failed", variant: "destructive" });
@@ -180,7 +167,7 @@ export default function Productsnew() {
   };
 
   // Edit
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product: IProduct) => {
     setFormData(product);
     setImageFile(null);
     setImagePreview(`http://localhost/Git/Project1/Backend/${product.images}`); // existing image
@@ -195,11 +182,6 @@ export default function Productsnew() {
     }
   };
 
-  const [searchOrder, setSearchOrder] = useState("");
-  const [statusOrderFilter, setStatusOrderFilter] = useState("all");
-
-
-
   return (
 
     <div className="space-y-6">
@@ -211,6 +193,8 @@ export default function Productsnew() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Products</h1>
               <p className="text-gray-500 dark:text-gray-400">Manage your products and inventory</p>
             </div>
+
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-green-500 hover:bg-green-600" onClick={() => {
@@ -283,6 +267,45 @@ export default function Productsnew() {
               </DialogContent>
             </Dialog>
           </div>
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4 flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Orders</p>
+                  <p className="text-2xl font-bold">{products.length}</p>
+                </div>
+                <DollarSign className="h-6 w-6 text-primary" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {products.filter((o) => o.is_approved === 1).length}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-red-50 rounded-lg flex items-center justify-center">
+                  <AlertCircle className="h-6 w-6 text-red-600" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">In active</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {products.filter((o) => o.is_approved === 0).length}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
 
           {/* Search and Filter */}
           <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -309,7 +332,7 @@ export default function Productsnew() {
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <Card key={product.product_id} className="hover:shadow-xl transition rounded-2xl overflow-hidden">
                 {/* Image */}
@@ -325,9 +348,9 @@ export default function Productsnew() {
                   <div>
                     <CardTitle className="text-lg">{product.name}</CardTitle>
                     <div className="flex gap-2 mt-1">
-                      <Badge variant="secondary">{product.category}</Badge>
-                      <Badge variant={product.is_approved ? "default" : "destructive"}>
-                        {product.is_approved ? "Approved" : "Pending"}
+                      <Badge variant="secondary">{product.category ? product.category : "#No tag"}</Badge>
+                      <Badge variant={product.is_approved ? "default" : "destructive"} >
+                        {product.is_approved ? "Approved by admin" : "Pending"}
                       </Badge>
                     </div>
                   </div>

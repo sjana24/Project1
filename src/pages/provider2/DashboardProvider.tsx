@@ -1,73 +1,197 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Package, Wrench, ShoppingCart, Star, TrendingUp } from 'lucide-react';
+import { Package, Wrench, ShoppingCart, TrendingUp } from 'lucide-react';
+import axios from 'axios';
+import { IOngoingProject, IOrder, IOrderItem, IProduct, IService } from '@/store/providerCommonInterfaces';
+
+
 
 export default function Dashboard() {
-  // --- Mock Data ---
-  const products = [
-    { id: 1, name: 'Solar Panel A', status: 'Active' },
-    { id: 2, name: 'Solar Panel B', status: 'Active' },
-    { id: 3, name: 'Battery Storage', status: 'Inactive' },
-  ];
+  const [dataRaw, setDataRaw] = useState<any>(null);
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [services, setServices] = useState<IService[]>([]);
+  const [orders, setOrders] = useState<IOrder[]>([]);
+  const [projects, setProjects] = useState<IOngoingProject[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
-  const services = [
-    { id: 1, name: 'Installation', status: 'Active' },
-    { id: 2, name: 'Maintenance', status: 'Active' },
-    { id: 3, name: 'Consultation', status: 'Inactive' },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const orders = [
-    { id: 1, customerName: 'John Doe', total: 120000, status: 'Completed', orderDate: '2025-09-01', expectedDelivery: '2025-09-05' },
-    { id: 2, customerName: 'Jane Smith', total: 85000, status: 'Pending', orderDate: '2025-09-02', expectedDelivery: '2025-09-07' },
-    { id: 3, customerName: 'Michael Lee', total: 56000, status: 'Completed', orderDate: '2025-09-03', expectedDelivery: '2025-09-08' },
-    { id: 4, customerName: 'Alice Brown', total: 102000, status: 'In Progress', orderDate: '2025-09-04', expectedDelivery: '2025-09-10' },
-    { id: 5, customerName: 'Bob Johnson', total: 78000, status: 'Pending', orderDate: '2025-09-05', expectedDelivery: '2025-09-12' },
-  ];
+  const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get("http://localhost/Git/Project1/Backend/ProviderDashBoard.php", { withCredentials: true });
+      if (res.data && res.data.success) {
+        const payload = res.data.data ?? res.data;
+        setDataRaw(payload);
 
-  const recentProjects = [
-    { id: 1, projectName: 'Residential Solar Installation', status: 'Pending', customerName: 'Alice Brown', startDate: '2025-09-01', dueDate: '2025-09-10' },
-    { id: 2, projectName: 'Commercial Solar Maintenance', status: 'In Progress', customerName: 'Bob Johnson', startDate: '2025-09-03', dueDate: '2025-09-15' },
-    { id: 3, projectName: 'Solar Battery Upgrade', status: 'Completed', customerName: 'Charlie Davis', startDate: '2025-08-25', dueDate: '2025-09-05' },
-    { id: 4, projectName: 'Solar Panel Replacement', status: 'Pending', customerName: 'Diana Green', startDate: '2025-09-05', dueDate: '2025-09-12' },
-    { id: 5, projectName: 'Commercial Roof Installation', status: 'In Progress', customerName: 'Edward King', startDate: '2025-09-06', dueDate: '2025-09-20' },
-    { id: 6, projectName: 'Solar Inverter Upgrade', status: 'Completed', customerName: 'Fiona White', startDate: '2025-08-28', dueDate: '2025-09-08' },
-  ];
+        const parsedProducts = (payload.products || []).map((p: any): IProduct => ({
+          product_id: Number(p.product_id),
+          provider_id: Number(p.provider_id),
+          name: p.name ?? '',
+          description: p.description ?? '',
+          price: Number(p.price ?? 0),
+          category: p.category ?? '',
+          images: p.images ?? '',
+          specifications: p.specifications ?? null,
+          is_approved: Number(p.is_approved ?? 0),
+          is_delete: Number(p.is_delete ?? 0),
+          created_at: p.created_at ?? '',
+          updated_at: p.updated_at ?? '',
+          status: (Number(p.is_approved ?? 0) === 1)
+            ? 'approved'
+            : (Number(p.is_delete ?? 0) === 1 ? 'rejected' : 'pending'),
+        }));
 
-  const completedOrders = orders.filter(order => order.status === 'Completed').length;
+        const parsedServices = (payload.services || []).map((s: any): IService => ({
+          service_id: Number(s.service_id),
+          provider_id: Number(s.provider_id),
+          name: s.name ?? '',
+          description: s.description ?? '',
+          price: Number(s.price ?? 0),
+          category: s.category ?? '',
+          is_approved: Number(s.is_approved ?? 0),
+          is_active: Number(s.is_active ?? 0),
+          is_delete: Number(s.is_delete ?? 0),
+          created_at: s.created_at ?? '',
+          updated_at: s.updated_at ?? '',
+          status: Number(s.is_active ?? 0) === 1
+            ? 'active'
+            : (Number(s.is_approved ?? 0) === 1 ? 'approved' : 'inactive'),
+        }));
+
+        const parsedOrders = (payload.orders || []).map((o: any): IOrder => ({
+          order_id: Number(o.order_id),
+          customer_id: Number(o.customer_id),
+          order_date: o.order_date ?? '',
+          total_amount: Number(o.total_amount ?? 0),
+          delivery_charge: Number(o.delivery_charge ?? 0),
+          status: (o.status ?? '').toString(),
+          shipping_address: o.shipping_address ?? '',
+          payment_status: o.payment_status ?? '',
+          created_at: o.created_at ?? '',
+          updated_at: o.updated_at ?? '',
+          provider_total_amount: Number(o.provider_total_amount ?? 0),
+          provider_total_items: Number(o.provider_total_items ?? 0),
+          items: (o.items || []).map((it: any): IOrderItem => ({
+            item_id: Number(it.item_id),
+            order_id: Number(it.order_id),
+            product_id: Number(it.product_id),
+            quantity: Number(it.quantity),
+            unit_price: Number(it.unit_price ?? 0),
+            subtotal: Number(it.subtotal ?? 0),
+            product_name: it.product_name ?? '',
+            product_images: it.product_images ?? '',
+            product_category: it.product_category ?? '',
+          })),
+        }));
+
+        const parsedProjects = (payload.ongoing_projects || payload.projects || []).map((p: any): IOngoingProject => ({
+          project_id: Number(p.project_id),
+          request_id: Number(p.request_id),
+          project_name: p.project_name ?? '',
+          status: p.status ?? '',
+          start_date: p.start_date ?? '',
+          due_date: p.due_date ?? '',
+          completed_date: p.completed_date ?? null,
+          payment_id: p.payment_id !== undefined ? (p.payment_id === null ? null : Number(p.payment_id)) : null,
+          created_at: p.created_at ?? '',
+          updated_at: p.updated_at ?? '',
+        }));
+
+        setProducts(parsedProducts);
+        setServices(parsedServices);
+        setOrders(parsedOrders);
+        setProjects(parsedProjects);
+      } else {
+        setError(res.data?.message ?? 'Failed to fetch dashboard data');
+      }
+    } catch (e: any) {
+      console.error('Fetch Provider Dashboard error', e);
+      setError(e?.message || 'Failed to fetch dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Derived values
+  const completedOrdersCount = orders.filter(o => (o.status ?? '').toLowerCase() === 'delivered').length;
+  const newOrdersCount = orders.filter(o => ['new', 'pending'].includes((o.status ?? '').toLowerCase())).length;
+  const ongoingOrdersCount = orders.filter(o => {
+    const s = (o.status ?? '').toLowerCase();
+    return s && !['delivered', 'cancelled', 'new'].includes(s);
+  }).length;
+
+  const completedProjectsCount = projects.filter(p => (p.status ?? '').toLowerCase() === 'completed').length;
+  const pendingProjectsCount = projects.filter(p => (p.status ?? '').toLowerCase() === 'pending').length;
+  const ongoingProjectsCount = projects.filter(p => (p.status ?? '').toLowerCase() === 'ongoing').length;
 
   const stats = [
     {
-      title: 'Total Products',
-      value: 10,
+      title: "Total Products",
+      value: products.length,
       icon: Package,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+      details: [
+        { label: "Approved", value: products.filter(p => p.status === "approved").length },
+        { label: "Rejected", value: products.filter(p => p.status === "rejected").length },
+        { label: "Pending", value: products.filter(p => p.status === "pending").length },
+      ],
     },
     {
-      title: 'Active Services',
-      value: services.filter(s => s.status === 'Active').length,
+      title: "Services",
+      value: services.length,
       icon: Wrench,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+      details: [
+        { label: "Active", value: services.filter(s => s.status === "active").length },
+        { label: "Approved", value: services.filter(s => s.is_approved === 1).length },
+        { label: "Inactive", value: services.filter(s => s.status === "inactive").length },
+      ],
     },
     {
-      title: 'Completed Orders',
-      value: completedOrders,
+      title: "Orders",
+      value: orders.length,
       icon: ShoppingCart,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
+      details: [
+        { label: "New / Pending", value: newOrdersCount },
+        { label: "Ongoing", value: ongoingOrdersCount },
+        { label: "Delivered", value: completedOrdersCount },
+        { label: "Cancelled", value: orders.filter(o => (o.status ?? '').toLowerCase() === 'cancelled').length },
+      ],
     },
     {
-      title: 'Average Rating',
-      value: '4.5', // mock value
-      icon: Star,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
+      title: "Projects",
+      value: projects.length,
+      icon: TrendingUp,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
+      details: [
+        { label: "Ongoing", value: ongoingProjectsCount },
+        { label: "Completed", value: completedProjectsCount },
+        { label: "Pending", value: pendingProjectsCount },
+      ],
     },
   ];
+    // ✅ Sort orders (latest first by order_date)
+  const recentOrders = [...orders]
+    .sort((a, b) => new Date(b.order_date).getTime() - new Date(a.order_date).getTime())
+    // .slice(0, 5);
 
-  const recentOrders = orders.slice(0, 5);
+  // ✅ Sort projects (latest first by updated_at)
+  const recentProjects = [...projects]
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+    // .slice(0, 5);
+
+
 
   return (
     <div className="space-y-6">
@@ -76,20 +200,51 @@ export default function Dashboard() {
         <p className="text-gray-500 dark:text-gray-400">Welcome back! Here's what's happening with your business.</p>
       </div>
 
+      {loading && (
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-sm text-gray-500">Loading dashboard...</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {error && (
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-sm text-red-600">Error: {error}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
+            <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    {stat.title}
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {stat.value}
+                  </p>
                 </div>
                 <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
               </div>
+
+              {stat.details && (
+                <div className="space-y-1">
+                  {stat.details.map((detail: any, idx: number) => (
+                    <div key={idx} className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                      <span>{detail.label}</span>
+                      <span className="font-medium">{detail.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -105,19 +260,29 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
               {recentOrders.length > 0 ? (
                 recentOrders.map((order) => (
-                  <div key={order.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div key={order.order_id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex justify-between mb-1">
-                      <p className="font-medium">{order.customerName}</p>
-                      <Badge variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}>
-                        {order.status}
+                      <p className="font-medium">Order #{order.order_id}</p>
+                      <Badge
+                        variant={
+                          order.status === "delivered"
+                            ? "default"
+                            : order.status === "pending"
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
+                        {order.status || "unknown"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-500">Order Date: {order.orderDate}</p>
-                    <p className="text-sm text-gray-500">Expected Delivery: {order.expectedDelivery}</p>
-                    <p className="text-sm text-gray-500 font-semibold">Total: Rs. {order.total.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">Order Date: {order.order_date}</p>
+                    <p className="text-sm text-gray-500">Shipping: {order.shipping_address}</p>
+                    <p className="text-sm text-gray-500 font-semibold">
+                      Total: Rs. {Number(order.total_amount).toLocaleString()}
+                    </p>
                   </div>
                 ))
               ) : (
@@ -127,33 +292,36 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Project Requests */}
+        {/* Recent Projects */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <TrendingUp className="w-5 h-5" />
-              <span>Recent Project Requests</span>
+              <span>Recent Projects</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
               {recentProjects.length > 0 ? (
                 recentProjects.map((project) => (
-                  <div key={project.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div key={project.project_id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex justify-between mb-1">
-                      <p className="font-medium">{project.projectName}</p>
-                      <Badge variant={
-                        project.status === 'Completed'
-                          ? 'default'
-                          : project.status === 'Pending'
-                          ? 'secondary'
-                          : 'destructive'
-                      }>
-                        {project.status}
+                      <p className="font-medium">{project.project_name}</p>
+                      <Badge
+                        variant={
+                          project.status?.toLowerCase() === "completed"
+                            ? "default"
+                            : project.status?.toLowerCase() === "pending"
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
+                        {project.status || "unknown"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-500">Customer: {project.customerName}</p>
-                    <p className="text-sm text-gray-500">Start: {project.startDate} | Due: {project.dueDate}</p>
+                    <p className="text-sm text-gray-500">
+                      Start: {project.start_date || "—"} | Due: {project.due_date || "—"}
+                    </p>
                   </div>
                 ))
               ) : (

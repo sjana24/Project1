@@ -11,6 +11,7 @@ import { Request } from '@/store/provider.interface';
 import axios from 'axios';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useDashboardStore } from '@/store/orderProviderState';
 
 
 export default function Service_Requests() {
@@ -22,6 +23,7 @@ export default function Service_Requests() {
   const [searchRequest, setSearchRequest] = useState<String>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const { fetchCounts } = useDashboardStore.getState();
 
   useEffect(() => {
     axios.get("http://localhost/Git/Project1/Backend/GetAllServiceRequestProvider.php", { withCredentials: true })
@@ -77,6 +79,7 @@ export default function Service_Requests() {
         description: "Service request status updated successfully.",
 
       });
+        await fetchCounts();
     }
     else {
       toast({

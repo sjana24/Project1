@@ -6,6 +6,7 @@ class Chat
     protected $service_id;
     protected $customer_id;
     protected $provider_id;
+    
 
     protected $conn;
 
@@ -28,27 +29,24 @@ class Chat
     //     $count = $stmt->fetchColumn();
     //     return $count > 0;
     // }
-    public function isExistingChatRequest($customer_id, $provider_id, $service_id)
-    {
+    public function isExistingChatRequest($customer_id, $provider_id){
+    $this->customer_id=$customer_id;
+    $this->provider_id=$provider_id;
+    
         $query = "SELECT COUNT(*) 
               FROM contact_request 
               WHERE customer_id = ? 
               AND provider_id = ? 
-              AND service_id = ? 
               AND status IN ('pending', 'accepted')";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $customer_id);
-        $stmt->bindParam(2, $provider_id);
-        $stmt->bindParam(3, $service_id);
+        $stmt->bindParam(1, $this->customer_id);
+        $stmt->bindParam(2, $this->provider_id);
         $stmt->execute();
 
         $count = $stmt->fetchColumn();
         return $count > 0; // returns true if such a request exists
     }
-
-
-
 
 
 
@@ -94,7 +92,7 @@ class Chat
             return [
                 "success" => false,
                 "data" => $count,
-                "message" => "Error send Request."
+                "message" => "Already you are in touch."
             ];
         }
     }
@@ -117,7 +115,7 @@ class Chat
             JOIN user u ON cr.customer_id = u.user_id
             JOIN customer c ON cr.customer_id = c.customer_id
             JOIN service s ON cr.service_id = s.service_id
-            WHERE cr.provider_id = ?
+            WHERE cr.provider_id = ? AND cr.status = 'pending'
             ORDER BY cr.requested_at DESC
         ";
 
@@ -190,7 +188,7 @@ class Chat
     {
         try {
             // Insert into conversation table
-            $sql = "INSERT INTO conversation (request_id, customer_id, provider_id, is_active) 
+            $sql = "INSERT INTO conversation1 (request_id, customer_id, provider_id, is_active) 
                 VALUES (?, ?, ?, ?)";
 
             $stmt = $this->conn->prepare($sql);
@@ -668,6 +666,36 @@ public function getUserConversationsWithMessages($user_id, $userrole) {
         ];
     }
 }
+
+
+     // === Insert new message ===
+    public function sendMessage($chatSession_id, $sender_id, $receiver_id, $message) {
+        $sql =" INSERT INTO chat_sessions
+(chatSession_id, sender_id, receiver_id, message, sent_at, is_read)
+VALUES (:chatSession_id, :sender_id, :receiver_id, :message, NOW(), 0)";
+
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':chatSession_id' => $chatSession_id,
+            ':sender_id'       => $sender_id,
+            // ':sender_role'     => $sender_role,
+            ':receiver_id'     => $receiver_id,
+            // ':sent_at'   => $sent_atNow,
+            ':message'         => $message
+        ]);
+    }
+
+    // === Mark messages as read for a user ===
+    public function markConversationAsRead($chatSession_id, $user_id) {
+        $sql = "UPDATE chat_sessions 
+                SET is_read = 1 
+                WHERE chatSession_id = :chatSession_id AND receiver_id = :user_id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':chatSession_id' => $chatSession_id,
+            ':user_id'         => $user_id
+        ]);
+    }
 
 
 }

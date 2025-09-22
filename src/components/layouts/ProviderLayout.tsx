@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -12,10 +12,12 @@ import {
   MessageSquare,
   Wrench,
   Layers,
-  Edit, 
+  Edit,
   User
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import axios from 'axios';
+import { IOngoingProject, IOrder, IOrderItem, IProduct, IService } from '@/store/providerCommonInterfaces';
 
 const navigation = [
   { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
@@ -44,6 +46,115 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
   const { logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [dataRaw, setDataRaw] = useState<any>(null);
+    const [products, setProducts] = useState<IProduct[]>([]);
+    const [services, setServices] = useState<IService[]>([]);
+    const [orders, setOrders] = useState<IOrder[]>([]);
+    const [projects, setProjects] = useState<IOngoingProject[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>('');
+
+ useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get("http://localhost/Git/Project1/Backend/ProviderDashBoard.php", { withCredentials: true });
+      if (res.data && res.data.success) {
+        const payload = res.data.data ?? res.data;
+        setDataRaw(payload);
+
+        const parsedProducts = (payload.products || []).map((p: any): IProduct => ({
+          product_id: Number(p.product_id),
+          provider_id: Number(p.provider_id),
+          name: p.name ?? '',
+          description: p.description ?? '',
+          price: Number(p.price ?? 0),
+          category: p.category ?? '',
+          images: p.images ?? '',
+          specifications: p.specifications ?? null,
+          is_approved: Number(p.is_approved ?? 0),
+          is_delete: Number(p.is_delete ?? 0),
+          created_at: p.created_at ?? '',
+          updated_at: p.updated_at ?? '',
+          status: (Number(p.is_approved ?? 0) === 1)
+            ? 'approved'
+            : (Number(p.is_delete ?? 0) === 1 ? 'rejected' : 'pending'),
+        }));
+
+        const parsedServices = (payload.services || []).map((s: any): IService => ({
+          service_id: Number(s.service_id),
+          provider_id: Number(s.provider_id),
+          name: s.name ?? '',
+          description: s.description ?? '',
+          price: Number(s.price ?? 0),
+          category: s.category ?? '',
+          is_approved: Number(s.is_approved ?? 0),
+          is_active: Number(s.is_active ?? 0),
+          is_delete: Number(s.is_delete ?? 0),
+          created_at: s.created_at ?? '',
+          updated_at: s.updated_at ?? '',
+          status: Number(s.is_active ?? 0) === 1
+            ? 'active'
+            : (Number(s.is_approved ?? 0) === 1 ? 'approved' : 'inactive'),
+        }));
+
+        const parsedOrders = (payload.orders || []).map((o: any): IOrder => ({
+          order_id: Number(o.order_id),
+          customer_id: Number(o.customer_id),
+          order_date: o.order_date ?? '',
+          total_amount: Number(o.total_amount ?? 0),
+          delivery_charge: Number(o.delivery_charge ?? 0),
+          status: (o.status ?? '').toString(),
+          shipping_address: o.shipping_address ?? '',
+          payment_status: o.payment_status ?? '',
+          created_at: o.created_at ?? '',
+          updated_at: o.updated_at ?? '',
+          provider_total_amount: Number(o.provider_total_amount ?? 0),
+          provider_total_items: Number(o.provider_total_items ?? 0),
+          items: (o.items || []).map((it: any): IOrderItem => ({
+            item_id: Number(it.item_id),
+            order_id: Number(it.order_id),
+            product_id: Number(it.product_id),
+            quantity: Number(it.quantity),
+            unit_price: Number(it.unit_price ?? 0),
+            subtotal: Number(it.subtotal ?? 0),
+            product_name: it.product_name ?? '',
+            product_images: it.product_images ?? '',
+            product_category: it.product_category ?? '',
+          })),
+        }));
+
+        const parsedProjects = (payload.ongoing_projects || payload.projects || []).map((p: any): IOngoingProject => ({
+          project_id: Number(p.project_id),
+          request_id: Number(p.request_id),
+          project_name: p.project_name ?? '',
+          status: p.status ?? '',
+          start_date: p.start_date ?? '',
+          due_date: p.due_date ?? '',
+          completed_date: p.completed_date ?? null,
+          payment_id: p.payment_id !== undefined ? (p.payment_id === null ? null : Number(p.payment_id)) : null,
+          created_at: p.created_at ?? '',
+          updated_at: p.updated_at ?? '',
+        }));
+
+        setProducts(parsedProducts);
+        setServices(parsedServices);
+        setOrders(parsedOrders);
+        setProjects(parsedProjects);
+      } else {
+        setError(res.data?.message ?? 'Failed to fetch dashboard data');
+      }
+    } catch (e: any) {
+      console.error('Fetch Provider Dashboard error', e);
+      setError(e?.message || 'Failed to fetch dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const providerName =
     localStorage.getItem('currentProvider') &&
@@ -167,13 +278,13 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
             className="w-full"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <Button 
-  variant="outline"
-  className="w-full flex items-center gap-3 rounded-xl bg-green-500 text-black hover:bg-teal-600 transition-colors duration-300"
->
-  <User className="w-5 h-5 text-black" />
-  <span className="font-medium">Hi, {providerName || "Provider"}</span>
-</Button>
+            <Button
+              variant="outline"
+              className="w-full flex items-center gap-3 rounded-xl bg-green-500 text-black hover:bg-teal-600 transition-colors duration-300"
+            >
+              <User className="w-5 h-5 text-black" />
+              <span className="font-medium">Hi, {providerName || "Provider"}</span>
+            </Button>
 
 
 

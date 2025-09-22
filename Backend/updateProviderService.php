@@ -40,16 +40,7 @@ if (isset($_SESSION['user'])) {
         // $visible = isset($array['visible']) ? (bool)$array['visible'] : false;
         $visible = 0; // Assuming visible is always set to 1 for now
 
-        // echo $service_id;
-        // echo "--";
-        // echo $user_id; echo "--";
-        // echo $name; echo "--";
-        // echo $description; echo "--";
-        // echo $price; echo "--";
-        // echo $type; echo "--";
-        // echo $status; echo "--";
-        // echo $visible; echo "--";
-        // echo (`$service_id, $user_id, $name, $description, $price, $type, $status,$visible`); echo "--";
+
         $response = $updateService->updateService($service_id, $user_id, $name, $description, $price, $type, $status, $visible);
         echo json_encode($response);
         // echo ("1");
