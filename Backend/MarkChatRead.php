@@ -27,17 +27,17 @@ $user_id   = $user['user_id'] ?? null;
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!$data || !isset($data['conversation_id'])) {
+if (!$data || !isset($data['chatSession_id'])) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "Bad request: Missing conversation_id"]);
     exit();
 }
 
-$conversation_id = htmlspecialchars(strip_tags($data['conversation_id']));
+$chatSession_id = htmlspecialchars(strip_tags($data['chatSession_id']));
 
 try {
     $chat = new Chat();
-    $res = $chat->markConversationAsRead($conversation_id, $user_id);
+    $res = $chat->markConversationAsRead($chatSession_id, $user_id);
 
     if ($res) {
         http_response_code(200);

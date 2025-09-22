@@ -686,13 +686,13 @@ VALUES (:chatSession_id, :sender_id, :receiver_id, :message, NOW(), 0)";
     }
 
     // === Mark messages as read for a user ===
-    public function markConversationAsRead($conversation_id, $user_id) {
-        $sql = "UPDATE chat_message1 
+    public function markConversationAsRead($chatSession_id, $user_id) {
+        $sql = "UPDATE chat_sessions 
                 SET is_read = 1 
-                WHERE conversation_id = :conversation_id AND receiver_id = :user_id";
+                WHERE chatSession_id = :chatSession_id AND receiver_id = :user_id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
-            ':conversation_id' => $conversation_id,
+            ':chatSession_id' => $chatSession_id,
             ':user_id'         => $user_id
         ]);
     }
