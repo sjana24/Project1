@@ -164,13 +164,13 @@ const BlogsPage = () => {
         </Button>
       </div>
 
-      {/* Stats */}
+      {/* Stats
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card><CardContent className="p-6"><p>Total Blogs</p><p className="text-2xl">{blogs.length}</p></CardContent></Card>
         <Card><CardContent className="p-6"><p>Published</p><p className="text-2xl text-green-600">{publishedBlogs}</p></CardContent></Card>
         <Card><CardContent className="p-6"><p>Drafts</p><p className="text-2xl text-yellow-600">{draftBlogs}</p></CardContent></Card>
         <Card><CardContent className="p-6"><p>Archived</p><p className="text-2xl text-gray-600">{archivedBlogs}</p></CardContent></Card>
-      </div>
+      </div> */}
 
       {/* Category Filter */}
       <div className="flex flex-wrap gap-4 mb-8">
@@ -200,16 +200,11 @@ const BlogsPage = () => {
                   <CardTitle className="text-lg">{blog.title}</CardTitle>
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                     <Calendar className="w-4 h-4" />
-                    {new Date(blog.created_at).toLocaleDateString()}
+                    {blog.created_at ? blog.created_at :"24-05-2025" }
+                    {/* {new Date(blog.created_at).toLocaleDateString()} */}
                   </div>
                 </div>
-                <Badge className={blog.status === "published"
-                      ? "bg-green-100 text-green-800"
-                      : blog.status === "draft"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : blog.status === "hidden"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"}>{blog.status}</Badge>
+              
               </div>
             </CardHeader>
             <CardContent>

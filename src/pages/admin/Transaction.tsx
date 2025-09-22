@@ -166,10 +166,7 @@ const TransactionsPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Transaction Details</h1>
           <p className="text-gray-600 mt-2">Monitor and manage customer payment transactions</p>
         </div>
-        <Button onClick={exportTransactions} className="nav-gradient text-white">
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+
       </div>
 
       {/* Stats */}
