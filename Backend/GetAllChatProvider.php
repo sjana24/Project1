@@ -31,11 +31,8 @@ if (isset($_SESSION['user'])) {
 
         $getChat = new Chat();
         $response=$getChat->getAllChatProvider($user_id);
-        // $response = $addProduct->addProduct($product_id, $user_id, $name, $description, $price, $category, $image_path, $specifications);
+
         echo json_encode($response);
-        // echo "$uploadedImages";
-        // print_r($uploadedImages);
-        // echo json_encode(false)
-    
-// }
+ 
+
     }}

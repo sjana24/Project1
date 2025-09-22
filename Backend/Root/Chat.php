@@ -6,6 +6,7 @@ class Chat
     protected $service_id;
     protected $customer_id;
     protected $provider_id;
+    
 
     protected $conn;
 
@@ -28,27 +29,24 @@ class Chat
     //     $count = $stmt->fetchColumn();
     //     return $count > 0;
     // }
-    public function isExistingChatRequest($customer_id, $provider_id, $service_id)
-    {
+    public function isExistingChatRequest($customer_id, $provider_id){
+    $this->customer_id=$customer_id;
+    $this->provider_id=$provider_id;
+    
         $query = "SELECT COUNT(*) 
               FROM contact_request 
               WHERE customer_id = ? 
               AND provider_id = ? 
-              AND service_id = ? 
               AND status IN ('pending', 'accepted')";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $customer_id);
-        $stmt->bindParam(2, $provider_id);
-        $stmt->bindParam(3, $service_id);
+        $stmt->bindParam(1, $this->customer_id);
+        $stmt->bindParam(2, $this->provider_id);
         $stmt->execute();
 
         $count = $stmt->fetchColumn();
         return $count > 0; // returns true if such a request exists
     }
-
-
-
 
 
 
@@ -94,7 +92,7 @@ class Chat
             return [
                 "success" => false,
                 "data" => $count,
-                "message" => "Error send Request."
+                "message" => "Already you are in touch."
             ];
         }
     }
@@ -117,7 +115,7 @@ class Chat
             JOIN user u ON cr.customer_id = u.user_id
             JOIN customer c ON cr.customer_id = c.customer_id
             JOIN service s ON cr.service_id = s.service_id
-            WHERE cr.provider_id = ?
+            WHERE cr.provider_id = ? AND cr.status = 'pending'
             ORDER BY cr.requested_at DESC
         ";
 
