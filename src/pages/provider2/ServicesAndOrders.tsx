@@ -30,6 +30,7 @@ export default function ServicesAndOrders() {
            <TabsTrigger value="ongoingProjects">Ongoing Projects
             <i>{projectCount}</i>
            </TabsTrigger>
+
         </TabsList>
 
         {/* Services Tab */}
