@@ -188,7 +188,7 @@ class Chat
     {
         try {
             // Insert into conversation table
-            $sql = "INSERT INTO conversation (request_id, customer_id, provider_id, is_active) 
+            $sql = "INSERT INTO conversation1 (request_id, customer_id, provider_id, is_active) 
                 VALUES (?, ?, ?, ?)";
 
             $stmt = $this->conn->prepare($sql);
@@ -666,6 +666,36 @@ public function getUserConversationsWithMessages($user_id, $userrole) {
         ];
     }
 }
+
+
+     // === Insert new message ===
+    public function sendMessage($chatSession_id, $sender_id, $receiver_id, $message) {
+        $sql =" INSERT INTO chat_sessions
+(chatSession_id, sender_id, receiver_id, message, sent_at, is_read)
+VALUES (:chatSession_id, :sender_id, :receiver_id, :message, NOW(), 0)";
+
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':chatSession_id' => $chatSession_id,
+            ':sender_id'       => $sender_id,
+            // ':sender_role'     => $sender_role,
+            ':receiver_id'     => $receiver_id,
+            // ':sent_at'   => $sent_atNow,
+            ':message'         => $message
+        ]);
+    }
+
+    // === Mark messages as read for a user ===
+    public function markConversationAsRead($conversation_id, $user_id) {
+        $sql = "UPDATE chat_message1 
+                SET is_read = 1 
+                WHERE conversation_id = :conversation_id AND receiver_id = :user_id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':conversation_id' => $conversation_id,
+            ':user_id'         => $user_id
+        ]);
+    }
 
 
 }
