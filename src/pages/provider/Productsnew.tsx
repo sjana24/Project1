@@ -26,6 +26,7 @@ export default function Productsnew() {
     price: 0,
     category: '',
     specifications: '',
+    images: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -35,17 +36,30 @@ export default function Productsnew() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = () => {
-    axios.get("http://localhost/Git/Project1/Backend/GetAllProductProvider.php", { withCredentials: true })
-      .then(res => {
-        if (res.data.success) {
-          setProducts(res.data.products);
-        }
-        else{
-           toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
-        }
-      })
-      .catch(() => console.log("Failed to fetch products"));
+  
+
+    const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetAllProductsProvider.php",{withCredentials:true}
+      );
+      const data = response.data;
+
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast({
+          title: "Fetch Data",
+          description: "Fetching products failed.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      // setError("Something went wrong.");
+    } finally {
+      // setLoading(false);
+    }
   };
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -71,9 +85,9 @@ export default function Productsnew() {
       errors.specifications = "Specifications are required.";
     }
     // Add a validation rule for the image file
-    if (!imageFile) {
-      errors.imageFile = "An image is required.";
-    }
+    // if (!imageFile || formData.images !== '') {
+    //   errors.imageFile = "An image is required.";
+    // }
     return errors;
   };
 
@@ -132,9 +146,9 @@ export default function Productsnew() {
           formDataToSend.append(key, value.toString());
         }
       });
-      if (imageFile) {
-        formDataToSend.append("image", imageFile);
-      }
+      // if (imageFile) {
+      //   formDataToSend.append("image", imageFile);
+      // }
 
       let res;
       console.log("Form Data:", formDataToSend);
@@ -252,6 +266,7 @@ export default function Productsnew() {
                     <Input
                       type="file"
                       accept="image/*"
+                      // value={imagePreview}
                       onChange={handleImageChange}
                     />
                     {/* Display error message for image */}

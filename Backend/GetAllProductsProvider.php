@@ -14,9 +14,9 @@
 
         // echo "$user_name,$user_id,$user_role";
 
-        if ("admin" === $user_role) {
+        if ("service_provider" === $user_role) {
             $product=new Product();
-            $response = $product->getAllProductsAdmin();
+            $response = $product->getAllProductsProvider($user_id);
              echo json_encode($response);
 
       

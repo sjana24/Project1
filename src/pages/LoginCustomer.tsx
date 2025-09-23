@@ -47,7 +47,7 @@ const Login = () => {
   }>({
     email: "",
     password: "",
-    role: "admin" as RoleType,// ✅ assign a valid default value here
+    role: "admin" as RoleType,
   });
 
 
@@ -79,16 +79,11 @@ const Login = () => {
       });
       if (res.data.success) {
         const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", registerData, { withCredentials: true });
-        //     const res = await axios.post("http://localhost/Git/Project1/Backend/RegisterUser.php", {
-        //   email: registerData.email,
-        //   otp,
-        // });
         if (res.data.success) {
           console.log("✅ OTP verified, now register user...");
           toast({
             title: "Account created ",
             description: "Account created successfully",
-            // variant:"destructive"
           });
 
           navigate('/');
@@ -180,7 +175,7 @@ const Login = () => {
       else {
         toast({
           title: "Login failed",
-          description: "Invalid credentials or user not found",
+          description: `${res.data.message || "Invalid credentials or user role."}`,
           variant: "destructive",
         });
 
@@ -420,7 +415,7 @@ const Login = () => {
                       </div>
 
                       {/* Fields for Customer */}
-                      {registerData.role === 'customer' && (
+                      {registerData.role === 'customer1' && (
                         <>
                           <div>
                             <Label>Address</Label>
@@ -607,10 +602,11 @@ const Login = () => {
 
 
             </Tabs>
+
             <div className="text-center mt-6">
               <p className="text-sm text-muted-foreground">
                 By creating an account, you can: purchase products & services, post reviews,
-                participate in forums, and apply for jobs.
+                 and apply for jobs.
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 <Link to="/" className="text-green-600 hover:underline hover:text-green-700">
@@ -619,6 +615,7 @@ const Login = () => {
               </p>
 
             </div>
+
             <div>
               {/* OTP Modal */}
               <Dialog open={showOtpModal} onOpenChange={setShowOtpModal}>

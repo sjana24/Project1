@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { useNavigation } from "react-router-dom";
+// import { useNavigation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -65,28 +65,57 @@ const Products = () => {
       });
   }, [cartUpdated]);
 
-  useEffect(() => {
-    axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
-      .then(response => {
-        const data = response.data;
-        if (response.data.success) {
-           setProducts(data.products);
-        }
-        else {
-          toast({
-            title: "Fetch Data",
-            description: "Fetch datas failed.",
-            variant: "destructive",
-          });
-        }
-        setLoading(false);
-      })
+  // useEffect(() => {
+  //   axios.get("http://localhost/Git/Project1/Backend/GetAllProductCustomer.php")
+  //     .then(response => {
+  //       const data = response.data;
+  //       if (response.data.success) {
+  //          setProducts(data.products);
+  //       }
+  //       else {
+  //         toast({
+  //           title: "Fetch Data",
+  //           description: "Fetch datas failed.",
+  //           variant: "destructive",
+  //         });
+  //       }
+  //       setLoading(false);
+  //     })
 
-      .catch(err => {
-        setError('Something went wrong.');
-        setLoading(false);
-      });
+  //     .catch(err => {
+  //       setError('Something went wrong.');
+  //       setLoading(false);
+  //     });
 
+  // }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetAllProductCustomer.php"
+      );
+      const data = response.data;
+
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast({
+          title: "Fetch Data",
+          description: "Fetching products failed.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+    useEffect(() => {
+    fetchProducts();
   }, []);
 
 

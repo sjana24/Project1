@@ -23,7 +23,6 @@ export default function ServicesAndOrders() {
         {/* Tab Navigation */}
         <TabsList className="mb-6 grid w-full grid-cols-3">
           <TabsTrigger value="services">Services</TabsTrigger>
-
           <TabsTrigger value="requests">Service Requests___ 
              <i>{serviceRequestCount}</i>
              </TabsTrigger>
