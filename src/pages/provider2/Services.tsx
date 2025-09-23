@@ -64,33 +64,53 @@ export default function Services() {
     'Relocation',
 
   ];
-  useEffect(() => {
-    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
-      {
-        withCredentials: true
-      })
-      .then(response => {
-        const data = response.data;
-        if (response.data.success) {
-          console.log("data got");
+  // useEffect(() => {
+  //   axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php",
+  //     {
+  //       withCredentials: true
+  //     })
+  //     .then(response => {
+  //       const data = response.data;
+  //       if (response.data.success) {
+  //         console.log("data got");
 
-          setServices(data.services);
-        }
-        else {
-          // setError('Failed to load services.');
-          // console.log(response.data);
-          console.log(" sorry we cant get ur products");
-        }
-        setLoading(false);
-      })
+  //         setServices(data.services);
+  //       }
+  //       else {
+  //         // setError('Failed to load services.');
+  //         // console.log(response.data);
+  //         console.log(" sorry we cant get ur products");
+  //       }
+  //       setLoading(false);
+  //     })
 
-      .catch(err => {
-        // setError('Something went wrong.');
-        setLoading(false);
-      });
+  //     .catch(err => {
+  //       // setError('Something went wrong.');
+  //       setLoading(false);
+  //     });
 
 
+  // }, []);
+
+
+   useEffect(() => {
+    fetchServices();
   }, []);
+
+  const fetchServices = () => {
+    axios.get("http://localhost/Git/Project1/Backend/GetAllServiceProvider.php", { withCredentials: true })
+      .then(res => {
+        if (res.data.success) {
+          // setOrderCount(res.data.count);
+          setServices(res.data.services);
+          // setProducts(res.data.products);
+        }
+        else{
+           toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
+        }
+      })
+      .catch(() => console.log("Failed to fetch products"));
+  };
 
   const filteredServices = services.filter(service =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,6 +136,7 @@ export default function Services() {
           description: 'Service has been updated failure.',
           variant: "destructive"
         });
+        fetchServices();
 
       }
 
@@ -130,6 +151,7 @@ export default function Services() {
           title: 'Service Added',
           description: 'New service has been added successfully.',
         });
+        fetchServices();
       }
       else {
         toast({
