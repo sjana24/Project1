@@ -1,61 +1,54 @@
 <?php
-session_start();
 header("Access-Control-Allow-Origin: http://localhost:8080");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
-
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
+require_once "./Root/OTPStorage.php";
 
-// require_once "./Root/Product.php";
-
+// Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-
     http_response_code(200);
     exit();
 }
 
-if (isset($_SESSION['varification']) || 1) {
-    // $email_var = $_SESSION['varification']['email'];
-    // $otp_var = $_SESSION['varifivation']['otp'];
-$email_var="provider21@gmail.com";
-$otp_var="12345";
-
-    // echo "$email,$otp;
-    // if ("service_provider" === $user_role) {
-        
-        $data = json_decode(file_get_contents("php://input"), true);
-        $email = $data['email'];
-        $otp = $data['otp'];
-
-        if (($email_var !== $email) && ($otp === $otp_var) ){
-            echo json_encode([
-        "success" => true,
-        "message" => "email successfully varified",
-       
+// Only process POST requests
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode([
+        "success" => false,
+        "message" => "Only POST method allowed"
     ]);
-        }
-        else{
-                  echo json_encode([
-        "success " => false,
-        "message" => "email varification failed",
-                  ]);
-       
+    exit();
+}
 
-        }
+try {
+    // Get and validate input
+    $data = json_decode(file_get_contents("php://input"), true);
 
-        // echo "email",$email_var,$email;
-        // echo "otp===",$otp_var,$otp;
-
-        // $product = new Product();
-        // echo $product_id;
-     
-        // $response = $product->deleteProductProvider($product_id, $user_id);
-        // $product->deleteProductProvider()
-        // echo json_encode($response);
-
-    
-
+    if (!$data || !isset($data['email']) || !isset($data['otp'])) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Email and OTP are required"
+        ]);
+        exit();
     }
-// }
+
+    $email = trim($data['email']);
+    $inputOtp = trim($data['otp']);
+
+    // Convert OTP to string and remove any non-numeric characters
+    $inputOtp = preg_replace('/[^0-9]/', '', $inputOtp);
+
+    // Use file-based OTP storage
+    $otpStorage = new OTPStorage();
+    $result = $otpStorage->verify($email, $inputOtp);
+
+    echo json_encode($result);
+} catch (Exception $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => "An error occurred while verifying OTP",
+        "error" => "Internal server error"
+    ]);
+}

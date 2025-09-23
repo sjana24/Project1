@@ -255,27 +255,27 @@ const Navigation = () => {
   //     };
   //     fetchRole();
   //   }, [checkSession]);
-  useEffect(() => {
+  // useEffect(() => {
 
-    axios
-      .get("http://localhost/Git/Project1/Backend/GetNotificationCustomer.php", {
-        withCredentials: true
-      })
-      .then((response) => {
-        const data = response.data;
-        if (data.success) {
-          console.log("Data received:", data);
-          // setCartItemsCount(data.items);
-          // updateCartCount();
-          setNotifications(data.notifications);
-        } else {
-          console.log("Failed to load items:", data);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching cart items:", err);
-      });
-  }, []);
+  //   axios
+  //     .get("http://localhost/Git/Project1/Backend/GetNotificationCustomer.php", {
+  //       withCredentials: true
+  //     })
+  //     .then((response) => {
+  //       const data = response.data;
+  //       if (data.success) {
+  //         console.log("Data received:", data);
+  //         // setCartItemsCount(data.items);
+  //         // updateCartCount();
+  //         setNotifications(data.notifications);
+  //       } else {
+  //         console.log("Failed to load items:", data);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching cart items:", err);
+  //     });
+  // }, []);
 
   
   const [openChats, setOpenChats] = useState<number[]>([]);

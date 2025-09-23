@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProtectedRoute from "./components/ProtectdRoutes";
 import Index from "./pages/Index";
 import LoginCustomer from "./pages/LoginCustomer";
+import ForgotPassword from "./pages/ForgotPassword";
 import Products from "./pages/Products";
 import Services from "./pages/Services";
 import Blogs from "./pages/Blogs";
@@ -77,6 +78,7 @@ const App = () => (
 
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginCustomer />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/products" element={<Products />} />
             <Route path="/services" element={<Services />} />
             <Route path="/aboutus" element={<AboutUs />} />
