@@ -256,10 +256,10 @@ const Login = () => {
                         />
                         <div className="text-right">
 
-                          <a href="/forgot-password" className="text-sm font-medium text-blue-500 hover:underline"
+                          <Link to="/forgot-password" className="text-sm font-medium text-blue-500 hover:underline"
                           >
                             Forgot Password?
-                          </a>
+                          </Link>
                         </div>
                       </div>
 

@@ -45,7 +45,7 @@ abstract class User
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && ($this->password === $user['password'])) {
+            if ($user && password_verify($this->password, $user['password'])) {
                 // if ($user['disable_status'] === 'disabled') {
                 //     return ['success' => false, 'message' => 'Your account has been disabled. Please contact support.'];
                 // }
@@ -71,12 +71,12 @@ abstract class User
         }
     }
 
-    public function isExistingUser($email ,$user_role)
+    public function isExistingUser($email, $user_role)
     {
         $query = "SELECT COUNT(*) FROM user WHERE email = ? AND user_role = ?";
         $stmt = $this->conn->prepare($query);
-          $stmt->bindParam(1, $email);
-            $stmt->bindParam(2, $user_role);
+        $stmt->bindParam(1, $email);
+        $stmt->bindParam(2, $user_role);
         $stmt->execute();
 
         $count = $stmt->fetchColumn();
@@ -102,72 +102,73 @@ abstract class User
         $this->website = $website;
 
         $dash = 0;
-        $count=$this->isExistingUser($this->email,$this->role);
-        $email_var=1;
-        $is_blocked=0;
+        $count = $this->isExistingUser($this->email, $this->role);
+        $email_var = 1;
+        $is_blocked = 0;
 
-        if (0==$count){
+        if (0 == $count) {
             try {
-            // 1. Insert into `user` table
-            $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `email_verified`, `password`,`is_blocked`, `user_role`, `created_at`, `updated_at`) 
+                // 1. Insert into `user` table
+                $stmt = $this->conn->prepare("INSERT INTO `user` (`username`, `email`, `email_verified`, `password`,`is_blocked`, `user_role`, `created_at`, `updated_at`) 
                                   VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
-            $stmt->execute([$this->name,
-             $this->email,
-             $email_var,
-              $this->password, 
-              $is_blocked,
-               $this->role]);
+                $stmt->execute([
+                    $this->name,
+                    $this->email,
+                    $email_var,
+                    $this->password,
+                    $is_blocked,
+                    $this->role
+                ]);
 
-            // 2. Get auto-incremented user_id
-            $userId = $this->conn->lastInsertId();
-            $dash = $userId;
+                // 2. Get auto-incremented user_id
+                $userId = $this->conn->lastInsertId();
+                $dash = $userId;
 
-            // 3. Depending on role, insert into service_provider or customer
-            if ($this->role === 'service_provider') {
+                // 3. Depending on role, insert into service_provider or customer
+                if ($this->role === 'service_provider') {
 
-                $stmt = $this->conn->prepare("INSERT INTO `service_provider` 
+                    $stmt = $this->conn->prepare("INSERT INTO `service_provider` 
             (`user_id`, `contact_number`, `address`, `district`, `company_name`, `business_registration_number`, `company_description`, `website`, `verification_status`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
 
-                $stmt->execute([
-                    $userId,
-                    $this->contact_no,
-                    $this->address,
-                    $this->district,
-                    // '', // profile_image initially empty
-                    $this->company_name,
-                    $this->business_reg_no,
-                    $this->company_description,
-                    $this->website
-                ]);
-            } elseif ($this->role === 'customer') {
+                    $stmt->execute([
+                        $userId,
+                        $this->contact_no,
+                        $this->address,
+                        $this->district,
+                        // '', // profile_image initially empty
+                        $this->company_name,
+                        $this->business_reg_no,
+                        $this->company_description,
+                        $this->website
+                    ]);
+                } elseif ($this->role === 'customer') {
 
-                $stmt = $this->conn->prepare("INSERT INTO `customer` 
+                    $stmt = $this->conn->prepare("INSERT INTO `customer` 
             (`user_id`, `contact_number`) 
             VALUES (?, ?)");
 
-                $stmt->execute([
-                    $userId,
-                    $this->contact_no,
-                    // $this->address,
-                    // $this->district,
-                    // $this->province
-                ]);
-            }
+                    $stmt->execute([
+                        $userId,
+                        $this->contact_no,
+                        // $this->address,
+                        // $this->district,
+                        // $this->province
+                    ]);
+                }
 
-            return ["success" => true, "message" => "User registered successfully.", "user_id" => $userId];
-        } catch (PDOException $e) {
-            http_response_code(500);
-            return ["success" => false, "userid" => $dash, "message" => "Error creating user: " . $e->getMessage()];
-        }
-        
-        }
-        else{
+                return ["success" => true, "message" => "User registered successfully.", "user_id" => $userId];
+            } catch (PDOException $e) {
+                http_response_code(500);
+                return ["success" => false, "userid" => $dash, "message" => "Error creating user: " . $e->getMessage()];
+            }
+        } else {
             return ["success" => false, "message" => "User already exit."];
         }
     }
     // New method to update username
-    public function updateUsername($user_id, $username) {
+    public function updateUsername($user_id, $username)
+    {
         $sql = "UPDATE user SET username = ? WHERE user_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(1, $username);
@@ -176,7 +177,8 @@ abstract class User
     }
 
     // New method to update email
-    public function updateEmail($user_id, $email) {
+    public function updateEmail($user_id, $email)
+    {
         // First, check if the email already exists for another user
         $sql = "SELECT user_id FROM user WHERE email = ? AND user_id != ?";
         $stmt = $this->conn->prepare($sql);
@@ -194,5 +196,25 @@ abstract class User
         $stmt->bindParam(1, $email);
         $stmt->bindParam(2, $user_id);
         return $stmt->execute();
+    }
+
+    // New method to update password by email (for password reset)
+    public function updatePassword($email, $hashedPassword)
+    {
+        try {
+            $sql = "UPDATE user SET password = ?, updated_at = NOW() WHERE email = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(1, $hashedPassword);
+            $stmt->bindParam(2, $email);
+            $result = $stmt->execute();
+
+            if ($result && $stmt->rowCount() > 0) {
+                return ["success" => true, "message" => "Password updated successfully"];
+            } else {
+                return ["success" => false, "message" => "User not found or password unchanged"];
+            }
+        } catch (PDOException $e) {
+            return ["success" => false, "message" => "Database error: " . $e->getMessage()];
+        }
     }
 }
