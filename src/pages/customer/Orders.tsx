@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/Navigation';
-import Footer from '../components/Footer';
+import { useAuth } from '../../contexts/AuthContext';
+import Header from '../../components/Navigation';
+import Footer from '../../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

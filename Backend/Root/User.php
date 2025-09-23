@@ -11,6 +11,7 @@ abstract class User
     protected $email;
     protected $password;
     protected $role;
+    protected $is_blocked;
 
     protected $name;
     //   protected $email;
@@ -46,9 +47,9 @@ abstract class User
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($this->password, $user['password'])) {
-                // if ($user['disable_status'] === 'disabled') {
-                //     return ['success' => false, 'message' => 'Your account has been disabled. Please contact support.'];
-                // }
+                if ($user['is_blocked'] === 1) {
+                    return ['success' => false, 'message' => 'Your account has been disabled. Please contact support.'];
+                }
 
                 // $this->logged = $user['success'];
                 $this->user_id = $user['user_id'];
@@ -73,6 +74,7 @@ abstract class User
 
     public function isExistingUser($email, $user_role)
     {
+
         $query = "SELECT COUNT(*) FROM user WHERE email = ? AND user_role = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $email);
@@ -90,9 +92,7 @@ abstract class User
         $this->email = $email;
         $this->contact_no = $contact_no;
         $this->password = $password;
-
         $this->role = $role;
-
         $this->address = $address;
         $this->district = $district;
         $this->province = $province;
@@ -101,7 +101,6 @@ abstract class User
         $this->company_description = $company_description;
         $this->website = $website;
 
-        $dash = 0;
         $count = $this->isExistingUser($this->email, $this->role);
         $email_var = 1;
         $is_blocked = 0;
@@ -151,21 +150,21 @@ abstract class User
                     $stmt->execute([
                         $userId,
                         $this->contact_no,
-                        // $this->address,
-                        // $this->district,
-                        // $this->province
+
                     ]);
                 }
 
-                return ["success" => true, "message" => "User registered successfully.", "user_id" => $userId];
+                return ["success" => true, "message" => "User registered successfully."];
             } catch (PDOException $e) {
                 http_response_code(500);
-                return ["success" => false, "userid" => $dash, "message" => "Error creating user: " . $e->getMessage()];
+                return ["success" => false, "userid" => 0, "message" => "Error creating user: " . $e->getMessage()];
             }
         } else {
             return ["success" => false, "message" => "User already exit."];
         }
     }
+
+
     // New method to update username
     public function updateUsername($user_id, $username)
     {
