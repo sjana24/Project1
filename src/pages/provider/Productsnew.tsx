@@ -35,17 +35,30 @@ export default function Productsnew() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = () => {
-    axios.get("http://localhost/Git/Project1/Backend/GetAllProductProvider.php", { withCredentials: true })
-      .then(res => {
-        if (res.data.success) {
-          setProducts(res.data.products);
-        }
-        else{
-           toast({ title: "Fetch data", description: "Fetching data fail", variant: "destructive" });
-        }
-      })
-      .catch(() => console.log("Failed to fetch products"));
+  
+
+    const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetAllProductProvider.php"
+      );
+      const data = response.data;
+
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast({
+          title: "Fetch Data",
+          description: "Fetching products failed.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      // setError("Something went wrong.");
+    } finally {
+      // setLoading(false);
+    }
   };
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
