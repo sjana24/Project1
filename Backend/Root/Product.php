@@ -114,6 +114,7 @@ class Product
     public function getAllProductsProvider($provider_id)
     {
         $is_delete = 0;
+        $this->is_approved =1;
         try {
             $sql = "SELECT * FROM product WHERE  provider_id=:provider_id AND is_delete=:is_delete";
             $stmt = $this->conn->prepare($sql);
@@ -126,10 +127,11 @@ class Product
                 foreach ($products as &$product) {
                     $reviewSql = "SELECT review_id, customer_id, product_id, rating, comment, created_at, updated_at, is_approved 
                               FROM review 
-                              WHERE product_id = :product_id";
+                              WHERE product_id = :product_id AND is_approved = :is_approved";
 
                     $reviewStmt = $this->conn->prepare($reviewSql);
                     $reviewStmt->bindParam(':product_id', $product['product_id']);
+                    $reviewStmt->bindParam(':is_approved', $this->is_approved);
                     $reviewStmt->execute();
                     $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -153,6 +155,42 @@ class Product
             return [
                 'success' => false,
                 'message' => 'Failed to fetch products. ' . $e->getMessage()
+            ];
+        }
+    }
+
+     public function deleteProductProvider($product_id, $provider_id)
+    {
+        $this->provider_id = $provider_id;
+        $this->product_id = $product_id;
+        $is_delete = 1;
+
+        try {
+            $sql = "UPDATE product 
+                SET is_delete = :is_delete, updated_at = NOW() 
+                WHERE  product_id = :product_id AND provider_id = :provider_id";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
+            $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
+            $stmt->bindParam(':product_id', $this->product_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Product deleted successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to delete product."
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return [
+                "success" => false,
+                "message" => "Error updating product approval: " . $e->getMessage()
             ];
         }
     }
@@ -225,6 +263,41 @@ class Product
             return [
                 'success' => false,
                 'message' => 'Failed to fetch products. ' . $e->getMessage()
+            ];
+        }
+    }
+
+     public function updateProductServiceAdmin($product_id, $is_approved)
+    {
+        $this->product_id = $product_id;
+        $this->is_approved = $is_approved;
+
+        try {
+            $sql = "UPDATE product 
+                SET is_approved = :is_approved, updated_at = NOW() 
+                WHERE  product_id = :product_id";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
+            // $stmt->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
+            $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Product approval status updated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update product approval status."
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return [
+                "success" => false,
+                "message" => "Error updating product approval: " . $e->getMessage()
             ];
         }
     }
@@ -573,40 +646,7 @@ class Product
 }
 
 
-    public function updateProductServiceAdmin($product_id, $is_approved)
-    {
-        $this->product_id = $product_id;
-        $this->is_approved = $is_approved;
-
-        try {
-            $sql = "UPDATE product 
-                SET is_approved = :is_approved, updated_at = NOW() 
-                WHERE  product_id = :product_id";
-
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
-            // $stmt->bindParam(':provider_id', $provider_id, PDO::PARAM_INT);
-            $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                return [
-                    "success" => true,
-                    "message" => "Product approval status updated successfully."
-                ];
-            } else {
-                return [
-                    "success" => false,
-                    "message" => "Failed to update product approval status."
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            return [
-                "success" => false,
-                "message" => "Error updating product approval: " . $e->getMessage()
-            ];
-        }
-    }
+   
 
     // public function editProductProvider($product_id, $provider_id)
     // {
@@ -644,39 +684,5 @@ class Product
     //     }
     // }
 
-    public function deleteProductProvider($product_id, $provider_id)
-    {
-        $this->provider_id = $provider_id;
-        $this->product_id = $product_id;
-        $is_delete = 1;
-
-        try {
-            $sql = "UPDATE product 
-                SET is_delete = :is_delete, updated_at = NOW() 
-                WHERE  product_id = :product_id AND provider_id = :provider_id";
-
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
-            $stmt->bindParam(':provider_id', $this->provider_id, PDO::PARAM_INT);
-            $stmt->bindParam(':product_id', $this->product_id, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                return [
-                    "success" => true,
-                    "message" => "Product deleted successfully."
-                ];
-            } else {
-                return [
-                    "success" => false,
-                    "message" => "Failed to delete product."
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            return [
-                "success" => false,
-                "message" => "Error updating product approval: " . $e->getMessage()
-            ];
-        }
-    }
+   
 }

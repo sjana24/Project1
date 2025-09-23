@@ -26,6 +26,7 @@ export default function Productsnew() {
     price: 0,
     category: '',
     specifications: '',
+    images: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export default function Productsnew() {
     const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost/Git/Project1/Backend/GetAllProductProvider.php"
+        "http://localhost/Git/Project1/Backend/GetAllProductsProvider.php",{withCredentials:true}
       );
       const data = response.data;
 
@@ -84,9 +85,9 @@ export default function Productsnew() {
       errors.specifications = "Specifications are required.";
     }
     // Add a validation rule for the image file
-    if (!imageFile) {
-      errors.imageFile = "An image is required.";
-    }
+    // if (!imageFile || formData.images !== '') {
+    //   errors.imageFile = "An image is required.";
+    // }
     return errors;
   };
 
@@ -145,9 +146,9 @@ export default function Productsnew() {
           formDataToSend.append(key, value.toString());
         }
       });
-      if (imageFile) {
-        formDataToSend.append("image", imageFile);
-      }
+      // if (imageFile) {
+      //   formDataToSend.append("image", imageFile);
+      // }
 
       let res;
       console.log("Form Data:", formDataToSend);
@@ -265,6 +266,7 @@ export default function Productsnew() {
                     <Input
                       type="file"
                       accept="image/*"
+                      // value={imagePreview}
                       onChange={handleImageChange}
                     />
                     {/* Display error message for image */}
