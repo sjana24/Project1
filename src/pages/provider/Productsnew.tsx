@@ -85,7 +85,7 @@ export default function Productsnew() {
       errors.specifications = "Specifications are required.";
     }
     // Add a validation rule for the image file
-    // if (!imageFile || formData.images !== '') {
+    // if (!imageFile || !formData.product_id ) {
     //   errors.imageFile = "An image is required.";
     // }
     return errors;
@@ -146,9 +146,9 @@ export default function Productsnew() {
           formDataToSend.append(key, value.toString());
         }
       });
-      // if (imageFile) {
-      //   formDataToSend.append("image", imageFile);
-      // }
+      if (imageFile) {
+        formDataToSend.append("image", imageFile);
+      }
 
       let res;
       console.log("Form Data:", formDataToSend);
@@ -225,60 +225,116 @@ export default function Productsnew() {
                 <DialogHeader>
                   <DialogTitle>{formData.product_id ? "Edit Product" : "Add Product"}</DialogTitle>
                 </DialogHeader>
+                
                 <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
+  {/* Name */}
+  <div>
+    <Label htmlFor="name">Name</Label>
+    <Input
+      id="name"
+      value={formData.name || ''}
+      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+    />
+    {formErrors.name && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+    )}
+  </div>
 
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                    {formErrors.name && <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" value={formData.description || ''} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-                    {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="price">Price</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      value={formData.price || ''}
-                      onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    />
-                    {formErrors.price && <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>}
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Input id="category" value={formData.category || ''} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
-                    {formErrors.category && <p className="text-red-500 text-sm mt-1">{formErrors.category}</p>}
-                  </div>
-                  <div>
-                    <Label>Specifications</Label>
-                    <Textarea
-                      value={formData.specifications || ''}
-                      onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
-                    />
-                    {/* Display error message for specifications */}
-                    {formErrors.specifications && <p className="text-red-500 text-sm mt-1">{formErrors.specifications}</p>}
-                  </div>
-                  <div>
-                    <Label>Upload Image</Label>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      // value={imagePreview}
-                      onChange={handleImageChange}
-                    />
-                    {/* Display error message for image */}
-                    {formErrors.imageFile && <p className="text-red-500 text-sm mt-1">{formErrors.imageFile}</p>}
-                    {imagePreview && (
-                      <img src={imagePreview} alt="Preview" className="mt-3 rounded-lg shadow-md max-h-40 object-cover" />
-                    )}
-                  </div>
-                  <Button className="w-full mt-3" onClick={handleSave}>
-                    {formData.product_id ? "Update" : "Save"}
-                  </Button>
-                </div>
+  {/* Description */}
+  <div>
+    <Label htmlFor="description">Description</Label>
+    <Textarea
+      id="description"
+      value={formData.description || ''}
+      onChange={(e) =>
+        setFormData({ ...formData, description: e.target.value })
+      }
+    />
+    {formErrors.description && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>
+    )}
+  </div>
+
+  {/* Price */}
+  <div>
+    <Label htmlFor="price">Price</Label>
+    <Input
+      id="price"
+      type="number"
+      min={0}
+      step={0.01}
+      value={formData.price || ''}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (!isNaN(Number(val))) {
+          setFormData({ ...formData, price: Number(val) });
+        }
+      }}
+    />
+    {formErrors.price && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.price}</p>
+    )}
+  </div>
+
+  {/* Category Dropdown */}
+  <div>
+    <Label htmlFor="category">Category</Label>
+    <select
+      id="category"
+      value={formData.category || ''}
+      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+      className="w-full border rounded px-2 py-1"
+    >
+      <option value="">Select Category</option>
+      <option value="solar">Solar</option>
+      <option value="electric">Electric</option>
+      <option value="normal">Normal</option>
+    </select>
+    {formErrors.category && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.category}</p>
+    )}
+  </div>
+
+  {/* Specifications */}
+  <div>
+    <Label>Specifications</Label>
+    <Textarea
+      value={formData.specifications || ''}
+      onChange={(e) =>
+        setFormData({ ...formData, specifications: e.target.value })
+      }
+    />
+    {formErrors.specifications && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.specifications}</p>
+    )}
+  </div>
+
+  {/* Image Upload */}
+  <div>
+    <Label>Upload Image</Label>
+    <Input
+      type="file"
+      accept="image/*"
+      onChange={handleImageChange}
+    />
+    {formErrors.imageFile && (
+      <p className="text-red-500 text-sm mt-1">{formErrors.imageFile}</p>
+    )}
+    {imagePreview && (
+      <img
+        src={imagePreview}
+        alt="Preview"
+        className="mt-3 rounded-lg shadow-md max-h-40 object-cover"
+      />
+    )}
+  </div>
+
+  {/* Save/Update Button */}
+  <Button className="w-full mt-3" onClick={handleSave}>
+    {formData.product_id ? "Update" : "Save"}
+  </Button>
+</div>
+
               </DialogContent>
             </Dialog>
           </div>
