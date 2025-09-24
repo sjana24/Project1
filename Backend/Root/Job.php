@@ -421,4 +421,43 @@ public function getAllJobRequestsProvider($provider_id)
             ];
         }
     }
+
+    public function deleteJob($job_id, $provider_id)
+    {
+        $this->job_id = $job_id;
+        $this->provider_id = $provider_id;
+
+        try {
+            $sql = "DELETE FROM job_posting WHERE job_id = :job_id AND provider_id = :provider_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':job_id', $this->job_id);
+            $stmt->bindParam(':provider_id', $this->provider_id);
+
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    return [
+                        'success' => true,
+                        'message' => 'Job deleted successfully.'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'No job found to delete or you do not have permission to delete this job.'
+                    ];
+                }
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to delete job.'
+                ];
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "failed to delete job. " . $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Failed to delete job. ' . $e->getMessage()
+            ];
+        }
+    }
 }
