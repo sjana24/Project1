@@ -187,7 +187,7 @@ export default function Services() {
     // setFiltereServices(updatedServices);
     
    try {
-      const res = await axios.post("http://localhost/Git/Project1/Backend/updateProviderServiceStatus.php", 
+      const res = await axios.post("http://localhost/Git/Project1/Backend/UpdateProviderServiceStatus.php", 
         {
         service_id: serviceGet.service_id,
         is_active: is_active ? 1 : 0, // send as int to PHP

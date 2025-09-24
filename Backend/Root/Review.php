@@ -28,6 +28,22 @@ class Review
         }
     }
 
+    
+      public function toggleVisibilityServiceReview($reviewId, $is_approved)
+    {
+        $this->review_id = $reviewId;
+        $this->is_approved = $is_approved;
+        try {
+            $sql = "UPDATE service_review SET is_approved = ? WHERE review_id = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(1, $this->is_approved, PDO::PARAM_BOOL);
+            $stmt->bindParam(2, $this->review_id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
 //     // Method to get a single blog post by its ID
 //     public function getBlogById($id)
 //     {

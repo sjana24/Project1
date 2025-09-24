@@ -19,6 +19,7 @@ class Service
     protected $payment_status;
     protected $created_at;
     protected $updated_at;
+    protected $is_approved;
 
     protected $fullName;
     protected $phone;
@@ -73,9 +74,8 @@ class Service
             JOIN 
                 user u ON sp.user_id = u.user_id
             WHERE 
-                u.is_blocked = 0
-
-                        ";
+                u.is_blocked = 0 ";
+                        // ";
 
             $stmt = $this->conn->prepare($sql);
 
@@ -97,9 +97,9 @@ class Service
             u.username AS reviewer_name
         FROM service_review r
         JOIN user u ON r.customer_id = u.user_id
-        WHERE r.service_id = :service_id
-        ORDER BY r.created_at DESC
-    ";
+        WHERE r.service_id = :service_id AND r.is_approved = 1
+        ORDER BY r.created_at DESC ";
+    
                     $reviewStmt = $this->conn->prepare($reviewSql);
                     $reviewStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
                     $reviewStmt->execute();
@@ -109,8 +109,8 @@ class Service
                     $avgRatingSql = "
         SELECT ROUND(AVG(rating), 1) AS average_rating
         FROM service_review
-        WHERE service_id = :service_id
-    ";
+        WHERE service_id = :service_id";
+    
                     $avgStmt = $this->conn->prepare($avgRatingSql);
                     $avgStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
                     $avgStmt->execute();
@@ -157,7 +157,7 @@ class Service
                 foreach ($services as &$service) {
                     $reviewSql = "SELECT review_id, customer_id, service_id, rating, comment, created_at, updated_at, is_approved 
                               FROM service_review 
-                              WHERE service_id = :service_id";
+                              WHERE service_id = :service_id AND is_approved = 1";
 
                     $reviewStmt = $this->conn->prepare($reviewSql);
                     $reviewStmt->bindParam(':service_id', $service['service_id']);
@@ -189,7 +189,7 @@ class Service
         }
     }
 
-    public function getAllServicesAdmin()
+    public function getAllServicesAdmin1()
     {
 
         try {
@@ -220,6 +220,112 @@ class Service
             ];
         }
     }
+    public function getAllServicesAdmin()
+{
+    try {
+        // Fetch all services
+        $sql = "SELECT s.*, u.username AS provider_name
+                FROM service s
+                JOIN service_provider sp ON s.provider_id = sp.provider_id
+                JOIN user u ON sp.user_id = u.user_id
+                WHERE s.is_delete = 0";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($services) {
+            // Fetch reviews for each service
+            foreach ($services as &$service) {
+                $service_id = $service['service_id'];
+
+                $reviewSql = "SELECT 
+                                r.review_id,
+                                r.customer_id,
+                                r.rating,
+                                r.comment,
+                                r.is_approved,
+                                r.created_at,
+                                u.username AS reviewer_name
+                              FROM service_review r
+                              JOIN user u ON r.customer_id = u.user_id
+                              WHERE r.service_id = :service_id
+                              ORDER BY r.created_at DESC";
+                
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Fetch average rating
+                $avgRatingSql = "SELECT ROUND(AVG(rating), 1) AS average_rating
+                                 FROM service_review
+                                 WHERE service_id = :service_id";
+                $avgStmt = $this->conn->prepare($avgRatingSql);
+                $avgStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $avgStmt->execute();
+                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+                // Attach reviews and average rating to service
+                $service['reviews'] = $reviews;
+                $service['average_rating'] = $avgRating['average_rating'] ?? null;
+            }
+
+            return [
+                'success' => true,
+                'services' => $services,
+                'message' => 'Services with reviews fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No services found.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch services. ' . $e->getMessage()
+        ];
+    }
+}
+
+public function updateServiceStatusAdmin($service_id, $is_approved)
+    {
+        $this->service_id = (int)$service_id;
+        $this->is_approved = (bool)$is_approved;
+        $approval = (bool)0;
+
+        try {
+            $sql = "UPDATE service 
+                SET is_approved=:is_approved, updated_at = NOW() 
+                WHERE service_id = :service_id";
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':is_approved', $this->is_approved, PDO::PARAM_BOOL);
+            // $stmt->bindParam(':approval', $approval, PDO::PARAM_BOOL);
+            $stmt->bindParam(':service_id', $this->service_id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    "success" => true,
+                    "message" => "Service activated successfully."
+                ];
+            } else {
+                return [
+                    "success" => false,
+                    "message" => "Failed to update service activate."
+                ];
+            }
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "message" => "Error updating service visibility: " . $e->getMessage()
+            ];
+        }
+    }
+
 
 
 

@@ -12,21 +12,27 @@ import { AdminDashboard, ServicesManage, BlogsManage, CustomersManage, Providers
 import Index from "./pages/Index";
 import LoginCustomer from "./pages/LoginCustomer";
 import ForgotPassword from "./pages/ForgotPassword";
+
 import { AuthUser } from "./contexts/AuthContext";
+
 import AdminLayout from "./components/layouts/AdminLayout";
-import OrderPage from "./pages/admin/OrderPage";
 import ProviderLayout from "./components/layouts/ProviderLayout";
-import ProviderDashboard from "./pages/provider/DashboardProvider"
-import OnGoing from "./pages/provider/OnGoing";
-import MessagePro from "./pages/provider/MessagePro";
+
+import OrderPage from "./pages/admin/OrderPage";
 import ReviewPage from "./pages/admin/Review";
 import QAPage from "./pages/admin/Question_forum";
 import TransactionPage from "./pages/admin/Transaction";
 import NotificationPage from "./pages/admin/Notification";
+
+import ProviderDashboard from "./pages/provider/DashboardProvider"
+import OnGoing from "./pages/provider/OnGoing";
+import MessagePro from "./pages/provider/MessagePro";
 import PaymentHistory from "./pages/provider/PaymentHistory";
 import QAProviderPage from "./pages/provider/QAProvider";
-import PageNotFound from "./pages/PageNotFound";
 import Chat from "./pages/provider/Chat";
+
+import PageNotFound from "./pages/PageNotFound";
+
 
 // import AdminDashboard from "./pages/admin/AdminDashboard";
 // import Message from "./pages/customer/Messsage";
@@ -86,7 +92,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginCustomer />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            
+
             <Route path="/products" element={<Products />} />
             <Route path="/services" element={<Services />} />
             <Route path="/aboutus" element={<AboutUs />} />

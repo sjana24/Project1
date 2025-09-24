@@ -8,8 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import {
   Search,
@@ -33,7 +33,7 @@ export interface Review {
   review_id: number;
   rating: number;
   comment: string;
-  is_active: boolean;
+  is_approved: boolean | number;
 }
 
 export interface Service {
@@ -59,13 +59,13 @@ const ServicesPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost/Git/Project1/Backend/GetAllServiceAdmin.php")
+      .get("http://localhost/Git/Project1/Backend/GetAllServicesAdmin.php", { withCredentials: true })
       .then((response) => {
         const data = response.data;
         if (data.success && data.services?.length > 0) {
           const mappedServices = data.services.map((s: any) => ({
             ...s,
-            provider: `Provider ${s.provider_id}`,
+            provider: s.provider_name || `Provider ${s.provider_id}`,
             price: parseFloat(s.price),
             reviews: s.reviews || [],
           }));
@@ -94,40 +94,43 @@ const ServicesPage = () => {
   }, [searchTerm, services]);
 
   const getStatusBadge = (is_approved: boolean) => {
-    if (is_approved)
-      return (
-        <Badge className="bg-green-100 text-green-800">
-          <Check className="w-3 h-3 mr-1" /> Approved
-        </Badge>
-      );
-    return (
+    return is_approved ? (
+      <Badge className="bg-green-100 text-green-800">
+        <Check className="w-3 h-3 mr-1" /> Approved
+      </Badge>
+    ) : (
       <Badge className="bg-yellow-100 text-yellow-800">
         <Clock className="w-3 h-3 mr-1" /> Pending
       </Badge>
     );
   };
 
-  /** ✅ Toggle Service Visibility API */
-  const updateServiceStatus = async (
-    serviceGet: Service,
-    is_active: boolean
-  ) => {
+  // Toggle service visibility
+  const toggleServiceApproval = async (service: Service) => {
+    const updatedStatus = !service.is_approved;
     try {
       const res = await axios.post(
         "http://localhost/Git/Project1/Backend/ServiceAdminStatusUpdate.php",
-        {
-          service_id: serviceGet.service_id,
-          is_active: is_active ? 1 : 0,
-        },
+        { service_id: service.service_id, is_active: updatedStatus ? 1 : 0 },
         { withCredentials: true }
       );
+
       if (res.data.success) {
         toast({
-          title: "Service status updated!",
-          description: `${serviceGet.name} is now ${
-            is_active ? "Visible" : "Hidden"
+          title: "Service updated",
+          description: `${service.name} is now ${
+            updatedStatus ? "Approved" : "Pending"
           }`,
         });
+
+        // Update local state
+        setServices((prev) =>
+          prev.map((s) =>
+            s.service_id === service.service_id
+              ? { ...s, is_approved: updatedStatus }
+              : s
+          )
+        );
       } else {
         toast({
           title: "Failed to update service",
@@ -140,129 +143,67 @@ const ServicesPage = () => {
     }
   };
 
-  const toggleApproval = (service: Service) => {
-    const updatedServices = services.map((s) =>
-      s.service_id === service.service_id
-        ? { ...s, is_approved: !s.is_approved }
-        : s
+  // Toggle review visibility/approval
+ const toggleReviewStatus = async (review: Review, isActive: boolean, serviceId: number) => {
+  try {
+    const res = await axios.post(
+      "http://localhost/Git/Project1/Backend/ServiceReviewStatusUpdate.php",
+      { review_id: review.review_id, is_active: isActive ? 1 : 0 },
+      { withCredentials: true }
     );
-    setServices(updatedServices);
-    setFilteredServices(updatedServices);
-    updateServiceStatus(service, !service.is_approved);
-  };
 
-  /** ✅ Toggle Review Status API */
-  const toggleReviewStatus = async (review: Review, serviceId: number) => {
-    try {
-      const res = await axios.post(
-        "http://localhost/Git/Project1/Backend/yyy.php",
-        {
-          review_id: review.review_id,
-          is_active: review.is_active ? 0 : 1,
-        },
-        { withCredentials: true }
+    if (res.data.success) {
+      toast({
+        title: "Review updated",
+        description: `Review is now ${isActive ? "Visible" : "Blocked"}`,
+      });
+
+      setServices((prev) =>
+        prev.map((s) =>
+          s.service_id === serviceId
+            ? {
+                ...s,
+                reviews: s.reviews.map((r) =>
+                  r.review_id === review.review_id
+                    ? { ...r, is_approved: isActive ?1 :0 }
+                    : r
+                ),
+              }
+            : s
+        )
       );
-      if (res.data.success) {
-        toast({
-          title: "Review status updated",
-          description: `Review is now ${
-            review.is_active ? "Blocked" : "Visible"
-          }`,
-        });
-        // update state locally
-        setServices((prev) =>
-          prev.map((s) =>
-            s.service_id === serviceId
-              ? {
-                  ...s,
-                  reviews: s.reviews.map((r) =>
-                    r.review_id === review.review_id
-                      ? { ...r, is_active: !r.is_active }
-                      : r
-                  ),
-                }
-              : s
-          )
-        );
-      }
-    } catch (err) {
-      console.error(err);
+    } else {
+      toast({
+        title: "Failed to update review",
+        description: res.data.message || "Try again later",
+        variant: "destructive",
+      });
     }
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  const hiddenServices = services.filter((s) => !s.is_approved).length;
-  const visibleServices = services.filter((s) => s.is_approved).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Service Management
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground">
             Review and approve services from providers
           </p>
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="text-sm text-gray-600">
-            <span className="font-medium text-yellow-600">
-              {hiddenServices} Hidden
-            </span>{" "}
-            •
-            <span className="font-medium text-green-600 ml-1">
-              {visibleServices} Visible
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Services</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {services.length}
-              </p>
-            </div>
-            <ShoppingCart className="w-8 h-8 text-blue-500" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Hidden Services</p>
-              <p className="text-2xl font-bold text-red-600">
-                {hiddenServices}
-              </p>
-            </div>
-            <Clock className="w-8 h-8 text-red-500" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Visible Services</p>
-              <p className="text-2xl font-bold text-green-600">
-                {visibleServices}
-              </p>
-            </div>
-            <Check className="w-8 h-8 text-green-500" />
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search */}
       <Card>
-        <CardHeader>
-          <CardTitle>Search Services</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <CardContent className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, provider, or category..."
               value={searchTerm}
@@ -287,109 +228,81 @@ const ServicesPage = () => {
           return (
             <Card
               key={service.service_id}
-              className="hover:shadow-lg transition-all duration-200"
+              className="glass-card hover:shadow-lg transition-all duration-200"
             >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center">
                       <ShoppingCart className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">
-                        {service.name}
-                      </CardTitle>
+                      <CardTitle className="text-lg">{service.name}</CardTitle>
                       <p className="text-sm text-muted-foreground">
                         {service.category}
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm">
+                  {/* <Button variant="ghost" size="sm">
                     <MoreHorizontal className="w-4 h-4" />
-                  </Button>
+                  </Button> */}
                 </div>
               </CardHeader>
+
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Status
-                    </span>
+                    <span className="text-sm text-muted-foreground">Status</span>
                     {getStatusBadge(service.is_approved)}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Provider
-                    </span>
+                    <span className="text-sm text-muted-foreground">Provider</span>
                     <span className="text-sm">{service.provider}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Price
-                    </span>
+                    <span className="text-sm text-muted-foreground">Price</span>
                     <span className="font-medium">
                       Rs {service.price.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Date Added
-                    </span>
-                    <span className="text-sm">
-                      {new Date(
-                        service.created_at
-                      ).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Visible
-                    </span>
+                    <span className="text-sm text-muted-foreground">Visible</span>
                     <div className="flex items-center gap-2">
                       {service.is_approved ? (
-                        <Eye className="w-4 h-4 text-green-500" />
+                        <Eye className="w-4 h-4 text-success" />
                       ) : (
-                        <EyeOff className="w-4 h-4 text-gray-400" />
+                        <EyeOff className="w-4 h-4 text-muted-foreground" />
                       )}
                       <Switch
                         checked={service.is_approved}
-                        onCheckedChange={() => toggleApproval(service)}
+                        onCheckedChange={() => toggleServiceApproval(service)}
                       />
                     </div>
                   </div>
-                  {/* ✅ View Details Modal */}
+
+                  {/* View Details Modal */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full mt-3"
-                      >
+                      <Button size="sm" variant="outline" className="w-full mt-3">
                         <Eye className="w-4 h-4 mr-2" /> View Details
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
+                    <DialogContent className="max-w-4xl">
                       <DialogHeader>
-                        <DialogTitle>
-                          {service.name} - Details & Reviews
-                        </DialogTitle>
+                        <DialogTitle>{service.name} - Details & Reviews</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 text-gray-700">
                         <p>{service.description}</p>
                         <p>
-                          <span className="font-semibold">Price:</span> Rs.{" "}
-                          {service.price}
+                          <span className="font-semibold">Price:</span> Rs {service.price}
                         </p>
                         <p>
-                          <span className="font-semibold">Category:</span>{" "}
-                          {service.category}
+                          <span className="font-semibold">Category:</span> {service.category}
                         </p>
                         {avgRating && (
                           <p className="flex items-center gap-1">
                             <Star className="w-4 h-4 text-yellow-500" />
-                            <span className="font-medium">
-                              Average Rating: {avgRating}/5
-                            </span>
+                            <span className="font-medium">Average Rating: {avgRating}/5</span>
                           </p>
                         )}
                         <div>
@@ -404,20 +317,23 @@ const ServicesPage = () => {
                                   className="border p-3 rounded-md flex justify-between items-center"
                                 >
                                   <div>
-                                    <p className="font-medium">
-                                      Rating: {review.rating}/5
-                                    </p>
+                                    <p className="font-medium">Rating: {review.rating}/5</p>
                                     <p>{review.comment}</p>
                                   </div>
-                                  <Switch
-                                    checked={review.is_active}
-                                    onCheckedChange={() =>
-                                      toggleReviewStatus(
-                                        review,
-                                        service.service_id
-                                      )
-                                    }
-                                  />
+                                  <div className="flex flex-col items-center">
+                                    
+  <Switch
+    checked={review.is_approved === 1} // convert number to boolean
+    onCheckedChange={(val: boolean) =>
+      toggleReviewStatus(review, val, service.service_id)
+    }
+  />
+  <span className="text-xs mt-1">
+  
+    {review.is_approved === 1 ? "Disable" : "Enable"}
+  </span>
+</div>
+
                                 </li>
                               ))}
                             </ul>

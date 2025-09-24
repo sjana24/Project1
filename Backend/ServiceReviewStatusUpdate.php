@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once "./Root/Service.php";
+require_once "./Root/Review.php";
 
 // Only POST allowed
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -37,18 +37,21 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['user_role'] !== 'admin') {
 
 // Read input data
 $data = json_decode(file_get_contents("php://input"), true);
-$service_id = $data['service_id'] ?? null;
+$reviewId = $data['review_id'] ?? null;
 $is_active = $data['is_active'] ?? null;
 
-if (!$service_id || $is_active === null) {
+if (!$reviewId || $is_active === null) {
     echo json_encode(["success" => false, "message" => "Invalid input"]);
     exit;
 }
 
 // Toggle review visibility
-$service = new Service();
-// $updated = $review->toggleVisibility($reviewId, $visible);
-// $response=$product->updateProductServiceAdmin($product_id, $is_active);
-$response = $service->updateServiceStatusAdmin($service_id, $is_active);
+$review = new Review();
+$response = $review->toggleVisibilityServiceReview($reviewId, $is_active);
+if ($response) {
+    echo json_encode(["success" => true, "message" => "Review visibility updated"]);
+} else {
+    echo json_encode(["success" => false, "message" => "Failed to update review visibility"]);
+}
 
-echo json_encode($response);
+// echo json_encode($response);
