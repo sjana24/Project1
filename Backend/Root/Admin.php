@@ -61,7 +61,13 @@ class Admin
         $user_role="customer";
 
         try {
-            $sql = "SELECT * FROM user WHERE  user_role=:user_role ";
+$sql="SELECT 
+    u.*,    
+    c.*
+FROM user u
+JOIN customer c ON u.user_id = c.user_id
+WHERE u.user_role = :user_role";
+
             $stmt = $this->conn->prepare($sql);
              $stmt->bindParam(':user_role', $user_role); 
             //  $stmt->bindParam(':status', $status); 

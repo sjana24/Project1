@@ -215,4 +215,24 @@ class Provider
             return ["success" => false, "message" => $e->getMessage()];
         }
     }
+
+
+      function updateProviderStatus( int $user_id, string $status): array {
+    try {
+        $statusValue = $status === 'active' ? 0 : 1; // 0 = active, 1 = blocked
+
+        $sql = "UPDATE user SET is_blocked = :status WHERE user_id = :user_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(":status", $statusValue, PDO::PARAM_INT);
+        $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return ["status"=>$statusValue,"success" => true, "message" => "Providerr status updated"];
+        } else {
+            return ["success" => false, "message" => "Failed to update status"];
+        }
+    } catch (Exception $e) {
+        return ["success" => false, "message" => $e->getMessage()];
+    }
+}
 }
