@@ -62,16 +62,38 @@ export default function Jobs() {
   const [approvalFilter, setApprovalFilter] = useState("all"); // approved | pending
   const [sortOrder, setSortOrder] = useState("latest"); // latest | oldest
 
+  // useEffect(() => {
+  //   axios
+  //     .get("http://localhost/Git/Project1/Backend/GetAllJobsProvider.php", {
+  //       withCredentials: true,
+  //     })
+  //     .then((res) => {
+  //       if (res.data.success) setJobs(res.data.jobs);
+  //       setLoading(false);
+  //     })
+  //     .catch(() => setLoading(false));
+  // }, []);
+   // 🔹 Separated function to fetch jobs
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetAllJobsProvider.php",
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        setJobs(res.data.jobs);
+      }
+    } catch (err) {
+      console.error("Failed to fetch jobs", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Call fetchJobs inside useEffect
   useEffect(() => {
-    axios
-      .get("http://localhost/Git/Project1/Backend/GetAllJobsProvider.php", {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (res.data.success) setJobs(res.data.jobs);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    fetchJobs();
   }, []);
 
   const isExpired = (date: string) => new Date(date) < new Date();
@@ -131,6 +153,7 @@ export default function Jobs() {
         description: "Job deleted successfully.",
         variant: "destructive",
       });
+       fetchJobs();
     } else {
       toast({
         title: "Delete Failed",
@@ -140,13 +163,13 @@ export default function Jobs() {
     }
   };
 
-  const handleEdit = (job: Job) => {
-    toast({
-      title: "Edit Mode",
-      description: `Open edit form for: ${job.title}`,
-    });
-    // You can reuse your edit modal logic here
-  };
+  // const handleEdit = (job: Job) => {
+  //   toast({
+  //     title: "Edit Mode",
+  //     description: `Open edit form for: ${job.title}`,
+  //   });
+  //   // You can reuse your edit modal logic here
+  // };
 
   return (
     <div className="space-y-8">
@@ -373,13 +396,7 @@ export default function Jobs() {
                   >
                     <Eye className="w-4 h-4" /> View
                   </Button>
-                  {/* <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(job)}
-                  >
-                    <Edit className="w-4 h-4" /> Edit
-                  </Button> */}
+                  
                   <JobFormModal job={job} onSuccess={(updatedJob) => {
                     setJobs((prev) => prev.map((j) => j.job_id === updatedJob.job_id ? updatedJob : j));
                   }} />

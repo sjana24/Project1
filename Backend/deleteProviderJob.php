@@ -7,7 +7,7 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-echo "hi";
+// echo "hi";
 require_once "./Root/Job.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -26,10 +26,10 @@ if (isset($_SESSION['user'])) {
         
         $data = json_decode(file_get_contents("php://input"), true);
         $job_id = $data['job_id'];
-        $deleteJob = new Job();
-        echo $job_id;
+        $job = new Job();
+        // echo $job_id;
      
-        $response = $deleteJob->$deleteJob($job_id, $user_id);
+        $response = $job->deleteJob($job_id, $user_id);
         echo json_encode($response);
 
     
