@@ -129,6 +129,7 @@ export default function Services() {
           title: 'Service Updated',
           description: 'Service has been updated successfully.',
         });
+        fetchServices();
       }
       else {
         toast({
@@ -200,6 +201,7 @@ export default function Services() {
           title: "service status updated!",
           description: "Successful",
         });
+        fetchServices();
         // navigate (0);
 
 
@@ -252,6 +254,7 @@ export default function Services() {
           title: 'Service Deleted',
           description: 'Service has been deleted successfully.',
         });
+        fetchServices();
       }
       else {
         toast({
