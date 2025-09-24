@@ -436,15 +436,7 @@ const CartPage = () => {
                                 Proceed to Checkout
                             </button>
 
-                            {!currentUser && (
-                                <p className="text-sm text-gray-600 text-center mt-4">
-                                    Please{" "}
-                                    <Link to="/login" className="text-blue-600 hover:underline">
-                                        login
-                                    </Link>{" "}
-                                    to continue
-                                </p>
-                            )}
+                            
                         </div>
                     </div>
 
