@@ -176,7 +176,7 @@ const App = () => (
                       <Route path="/payment" element={<PaymentHistory />} />
                       <Route path="/qa" element={<QAProviderPage />} />
 
-                      <Route path="/OnGoing_projects" element={<OnGoing />} />
+                      {/* <Route path="/OnGoing_projects" element={<OnGoing />} /> */}
                       {/* <Route path="/JobRequest" element={<JobRequest />} /> */}
 
                       <Route path="" element={<Navigate to="dashboard" replace />} />

@@ -1,127 +1,159 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Search, 
-  CreditCard, 
-  DollarSign, 
-  TrendingUp, 
-  Eye, 
-  Download,
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  CreditCard,
+  DollarSign,
+  TrendingUp,
+  Eye,
   CheckCircle,
   XCircle,
   Clock,
-  Filter
-} from 'lucide-react';
+  Filter,
+} from "lucide-react";
+import axios from "axios";
 
+// Interface aligned with backend + commission fields
 interface Transaction {
   transaction_id: string;
   customer_name: string;
   customer_email: string;
   amount: number;
   payment_method: string;
-  status: 'completed' | 'pending' | 'failed' | 'refunded';
+  status: "completed" | "pending" | "failed" | "refunded";
   transaction_date: string;
   order_id: string;
-  provider_name: string;
-  service_name: string;
+  provider_name: string | null;
+  service_name: string | null;
   commission: number;
+  profit: number;
   net_amount: number;
 }
 
-const TransactionsPage = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      transaction_id: 'TXN-001',
-      customer_name: 'John Doe',
-      customer_email: 'john@example.com',
-      amount: 15000,
-      payment_method: 'Credit Card',
-      status: 'completed',
-      transaction_date: '2024-01-15T10:30:00Z',
-      order_id: 'ORD-001',
-      provider_name: 'Solar Solutions Ltd',
-      service_name: 'Solar Panel Installation',
-      commission: 750,
-      net_amount: 14250
-    },
-    {
-      transaction_id: 'TXN-002',
-      customer_name: 'Jane Smith',
-      customer_email: 'jane@example.com',
-      amount: 8500,
-      payment_method: 'Bank Transfer',
-      status: 'pending',
-      transaction_date: '2024-01-14T14:20:00Z',
-      order_id: 'ORD-002',
-      provider_name: 'Green Energy Co',
-      service_name: 'Solar Maintenance',
-      commission: 425,
-      net_amount: 8075
-    },
-    {
-      transaction_id: 'TXN-003',
-      customer_name: 'Mike Johnson',
-      customer_email: 'mike@example.com',
-      amount: 25000,
-      payment_method: 'PayPal',
-      status: 'failed',
-      transaction_date: '2024-01-13T09:15:00Z',
-      order_id: 'ORD-003',
-      provider_name: 'Solar Tech Solutions',
-      service_name: 'Commercial Solar Setup',
-      commission: 1250,
-      net_amount: 23750
-    }
-  ]);
+const TransactionPage = () => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>(transactions);
-
+  // Fetch data from backend
   useEffect(() => {
-    let filtered = transactions.filter(transaction =>
-      transaction.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.transaction_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.order_id.toLowerCase().includes(searchTerm.toLowerCase())
+    const fetchTransactions = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost/Git/Project1/Backend/GetAllTransactionAdmin.php",
+          { withCredentials: true }
+        );
+
+        if (res.data.success) {
+  const transformed = res.data.transactions.map((t: any) => {
+    const amount = parseFloat(t.amount) || 0; // ensure number
+    const commission = amount * 0.1; // 10% commission
+    const profit = amount;
+
+    return {
+      ...t,
+      amount,
+      commission,
+      profit,
+      net_amount: amount - commission,
+    };
+  });
+  setTransactions(transformed);
+}
+
+         else {
+          toast({
+            title: "Error",
+            description: res.data.message,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to load transactions",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  // Search + filter
+  // useEffect(() => {
+  //   let filtered = transactions.filter(
+  //     (transaction) =>
+  //       transaction.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       transaction.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       transaction.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       transaction.order_id?.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+
+  //   if (statusFilter !== "all") {
+  //     filtered = filtered.filter((transaction) => transaction.status === statusFilter);
+  //   }
+
+  //   setFilteredTransactions(filtered);
+  // }, [searchTerm, statusFilter, transactions]);
+  // Search + filter
+useEffect(() => {
+  let filtered = transactions.filter((transaction) => {
+    const term = searchTerm.toLowerCase();
+
+    return (
+      (transaction.customer_name?.toLowerCase() || "").includes(term) ||
+      (transaction.customer_email?.toLowerCase() || "").includes(term) ||
+      (transaction.transaction_id?.toLowerCase() || "").includes(term) ||
+      (transaction.order_id?.toLowerCase() || "").includes(term)
     );
+  });
 
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(transaction => transaction.status === statusFilter);
-    }
+  if (statusFilter !== "all") {
+    filtered = filtered.filter((transaction) => transaction.status === statusFilter);
+  }
 
-    setFilteredTransactions(filtered);
-  }, [searchTerm, statusFilter, transactions]);
+  setFilteredTransactions(filtered);
+}, [searchTerm, statusFilter, transactions]);
 
+
+  // Badge generator
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Completed
           </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
             <Clock className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
-      case 'failed':
+      case "failed":
         return (
           <Badge className="bg-red-100 text-red-800 hover:bg-red-200">
             <XCircle className="w-3 h-3 mr-1" />
             Failed
           </Badge>
         );
-      case 'refunded':
+      case "refunded":
         return (
           <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">
             <XCircle className="w-3 h-3 mr-1" />
@@ -133,40 +165,35 @@ const TransactionsPage = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-LK', {
-      style: 'currency',
-      currency: 'LKR',
-      minimumFractionDigits: 2
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-LK", {
+      style: "currency",
+      currency: "LKR",
+      minimumFractionDigits: 2,
     }).format(amount);
-  };
 
-  const totalRevenue = transactions
-    .filter(t => t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0);
+  // Stats
+// Stats
+const totalAmount = transactions
+  .filter((t) => t.status === "completed")
+  .reduce((sum, t) => sum + (t.profit || 0), 0);
 
-  const totalCommission = transactions
-    .filter(t => t.status === 'completed')
-    .reduce((sum, t) => sum + t.commission, 0);
+const totalCommission = transactions
+  .filter((t) => t.status === "completed")
+  .reduce((sum, t) => sum + (t.commission || 0), 0);
 
-  const completedTransactions = transactions.filter(t => t.status === 'completed').length;
-  const pendingTransactions = transactions.filter(t => t.status === 'pending').length;
 
-  const exportTransactions = () => {
-    toast({
-      title: "Export Started",
-      description: "Transaction data is being exported to CSV",
-    });
-  };
+  const completedTransactions = transactions.filter((t) => t.status === "completed").length;
+  const pendingTransactions = transactions.filter((t) => t.status === "pending").length;
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Transaction Details</h1>
           <p className="text-gray-600 mt-2">Monitor and manage customer payment transactions</p>
         </div>
-
       </div>
 
       {/* Stats */}
@@ -175,26 +202,26 @@ const TransactionsPage = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalRevenue)}</p>
+                <p className="text-sm text-gray-600">Total Amount</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="glass border-white/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Commission Earned</p>
+                <p className="text-sm text-gray-600">Commission Earned (10%)</p>
                 <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalCommission)}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="glass border-white/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -206,7 +233,7 @@ const TransactionsPage = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="glass border-white/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -254,7 +281,7 @@ const TransactionsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Transactions List */}
+      {/* Transactions */}
       <Card className="glass border-white/20">
         <CardHeader>
           <CardTitle>All Transactions ({filteredTransactions.length})</CardTitle>
@@ -262,7 +289,10 @@ const TransactionsPage = () => {
         <CardContent>
           <div className="space-y-4">
             {filteredTransactions.map((transaction) => (
-              <div key={transaction.transaction_id} className="p-4 bg-white/50 rounded-lg border border-white/20 hover:bg-white/70 transition-colors">
+              <div
+                key={transaction.transaction_id}
+                className="p-4 bg-white/50 rounded-lg border border-white/20 hover:bg-white/70 transition-colors"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
@@ -274,20 +304,16 @@ const TransactionsPage = () => {
                         <p className="text-xs text-gray-500">
                           Transaction ID: {transaction.transaction_id}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          Order ID: {transaction.order_id}
-                        </p>
+                        <p className="text-xs text-gray-500">Order ID: {transaction.order_id}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-semibold text-gray-900">
                           {formatCurrency(transaction.amount)}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          {transaction.payment_method}
-                        </p>
+                        <p className="text-xs text-gray-500">{transaction.payment_method}</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Provider:</p>
@@ -295,7 +321,9 @@ const TransactionsPage = () => {
                       </div>
                       <div>
                         <p className="text-gray-600">Service:</p>
-                        <p className="font-medium">{transaction.service_name}</p>
+                        <p className="font-medium">
+                          {transaction.service_name ?? "Product Order"}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Date:</p>
@@ -305,10 +333,10 @@ const TransactionsPage = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-4 ml-4">
                     {getStatusBadge(transaction.status)}
-                    
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
@@ -335,12 +363,16 @@ const TransactionsPage = () => {
                               <p className="font-medium">{formatCurrency(transaction.amount)}</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Commission:</p>
-                              <p className="font-medium">{formatCurrency(transaction.commission)}</p>
+                              <p className="text-gray-600">Commission (10%):</p>
+                              <p className="font-medium">
+                                {formatCurrency(transaction.commission)}
+                              </p>
                             </div>
                             <div>
                               <p className="text-gray-600">Net Amount:</p>
-                              <p className="font-medium">{formatCurrency(transaction.net_amount)}</p>
+                              <p className="font-medium">
+                                {formatCurrency(transaction.net_amount)}
+                              </p>
                             </div>
                             <div>
                               <p className="text-gray-600">Payment Method:</p>
@@ -357,17 +389,21 @@ const TransactionsPage = () => {
                               </p>
                             </div>
                           </div>
-                          
+
                           <div className="border-t pt-4">
                             <p className="text-gray-600 text-sm">Customer:</p>
                             <p className="font-medium">{transaction.customer_name}</p>
                             <p className="text-sm text-gray-600">{transaction.customer_email}</p>
                           </div>
-                          
+
                           <div className="border-t pt-4">
                             <p className="text-gray-600 text-sm">Service Details:</p>
-                            <p className="font-medium">{transaction.service_name}</p>
-                            <p className="text-sm text-gray-600">by {transaction.provider_name}</p>
+                            <p className="font-medium">
+                              {transaction.service_name ?? "Product Order"}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              by {transaction.provider_name}
+                            </p>
                           </div>
                         </div>
                       </DialogContent>
@@ -383,4 +419,4 @@ const TransactionsPage = () => {
   );
 };
 
-export default TransactionsPage;
+export default TransactionPage;

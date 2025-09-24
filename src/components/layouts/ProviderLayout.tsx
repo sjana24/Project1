@@ -22,16 +22,12 @@ import { IOngoingProject, IOrder, IOrderItem, IProduct, IService } from '@/store
 const navigation = [
   { name: 'Dashboard', href: '/service_provider/dashboard', icon: Home },
   { name: 'Products & Orders', href: '/service_provider/product_order', icon: Package },
-  { name: 'Services Requests Projects', href: '/service_provider/service_order', icon: Wrench },
-
-  //{ name: 'Services', href: '/service_provider/service', icon: ShoppingCart },
+  { name: 'Services Requests and Projects', href: '/service_provider/service_order', icon: Wrench },
   { name: 'Jobs & Requests', href: '/service_provider/job_request', icon: Briefcase },
-  //{ name: 'Service Request', href: '/service_provider/service_req', icon: Bell },
   { name: 'Chat Request', href: '/service_provider/chat', icon: Bell },
-  //{ name: 'Project Orders', href: '/service_provider/project_order', icon: Bell },
-  // { name: 'Ongoing Projects', href: '/service_provider/OnGoing_projects', icon: Layers },
-  //{ name: 'Job Request', href: '/service_provider/JobRequest', icon: Settings },
   { name: 'Message', href: '/service_provider/MessagePro', icon: MessageSquare },
+  { name: 'Question and Answer', href: '/service_provider/qa', icon: MessageSquare },
+  { name: 'Transaction', href: '/service_provider/payment', icon: MessageSquare },
 ];
 
 interface ProviderLayoutProps {
@@ -47,14 +43,14 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [dataRaw, setDataRaw] = useState<any>(null);
-    const [products, setProducts] = useState<IProduct[]>([]);
-    const [services, setServices] = useState<IService[]>([]);
-    const [orders, setOrders] = useState<IOrder[]>([]);
-    const [projects, setProjects] = useState<IOngoingProject[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>('');
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [services, setServices] = useState<IService[]>([]);
+  const [orders, setOrders] = useState<IOrder[]>([]);
+  const [projects, setProjects] = useState<IOngoingProject[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
- useEffect(() => {
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -219,7 +215,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
       return;
     }
 
-    // TODO: Send updated data to backend here (e.g., via fetch or axios)
+
 
     setIsProfileModalOpen(false);
   };
@@ -315,7 +311,7 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
         </div>
 
 
-        
+
       </div>
 
       {/* Main Content */}
@@ -342,11 +338,12 @@ const ProviderLayout: React.FC<ProviderLayoutProps> = ({ children }) => {
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="animate-slide-in">{children}</div>
         </main>
+
         {/* Profile Modal */}
         {isProfileModalOpen && (
           <div className=" pt-10 fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-2xl max-h-screen overflow-y-auto p-6 relative">    
-             <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
+            <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-2xl max-h-screen overflow-y-auto p-6 relative">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Name</label>
