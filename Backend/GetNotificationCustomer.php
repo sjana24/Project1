@@ -17,22 +17,23 @@ if (isset($_SESSION['user'])) {
 
     // echo "$user_name,$user_id,$user_role";
     if("customer"===$user_role && !empty($user_id)){
+
     $getAll = new Notification();
-    $response = $getAll->getAllNotificationCustomer($user_id);
+    $response = $getAll->getAllNotificationCustomer($user_id,$user_role);
        echo json_encode($response);
     }else{
      echo json_encode([
-        "get to data from cart " => false,
+        "success" => false,
         "message" => "something issue in ur credietials",
       
     ]);}
 } else {
     echo json_encode([
-        "add to cart " => false,
-        "message" => "tou need to login first",
+        "success " => false,
+        "message" => "You need need to login first",
       
     ]);
-    error_log("SESSION FETCHED: " . print_r($_SESSION, true));
+    // error_log("SESSION FETCHED: " . print_r($_SESSION, true));
 
 }
 

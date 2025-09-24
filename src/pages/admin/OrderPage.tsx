@@ -1,494 +1,241 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, EyeOff, Package, DollarSign, Calendar, Download } from 'lucide-react';
+"use client";
 
-// Mock data for admin view
-const mockProductOrders = [
-    {
-        id: '1',
-        orderNumber: 'ORD-2024-001',
-        customerName: 'John Smith',
-        customerEmail: 'john.smith@email.com',
-        productName: 'Solar Panel 400W',
-        productImage: '/placeholder.svg',
-        price: 599.99,
-        quantity: 2,
-        total: 1199.98,
-        status: 'delivered',
-        orderDate: '2024-01-15',
-        visible: true
-    },
-    {
-        id: '2',
-        orderNumber: 'ORD-2024-002',
-        customerName: 'Sarah Johnson',
-        customerEmail: 'sarah.j@email.com',
-        productName: 'Solar Inverter 3kW',
-        productImage: '/placeholder.svg',
-        price: 799.99,
-        quantity: 1,
-        total: 799.99,
-        status: 'processing',
-        orderDate: '2024-01-20',
-        visible: true
-    },
-    {
-        id: '3',
-        orderNumber: 'ORD-2024-003',
-        customerName: 'Mike Davis',
-        customerEmail: 'mike.davis@email.com',
-        productName: 'Battery Storage 10kWh',
-        productImage: '/placeholder.svg',
-        price: 1499.99,
-        quantity: 1,
-        total: 1499.99,
-        status: 'shipped',
-        orderDate: '2024-01-18',
-        visible: false
-    }
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Eye, EyeOff, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-const mockProjectOrders = [
-    {
-        id: '1',
-        orderNumber: 'PRJ-2024-001',
-        customerName: 'ABC Corporation',
-        customerEmail: 'contact@abc-corp.com',
-        projectTitle: 'Commercial Solar Setup',
-        description: 'Large-scale solar installation for office building',
-        budget: 75000,
-        status: 'in-progress',
-        paymentStatus: 'paid',
-        providerName: 'SolarTech Solutions',
-        startDate: '2024-02-01',
-        estimatedCompletion: '2024-03-30',
-        visible: true
-    },
-    {
-        id: '2',
-        orderNumber: 'PRJ-2024-002',
-        customerName: 'John Smith',
-        customerEmail: 'john.smith@email.com',
-        projectTitle: 'Residential Solar Installation',
-        description: 'Complete solar panel installation for 3-bedroom house',
-        budget: 15000,
-        status: 'completed',
-        paymentStatus: 'paid',
-        providerName: 'Green Energy Pro',
-        startDate: '2024-01-15',
-        estimatedCompletion: '2024-02-15',
-        visible: true
-    },
-    {
-        id: '3',
-        orderNumber: 'PRJ-2024-003',
-        customerName: 'Emma Wilson',
-        customerEmail: 'emma.w@email.com',
-        projectTitle: 'Solar Panel Maintenance',
-        description: 'Annual maintenance and cleaning service',
-        budget: 1200,
-        status: 'pending',
-        paymentStatus: 'pending',
-        providerName: 'Solar Maintenance Co',
-        startDate: '2024-02-10',
-        estimatedCompletion: '2024-02-12',
-        visible: false
-    }
-];
+// --- Types ---
+interface ProductItem {
+  productId: number;
+  productName: string;
+  price: number;
+  quantity: number;
+  total: number;
+}
+
+interface ProductOrder {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  status: string;
+  orderDate: string;
+  items: ProductItem[];
+  visible: boolean;
+}
+
+interface ProjectOrder {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  projectTitle: string;
+  budget: number;
+  status: string;
+  paymentStatus: string;
+  providerName: string;
+  startDate: string;
+  dueDate: string;
+  visible: boolean;
+}
 
 const OrderPage = () => {
-    const [productOrders, setProductOrders] = useState(mockProductOrders);
-    const [projectOrders, setProjectOrders] = useState(mockProjectOrders);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [dateFilter, setDateFilter] = useState('all');
+  const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
+  const [projectOrders, setProjectOrders] = useState<ProjectOrder[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    const toggleOrderVisibility = (orderId: string, type: 'product' | 'project') => {
-        if (type === 'product') {
-            setProductOrders(prev =>
-                prev.map(order =>
-                    order.id === orderId ? { ...order, visible: !order.visible } : order
-                )
-            );
-        } else {
-            setProjectOrders(prev =>
-                prev.map(order =>
-                    order.id === orderId ? { ...order, visible: !order.visible } : order
-                )
-            );
-        }
-    };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState<ProductOrder | ProjectOrder | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'delivered':
-            case 'completed':
-            case 'cancelled':
-                return <Package className="h-4 w-4" />;
-            case 'processing':
-            case 'in-progress':
-                return <Package className="h-4 w-4" />;
-            case 'shipped':
-                return <Package className="h-4 w-4" />;
-            case 'pending':
-                return <Package className="h-4 w-4" />;
-            default:
-                return <Package className="h-4 w-4" />;
-        }
-    };
+  // Fetch orders from backend
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost/Git/Project1/Backend/getAllAdminOrders.php", { withCredentials: true });
+      if (res.data) {
+        setProductOrders(res.data.productOrders || []);
+        setProjectOrders(res.data.projectOrders || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const getStatusVariant = (status: string) => {
-        switch (status) {
-            case 'delivered':
-            case 'completed':
-                return 'default';
-            case 'processing':
-            case 'in-progress':
-                return 'secondary';
-            case 'shipped':
-                return 'outline';
-            case 'pending':
-                return 'destructive';
-            case 'cancelled':
-                return 'outline';
-            default:
-                return 'outline';
-        }
-    };
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-    const exportOrders = () => {
-        // In real app, this would generate and download a CSV/Excel file
-        console.log('Exporting orders...');
-    };
-    const cancelOrder = (orderId: string, type: 'product' | 'project') => {
-        if (type === 'product') {
-            setProductOrders(prev =>
-                prev.map(order =>
-                    order.id === orderId ? { ...order, status: 'cancelled' } : order
-                )
-            );
-        } else {
-            setProjectOrders(prev =>
-                prev.map(order =>
-                    order.id === orderId ? { ...order, status: 'cancelled' } : order
-                )
-            );
-        }
-    };
+  const toggleOrderVisibility = (orderId: number, type: "product" | "project") => {
+    if (type === "product") {
+      setProductOrders(prev => prev.map(o => o.id === orderId ? { ...o, visible: !o.visible } : o));
+    } else {
+      setProjectOrders(prev => prev.map(o => o.id === orderId ? { ...o, visible: !o.visible } : o));
+    }
+  };
 
-    const filteredProductOrders = productOrders.filter(order => {
-        const matchesSearch =
-            order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "delivered":
+      case "completed": return "default";
+      case "processing":
+      case "in-progress": return "secondary";
+      case "pending": return "destructive";
+      case "cancelled": return "outline";
+      default: return "outline";
+    }
+  };
 
-        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+  const openModal = (order: ProductOrder | ProjectOrder) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
 
-        return matchesSearch && matchesStatus;
-    });
+  // Filtered orders
+  const filteredProductOrders = productOrders.filter(order =>
+    (order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.items.some(item => item.productName.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+    (statusFilter === "all" || order.status === statusFilter)
+  );
 
-    const filteredProjectOrders = projectOrders.filter(order => {
-        const matchesSearch =
-            order.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProjectOrders = projectOrders.filter(order =>
+    (order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (statusFilter === "all" || order.status === statusFilter)
+  );
 
-        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+  if (loading) return <p>Loading...</p>;
 
-        return matchesSearch && matchesStatus;
-    });
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Orders Management</h1>
 
-    const totalOrders = productOrders.length + projectOrders.length;
-    const totalRevenue = [...productOrders, ...projectOrders].reduce((sum, order) =>
-        sum + ('total' in order ? order.total : order.budget), 0
-    );
-
-    return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold">Orders Management</h1>
-                    <p className="text-muted-foreground">Monitor and manage all customer orders</p>
-                </div>
-            </div>
-
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Orders</p>
-                                <p className="text-2xl font-bold">{totalOrders}</p>
-                            </div>
-                            <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <Package className="h-6 w-6 text-primary" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Product Orders</p>
-                                <p className="text-2xl font-bold">{productOrders.length}</p>
-                            </div>
-                            <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                                <Package className="h-6 w-6 text-blue-600" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Project Orders</p>
-                                <p className="text-2xl font-bold">{projectOrders.length}</p>
-                            </div>
-                            <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center">
-                                <Package className="h-6 w-6 text-green-600" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                                <p className="text-2xl font-bold">Rs 3900</p>
-                            </div>
-                            <div className="h-12 w-12 bg-yellow-50 rounded-lg flex items-center justify-center">
-                                <DollarSign className="h-6 w-6 text-yellow-600" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                        placeholder="Search orders..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-40">
-                        <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="processing">Processing</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="shipped">Shipped</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select value={dateFilter} onValueChange={setDateFilter}>
-                    <SelectTrigger className="w-full md:w-40">
-                        <SelectValue placeholder="Filter by date" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Time</SelectItem>
-                        <SelectItem value="today">Today</SelectItem>
-                        <SelectItem value="week">This Week</SelectItem>
-                        <SelectItem value="month">This Month</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <Tabs defaultValue="products" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="products">Product Orders ({filteredProductOrders.length})</TabsTrigger>
-                    <TabsTrigger value="projects">Project Orders ({filteredProjectOrders.length})</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="products" className="space-y-4">
-                    {filteredProductOrders.length === 0 ? (
-                        <Card>
-                            <CardContent className="py-8 text-center">
-                                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                                <p className="text-muted-foreground">No product orders found</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4">
-                            {filteredProductOrders.map((order) => (
-                                <Card key={order.id} className={`hover:shadow-lg transition-shadow ${!order.visible ? 'opacity-50' : ''}`}>
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col md:flex-row gap-4">
-                                            {/* <img
-                                                src={order.productImage}
-                                                alt={order.productName}
-                                                className="w-full md:w-24 h-24 object-cover rounded-lg"
-                                            /> */}
-                                            <div className="flex-1 space-y-2">
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                                                    <h3 className="font-semibold text-lg">{order.productName}</h3>
-                                                    <div className="flex items-center gap-2">
-                                                        {!['delivered', 'completed', 'cancelled'].includes(order.status) && (
-                                                            <Button
-                                                                variant="destructive"
-                                                                size="sm"
-                                                                onClick={() => cancelOrder(order.id, 'product')}
-                                                            >
-                                                                Cancel Order
-                                                            </Button>
-                                                        )}
-
-                                                        <Badge variant={getStatusVariant(order.status)}>
-                                                            {getStatusIcon(order.status)}
-                                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                                        </Badge>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => toggleOrderVisibility(order.id, 'product')}
-                                                        >
-                                                            {order.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                            {order.visible ? 'Hide' : 'Show'}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground">Order #{order.orderNumber}</p>
-                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                                                    <div>
-                                                        <span className="text-muted-foreground">Customer:</span>
-                                                        <p className="font-medium">{order.customerName}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Price:</span>
-                                                        <p className="font-medium">Rs {order.price}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Quantity:</span>
-                                                        <p className="font-medium">{order.quantity}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Total:</span>
-                                                        <p className="font-medium">Rs {order.total}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Date:</span>
-                                                        <p className="font-medium">{new Date(order.orderDate).toLocaleDateString()}</p>
-                                                    </div>
-                                                </div>
-                                                <Button variant="outline" size="sm" className="w-fit">
-                                                    <Eye className="h-4 w-4 mr-2" />
-                                                    Details
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="projects" className="space-y-4">
-                    {filteredProjectOrders.length === 0 ? (
-                        <Card>
-                            <CardContent className="py-8 text-center">
-                                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                                <p className="text-muted-foreground">No project orders found</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4">
-                            {filteredProjectOrders.map((order) => (
-                                <Card key={order.id} className={`hover:shadow-lg transition-shadow ${!order.visible ? 'opacity-50' : ''}`}>
-                                    <CardHeader>
-                                        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                                            <div>
-                                                <CardTitle className="text-xl">{order.projectTitle}</CardTitle>
-                                                <p className="text-sm text-muted-foreground">Order #{order.orderNumber}</p>
-                                                <p className="text-sm font-medium">Customer: {order.customerName}</p>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                {!['delivered', 'completed', 'cancelled'].includes(order.status) && (
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        onClick={() => cancelOrder(order.id, 'project')}
-                                                    >
-                                                        Cancel Order
-                                                    </Button>
-                                                )}
-
-                                                <Badge variant={getStatusVariant(order.status)}>
-                                                    {getStatusIcon(order.status)}
-                                                    {order.status.replace('-', ' ').charAt(0).toUpperCase() + order.status.replace('-', ' ').slice(1)}
-                                                </Badge>
-                                                <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'outline'}>
-                                                    <DollarSign className="h-4 w-4 mr-1" />
-                                                    {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                                                </Badge>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => toggleOrderVisibility(order.id, 'project')}
-                                                >
-                                                    {order.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                    {order.visible ? 'Hide' : 'Show'}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            <p className="text-muted-foreground">{order.description}</p>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                                <div>
-                                                    <span className="text-muted-foreground text-sm">Budget:</span>
-                                                    <p className="font-semibold text-lg">Rs {order.budget.toLocaleString()}</p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-muted-foreground text-sm">Provider:</span>
-                                                    <p className="font-medium">{order.providerName}</p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-muted-foreground text-sm">Start Date:</span>
-                                                    <p className="font-medium flex items-center gap-1">
-                                                        <Calendar className="h-4 w-4" />
-                                                        {new Date(order.startDate).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-muted-foreground text-sm">Est. Completion:</span>
-                                                    <p className="font-medium flex items-center gap-1">
-                                                        <Calendar className="h-4 w-4" />
-                                                        {new Date(order.estimatedCompletion).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <Button variant="outline" size="sm" className="w-fit">
-                                                <Eye className="h-4 w-4 mr-2" />
-                                                Details
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search orders..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
         </div>
-    );
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="md:w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="shipped">Shipped</SelectItem>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="products" className="w-full">
+        <TabsList className="grid grid-cols-2">
+          <TabsTrigger value="products">Product Orders ({filteredProductOrders.length})</TabsTrigger>
+          <TabsTrigger value="projects">Project Orders ({filteredProjectOrders.length})</TabsTrigger>
+        </TabsList>
+
+        {/* Product Orders */}
+        <TabsContent value="products" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {filteredProductOrders.map(order => (
+            <Card key={order.id} className={`hover:shadow-lg transition-shadow ${!order.visible ? "opacity-50" : ""}`}>
+              <CardHeader className="flex justify-between items-start">
+                <CardTitle>{order.items[0]?.productName}</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => toggleOrderVisibility(order.id, "product")}>
+                  {order.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p><span className="text-muted-foreground">Order #:</span> {order.orderNumber}</p>
+                <p><span className="text-muted-foreground">Customer:</span> {order.customerName}</p>
+                <p><span className="text-muted-foreground">Total:</span> Rs {order.items.reduce((sum, i) => sum + i.total, 0)}</p>
+                <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                <Button variant="outline" size="sm" onClick={() => openModal(order)} className="mt-2">
+                  <Eye className="h-4 w-4 mr-2" /> View Details
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        {/* Project Orders */}
+        <TabsContent value="projects" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredProjectOrders.map(order => (
+            <Card key={order.id} className={`hover:shadow-lg transition-shadow ${!order.visible ? "opacity-50" : ""}`}>
+              <CardHeader className="flex justify-between items-start">
+                <CardTitle>{order.projectTitle}</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => toggleOrderVisibility(order.id, "project")}>
+                  {order.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p><span className="text-muted-foreground">Order #:</span> {order.orderNumber}</p>
+                <p><span className="text-muted-foreground">Customer:</span> {order.customerName}</p>
+                <p><span className="text-muted-foreground">Budget:</span> Rs {order.budget}</p>
+                <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                <Button variant="outline" size="sm" onClick={() => openModal(order)} className="mt-2">
+                  <Eye className="h-4 w-4 mr-2" /> View Details
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+      </Tabs>
+
+      {/* Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-2">
+              {"items" in selectedOrder ? (
+                // Product Order Details
+                <>
+                  <p><span className="text-muted-foreground">Order #:</span> {selectedOrder.orderNumber}</p>
+                  <p><span className="text-muted-foreground">Customer:</span> {selectedOrder.customerName}</p>
+                  <p><span className="text-muted-foreground">Status:</span> {selectedOrder.status}</p>
+                  <p><span className="text-muted-foreground">Order Date:</span> {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
+                  <p className="font-medium">Items:</p>
+                  <ul className="list-disc pl-5">
+                    {selectedOrder.items.map(item => (
+                      <li key={item.productId}>{item.productName} - {item.quantity} x Rs {item.price} = Rs {item.total}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                // Project Order Details
+                <>
+                  <p><span className="text-muted-foreground">Order #:</span> {selectedOrder.orderNumber}</p>
+                  <p><span className="text-muted-foreground">Customer:</span> {selectedOrder.customerName}</p>
+                  <p><span className="text-muted-foreground">Project Title:</span> {selectedOrder.projectTitle}</p>
+                  <p><span className="text-muted-foreground">Budget:</span> Rs {selectedOrder.budget}</p>
+                  <p><span className="text-muted-foreground">Status:</span> {selectedOrder.status}</p>
+                  <p><span className="text-muted-foreground">Payment:</span> {selectedOrder.paymentStatus}</p>
+                  <p><span className="text-muted-foreground">Provider:</span> {selectedOrder.providerName}</p>
+                  <p><span className="text-muted-foreground">Start Date:</span> {new Date(selectedOrder.startDate).toLocaleDateString()}</p>
+                  <p><span className="text-muted-foreground">Due Date:</span> {new Date(selectedOrder.dueDate).toLocaleDateString()}</p>
+                </>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
+
 export default OrderPage;

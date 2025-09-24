@@ -57,31 +57,39 @@ const ServicesPage = () => {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost/Git/Project1/Backend/GetAllServicesAdmin.php", { withCredentials: true })
-      .then((response) => {
-        const data = response.data;
-        if (data.success && data.services?.length > 0) {
-          const mappedServices = data.services.map((s: any) => ({
-            ...s,
-            provider: s.provider_name || `Provider ${s.provider_id}`,
-            price: parseFloat(s.price),
-            reviews: s.reviews || [],
-          }));
-          setServices(mappedServices);
-          setFilteredServices(mappedServices);
-        } else {
-          setServices([]);
-          setFilteredServices([]);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+  const fetchServices = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetAllServicesAdmin.php",
+        { withCredentials: true }
+      );
+
+      const data = response.data;
+
+      if (data.success && data.services?.length > 0) {
+        const mappedServices = data.services.map((s: any) => ({
+          ...s,
+          provider: s.provider_name || `Provider ${s.provider_id}`,
+          price: parseFloat(s.price),
+          reviews: s.reviews || [],
+        }));
+
+        setServices(mappedServices);
+        setFilteredServices(mappedServices);
+      } else {
+        setServices([]);
+        setFilteredServices([]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+    useEffect(() => {
+    fetchServices();
   }, []);
+
 
   useEffect(() => {
     const filtered = services.filter(
@@ -114,6 +122,7 @@ const ServicesPage = () => {
         { service_id: service.service_id, is_active: updatedStatus ? 1 : 0 },
         { withCredentials: true }
       );
+      
 
       if (res.data.success) {
         toast({
@@ -122,6 +131,7 @@ const ServicesPage = () => {
             updatedStatus ? "Approved" : "Pending"
           }`,
         });
+        fetchServices();
 
         // Update local state
         setServices((prev) =>
@@ -157,6 +167,7 @@ const ServicesPage = () => {
         title: "Review updated",
         description: `Review is now ${isActive ? "Visible" : "Blocked"}`,
       });
+      fetchServices();
 
       setServices((prev) =>
         prev.map((s) =>

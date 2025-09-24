@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useToast } from "@/hooks/use-toast";
 import { ChatWindow } from '@/components/ui/ChatWindow';
 import { ChatSession, Message } from "@/types/chat";
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -35,6 +36,7 @@ export default function Chat() {
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+    const navigate = useNavigate();
 
   const { toast } = useToast();
 
@@ -97,6 +99,7 @@ async function handleStatusChange(request_id: number, customer_id: number, newSt
       },
       { withCredentials: true }
     );
+    navigate(`/service_provider/MessagePro?redirect=${encodeURIComponent(location.pathname)}`);
 
     if (response.data.success) {
        setRequests(prev =>

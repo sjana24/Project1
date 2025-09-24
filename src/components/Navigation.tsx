@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogFooter,
   DialogTitle,
- DialogDescription,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 
@@ -112,7 +112,7 @@ const Navigation = () => {
   //const navigate = useNavigate();
   const location = useLocation();
 
-   // State for the Edit Profile form
+  // State for the Edit Profile form
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -172,29 +172,29 @@ const Navigation = () => {
     // Client-side validation
     setProfileError(null);
     setProfileSuccess(null);
-   
-      const { username, email, contact_number, current_password, new_password } = formData;
+
+    const { username, email, contact_number, current_password, new_password } = formData;
 
     if (!formData.username || !formData.email || !formData.contact_number) {
       setProfileError('All fields are required.');
       return;
     }
     // Username validation: letters, spaces, and hyphens.
-  const nameRegex = /^[A-Za-z\s-]+$/;
-  if (!nameRegex.test(username)) {
-    setProfileError('Name can only contain letters, spaces, and hyphens.');
-    return;
-  }
+    const nameRegex = /^[A-Za-z\s-]+$/;
+    if (!nameRegex.test(username)) {
+      setProfileError('Name can only contain letters, spaces, and hyphens.');
+      return;
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setProfileError('Please enter a valid email address.');
       return;
     }
-   const contactRegex = /^07\d{8}$/;
-  if (!contactRegex.test(contact_number)) {
-    setProfileError('Please enter a valid 10-digit mobile number starting with 07.');
-    return;
-  }
+    const contactRegex = /^07\d{8}$/;
+    if (!contactRegex.test(contact_number)) {
+      setProfileError('Please enter a valid 10-digit mobile number starting with 07.');
+      return;
+    }
 
 
     if (formData.new_password && formData.new_password.length < 8) {
@@ -255,63 +255,108 @@ const Navigation = () => {
   //     };
   //     fetchRole();
   //   }, [checkSession]);
-  // useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost/Git/Project1/Backend/GetNotificationCustomer.php",
+        { withCredentials: true }
+      );
+      const data = response.data;
+      if (data.success) {
+        console.log("Data received:", data);
+        setNotifications(data.notifications);
+      } else {
+        console.log("Failed to load notifications:", data);
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
 
-  //   axios
-  //     .get("http://localhost/Git/Project1/Backend/GetNotificationCustomer.php", {
-  //       withCredentials: true
-  //     })
-  //     .then((response) => {
-  //       const data = response.data;
-  //       if (data.success) {
-  //         console.log("Data received:", data);
-  //         // setCartItemsCount(data.items);
-  //         // updateCartCount();
-  //         setNotifications(data.notifications);
-  //       } else {
-  //         console.log("Failed to load items:", data);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.error("Error fetching cart items:", err);
-  //     });
-  // }, []);
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
-  
+
   const [openChats, setOpenChats] = useState<number[]>([]);
 
-  const handleNotificationClick = useCallback((notification: Notification) => {
-    const existingChat = chatSessions.find(chat => chat.chatSession_id === notification.notification_id);
-    console.log("hi buddy");
-    console.log(existingChat, "hi 120");
-    if (!existingChat) {
-      const newChat: ChatSession = {
-        sender_id: notification.sender_id,
-        user_id: notification.user_id,
-        chatSession_id: notification.notification_id,
-        participantName: String(notification.user_id),
-        messages: [],
-        isOpen: true,
-        lastActivity: new Date(),
-      };
-      console.log(newChat, "hi 129");
-      setChatSessions(prev => [...prev, newChat]);
-    }
+  // const handleNotificationClick = useCallback((notification: Notification) => {
+  //   const existingChat = chatSessions.find(chat => chat.chatSession_id === notification.notification_id);
+  //   // console.log("hi buddy");
+  //   // console.log(existingChat, "hi 120");
+  //   if (!existingChat) {
+  //     const newChat: ChatSession = {
+  //       sender_id: notification.sender_id,
+  //       user_id: notification.user_id,
+  //       chatSession_id: notification.notification_id,
+  //       participantName: String(notification.user_id),
+  //       messages: [],
+  //       isOpen: true,
+  //       lastActivity: new Date(),
+  //     };
+  //     console.log(newChat, "hi 129");
+  //     setChatSessions(prev => [...prev, newChat]);
+  //   }
 
-    if (!openChats.includes(notification.notification_id)) {
-      setOpenChats(prev => [...prev, notification.notification_id]);
-    }
-  }, [chatSessions, openChats, setChatSessions]);
+  //   if (!openChats.includes(notification.notification_id)) {
+  //     setOpenChats(prev => [...prev, notification.notification_id]);
+  //   }
+  // }, [chatSessions, openChats, setChatSessions]);
 
   const handleNotificationView = (notification: Notification) => {
     // onNotificationClick(notification);
-    console.log( " this is 137");
+    console.log(" this is 137");
     setIsOpenNotify(false);
     handleNotificationClick(notification);
     // onMarkAsRead(notification.id);
 
   };
-  
+  // Mark single notification as read
+  const markNotificationAsRead = async (notification_id: number) => {
+    try {
+      const response = await axios.post(
+        "http://localhost/Git/Project1/Backend/MarkNotificationRead.php",
+        { notification_id },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setNotifications(prev =>
+          prev.map(n =>
+            n.notification_id === notification_id ? { ...n, isRead: true } : n
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+    }
+  };
+  // Delete a notification
+  const deleteNotification = async (notification_id: number) => {
+    try {
+      const response = await axios.post(
+        "http://localhost/Git/Project1/Backend/DeleteNotification.php",
+        { notification_id },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setNotifications(prev =>
+          prev.filter(n => n.notification_id !== notification_id)
+        );
+      }
+    } catch (err) {
+      console.error("Error deleting notification:", err);
+    }
+  };
+
+  // Handle notification click (open chat & mark read)
+  const handleNotificationClick = async (notification: Notification) => {
+    console.log(notification);
+    await markNotificationAsRead(notification.notification_id); // mark single as read
+    handleNotificationView(notification); // open chat
+  };
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -381,20 +426,36 @@ const Navigation = () => {
   const openNotifyBar = () => {
     console.log(" notify");
   }
-  const getChatPosition = useCallback((index: number) => {
-    return {
-      // top:100,
-      bottom: -500,
-      right: 20 + (index * 340), // 340px = width + margin
-    };
-  }, []);
+  // Mark all notifications as read when bell icon clicked
+  const markAllNotificationsAsRead = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost/Git/Project1/Backend/MarkAllNotificationsRead.php",
+        {},
+        { withCredentials: true }
+      );
 
-  const openChatSessions = chatSessions.filter(chat => openChats.includes(chat.chatSession_id));
+      if (response.data.success) {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      }
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
+    }
+  };
+  // const getChatPosition = useCallback((index: number) => {
+  //   return {
+  //     // top:100,
+  //     bottom: -500,
+  //     right: 20 + (index * 340), // 340px = width + margin
+  //   };
+  // }, []);
 
-  const handleCloseChat = useCallback((chatId: number) => {
-    setOpenChats(prev => prev.filter(id => id !== chatId));
-  }, []);
-  
+  // const openChatSessions = chatSessions.filter(chat => openChats.includes(chat.chatSession_id));
+
+  // const handleCloseChat = useCallback((chatId: number) => {
+  //   setOpenChats(prev => prev.filter(id => id !== chatId));
+  // }, []);
+
 
 
 
@@ -402,64 +463,77 @@ const Navigation = () => {
   // const addToCartItems = items.length;
   return (
 
-   <>
-    <nav className="sticky top-0 z-50 glass-effect border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center space-x-2">
+    <>
+      <nav className="sticky top-0 z-50 glass-effect border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center space-x-2">
 
-            <img src="logoM.JPG" className="h-12 w-12"></img>
+              <img src="logoM.JPG" className="h-12 w-12"></img>
 
-          </Link>
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <NavLinks />
-          </div>
-          <div className="flex items-center space-x-8">
+            </Link>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <NavLinks />
+            </div>
+            <div className="flex items-center space-x-8">
 
-            {currentUser?.role === "customer" ? (
-              <>
-                <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button ><ShoppingCart />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+              {currentUser?.role === "customer" ? (
+                <>
+                  <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><Link to="/cartpage" ><button ><ShoppingCart />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
 
-                      {cartCount > 9 ? '9+' : cartCount}
+                        {cartCount > 9 ? '9+' : cartCount}
 
-                    </span>
-                  )}
+                      </span>
+                    )}
 
-                </button></Link></span>
+                  </button></Link></span>
 
-                <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}><Bell />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                  <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200"><button onClick={() => setIsOpenNotify(!isOpenNotify)}>
+                    {/* <Bell /> */}
+                    {false && (
+                      <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
 
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
 
-                </button></span>
-              </>
-            ) : (
+                  </button></span>
 
-              null
+                  <span className="relative p-2 hover:bg-gray-100 transition-colors duration-200">
+                    <button onClick={() => {
+                      setIsOpenNotify(!isOpenNotify);
+                      markAllNotificationsAsRead();
+                    }}>
+                      <Bell />
+                      {notifications.filter(n => !n.isRead).length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce-gentle">
+                          {notifications.filter(n => !n.isRead).length > 9 ? '9+' : notifications.filter(n => !n.isRead).length}
+                        </span>
+                      )}
+                    </button>
+                  </span>
 
-            )}
 
-            {isOpenNotify && (
-              <div className="absolute right-20 top-full mt-2 w-80 sm:w-96 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
-                <div className="p-4 border-b border-gray-100">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
-                  <p className="text-sm text-gray-500 mt-1 block sm:hidden">Tap to open chats</p>
-                </div>
+                </>
+              ) : (
 
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
-                      No notifications yet
-                    </div>
-                  ) : (
-                    notifications.map((notification) => (
+                null
+
+              )}
+
+              {isOpenNotify && (
+                <div className="absolute right-20 top-full mt-2 w-80 sm:w-96 max-w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-fade-in">
+                  <div className="p-4 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900">Notifications</h3>
+                    {/* <p className="text-sm text-gray-500 mt-1 block sm:hidden">Tap to open chats</p> */}
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+
+                    {notifications.map((notification) => (
                       <div
                         key={notification.notification_id}
                         className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors duration-150 ${!notification.isRead ? 'bg-blue-50' : ''
@@ -467,206 +541,196 @@ const Navigation = () => {
                       >
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 text-sm">
-                              {notification.title}
-
-                            </p>
-                            <p className="font-medium text-gray-900 text-sm">
-
-
-                              {notification.sender_name}
-
-                            </p>
-                            <p className="text-gray-600 text-sm mt-1 break-words">
-                              {notification.message}
-                            </p>
+                            <p className="font-medium text-gray-900 text-sm">{notification.title}</p>
+                            <p className="font-medium text-gray-900 text-sm">{notification.sender_name}</p>
+                            <p className="text-gray-600 text-sm mt-1 break-words">{notification.message}</p>
                             <p className="text-xs text-gray-400 mt-2">
                               {new Date(notification.created_at).toLocaleTimeString()}
                             </p>
                           </div>
+                          <div className="flex flex-col sm:flex-row gap-2 items-start">
 
-                          {notification.title === 'Request Accepted' ? (
-                           <Button
-                            size="sm"
-                            className="w-full sm:w-auto bg-[#26B170] hover:bg-[#21965F] text-white px-3 py-1 text-xs transition-colors"
-                            onClick={() => handleNotificationView(notification)}
-                          >
-                            Open Chat
-                          </Button>
-                          ): null
-                              }
-                          
-
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-700 px-2 py-1"
+                              onClick={() => deleteNotification(notification.notification_id)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-6 0V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                              </svg>
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    ))
-                  )}
+                    ))}
+
+                  </div>
                 </div>
-              </div>
-            )}
-
-          </div>
-
-
-          {/* Desktop Actions */}
-
-          {(currentUser) ? (
-            <>
-              <div className="hidden md:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    asChild
-                  // className="sm:pointer-events-none"
-                  >
-                    <Button variant="ghost" className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        {/* You can add an avatar icon or initials here */}
-                        {/* <span className="text-white font-bold">{currentUser.name.charAt(0)}</span> */}
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="hidden md:inline-block text-sm font-medium">
-                        Hi, {currentUser.name}
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
-                      Edit Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => {
-                        sessionStorage.removeItem("currentUser");
-                        logout();
-                        navigate("/");
-                        setCurrentUser(null);
-                      }}
-                      className="text-red-600"
-                    >
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </>
-          ) : (
-            <div>
-              {!isLoginPage ? (
-                <div className="hidden md:flex items-center space-x-4">
-                  <Link to="/login">
-                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
-
-                      <span>Login/Register</span>
-
-
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  {!isLoginPage ? (
-                    <div className="hidden md:flex items-center space-x-4">
-                      <Link to="/login">
-                        <Button variant="outline" size="sm" className="flex items-center space-x-2">
-
-                          <span>Login/Register</span>
-
-
-                        </Button>
-                      </Link>
-
-                    </div>
-                  ) : (
-                    <div className="hidden md:flex items-center space-x-4">
-                    </div>
-                  )}
-                </>
               )}
+
             </div>
-          )}
-
-          {/* Mobile Navigation  */}
-          {(currentUser) ? (
-            <>
-              <div className="md:hidden">
-                <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm">
-
-                      <Menu className="h-4 w-4" />
-
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-64">
-                    <div className="flex flex-col space-y-4 mt-8">
-                      <NavLinks mobile />
 
 
-                      <div className="pt-4 border-t space-y-2">
-                        <Link to="/customer/profile">
-                          <Button size="sm" className="solar-gradient text-white"  >
-                            Hi,{currentUser.name}
+            {/* Desktop Actions */}
 
+            {(currentUser) ? (
+              <>
+                <div className="hidden md:block">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      asChild
+                    // className="sm:pointer-events-none"
+                    >
+                      <Button variant="ghost" className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          {/* You can add an avatar icon or initials here */}
+                          {/* <span className="text-white font-bold">{currentUser.name.charAt(0)}</span> */}
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="hidden md:inline-block text-sm font-medium">
+                          Hi, {currentUser.name}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
 
-                          </Button>
-                        </Link>
-                      </div>
-
-                      <Button size="sm"
-                        // onClick={logout}
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
+                        Edit Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
                         onClick={() => {
-                          // sessionStorage.removeItem("currentUser");
+                          sessionStorage.removeItem("currentUser");
                           logout();
                           navigate("/");
                           setCurrentUser(null);
                         }}
-                        className="bg-white-300 text-black justify-start space-x-2">
-                        <LogOut /><span >Logout</span>
+                        className="text-red-600"
+                      >
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </>
+            ) : (
+              <div>
+                {!isLoginPage ? (
+                  <div className="hidden md:flex items-center space-x-4">
+                    <Link to="/login">
+                      <Button variant="outline" size="sm" className="flex items-center space-x-2">
+
+                        <span>Login/Register</span>
+
+
                       </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {!isLoginPage ? (
+                      <div className="hidden md:flex items-center space-x-4">
+                        <Link to="/login">
+                          <Button variant="outline" size="sm" className="flex items-center space-x-2">
 
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="md:hidden">
-                <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm">
+                            <span>Login/Register</span>
 
-                      <Menu className="h-4 w-4" />
 
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-64">
-                    <div className="flex flex-col space-y-4 mt-8">
-                      <NavLinks mobile />
-                      <div className="pt-4 border-t space-y-2">
-                        <Link to="/login" onClick={() => setIsOpen(false)}>
-                          <Button variant="outline" className="w-full">
-                            Login/Register
                           </Button>
                         </Link>
 
                       </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                    ) : (
+                      <div className="hidden md:flex items-center space-x-4">
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            </>
-          )}
+            )}
 
+            {/* Mobile Navigation  */}
+            {(currentUser) ? (
+              <>
+                <div className="md:hidden">
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm">
+
+                        <Menu className="h-4 w-4" />
+
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-64">
+                      <div className="flex flex-col space-y-4 mt-8">
+                        <NavLinks mobile />
+
+
+                        <div className="pt-4 border-t space-y-2">
+                          <Link to="/customer/profile">
+                            <Button size="sm" className="solar-gradient text-white"  >
+                              Hi,{currentUser.name}
+
+
+                            </Button>
+                          </Link>
+                        </div>
+
+                        <Button size="sm"
+                          // onClick={logout}
+                          onClick={() => {
+                            // sessionStorage.removeItem("currentUser");
+                            logout();
+                            navigate("/");
+                            setCurrentUser(null);
+                          }}
+                          className="bg-white-300 text-black justify-start space-x-2">
+                          <LogOut /><span >Logout</span>
+                        </Button>
+
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="md:hidden">
+                  <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm">
+
+                        <Menu className="h-4 w-4" />
+
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-64">
+                      <div className="flex flex-col space-y-4 mt-8">
+                        <NavLinks mobile />
+                        <div className="pt-4 border-t space-y-2">
+                          <Link to="/login" onClick={() => setIsOpen(false)}>
+                            <Button variant="outline" className="w-full">
+                              Login/Register
+                            </Button>
+                          </Link>
+
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </>
+            )}
+
+
+          </div>
 
         </div>
+        {/* </div> */}
+      </nav>
 
-      </div>
-      {/* </div> */}
-    </nav>
-
-<Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+      <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Profile</DialogTitle>

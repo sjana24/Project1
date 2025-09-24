@@ -48,11 +48,11 @@ export default function Productsnew() {
       if (data.success) {
         setProducts(data.products);
       } else {
-        toast({
-          title: "Fetch Data",
-          description: "Fetching products failed.",
-          variant: "destructive",
-        });
+        // toast({
+        //   title: "Fetch Data",
+        //   description: "Fetching products failed.",
+        //   variant: "destructive",
+        // });
       }
     } catch (err) {
       console.error(err);

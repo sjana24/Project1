@@ -478,7 +478,7 @@ const fetchCustomerOrders = async () => {
                             <Eye className="w-4 h-4" />
                             View Details
                           </Button>
-                          {canCancelOrder(order) && (
+                          {order.status !=="cancelled"&& order.status !== "delivered" && (
                             <Button 
                               variant="destructive" 
                               size="sm"
@@ -489,15 +489,17 @@ const fetchCustomerOrders = async () => {
                               Cancel Order
                             </Button>
                           )}
-                          {/* <Button 
-                              variant="destructive" 
+                           {order.status !=="cancelled" && order.status === "delivered"  && (
+                            <Button 
+                              variant="default" 
                               size="sm"
-                              onClick={() => handleCancelOrder(order)}
+                              // onClick={() => handleCancelOrder(order)}
                               className="flex items-center gap-2 rounded-lg"
                             >
-                              <X className="w-4 h-4" />
-                              Cancel Order
-                            </Button> */}
+                              
+                              Give review
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -585,7 +587,7 @@ const fetchCustomerOrders = async () => {
                             <Eye className="w-4 h-4" />
                             View Details
                           </Button>
-                          {canCancelOrder(order) && (
+                          {1 && canCancelOrder(order) && (
                             <Button
                               variant="destructive"
                               size="sm"
