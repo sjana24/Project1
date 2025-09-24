@@ -205,7 +205,7 @@ const totalCommission = transactions
                 <p className="text-sm text-gray-600">Total Amount</p>
                 <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              {/* <DollarSign className="w-8 h-8 text-green-500" /> */}
             </div>
           </CardContent>
         </Card>

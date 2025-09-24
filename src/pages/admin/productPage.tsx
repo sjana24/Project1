@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Package, Search, Filter, MoreHorizontal, Eye, EyeOff, Star } from 'lucide-react';
+import { Package, Search, MoreHorizontal, Eye, EyeOff, Star } from 'lucide-react';
 import axios from 'axios';
 
 interface Review {
@@ -154,7 +154,6 @@ const ProductPage = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input placeholder="Search products by name or category..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10"/>
           </div>
-          <Button variant="outline" className="gap-2"><Filter className="w-4 h-4" /> Filter</Button>
         </CardContent>
       </Card>
 

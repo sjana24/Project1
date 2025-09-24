@@ -33,7 +33,7 @@ class Blog
     public function getAllBlogs()
     {
         try {
-            $sql = "SELECT * FROM blog WHERE status = 'published' ORDER BY created_at DESC";
+            $sql = "SELECT * FROM blog WHERE is_delete = 0 ORDER BY created_at DESC";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -50,13 +50,13 @@ class Blog
         return [
             "blog_id"      => (int)$blog['blog_id'],
             "title"        => $blog['title'],
-            "excerpt"      => mb_substr(strip_tags($blog['content']), 0, 150) . "...", // Short preview
+            "excerpt"      => mb_substr(strip_tags($blog['link']), 0, 150) . "...", // Short preview
             "published_at" => $blog['created_at'],  // map created_at → published_at
             "updated_at" => $blog['updated_at'],
-            "read_time"    => max(1, ceil(str_word_count(strip_tags($blog['content'])) / 200)), // ~200 words/min
+            "read_time"    => 5,
             "category"     => $blog['category'] ?? "general",
             "tags"         => "solar,energy,renewable", // hardcoded or later make separate tags table
-            "content"      => $blog['content'],
+            "link"      => $blog['link'],
             "image"        => $blog['image']
         ];
     }
