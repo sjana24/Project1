@@ -90,7 +90,7 @@ class Customer extends User
         $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
-            return ["status"=>$statusValue,"success" => true, "message" => "Customer status updated"];
+            return ["success" => true, "message" => "Customer status updated"];
         } else {
             return ["success" => false, "message" => "Failed to update status"];
         }
