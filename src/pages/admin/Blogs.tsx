@@ -16,16 +16,16 @@ import { toast } from "@/hooks/use-toast";
 import { FileText, Eye, Edit, Trash2, Plus, Calendar, EyeOff, Eye as EyeOpen } from "lucide-react";
 
 interface Blog {
+  excerpt: string;
   blog_id: number;
   admin_id: number | null;
   title: string;
-  content: string;
+  link: string;
   category: string;
   image?: string;
   created_at: string;
   updated_at: string;
   status: "draft" | "published" | "archived" | "hidden";
-  likes: number;
 }
 
 const BlogsPage = () => {
@@ -38,7 +38,7 @@ const BlogsPage = () => {
   const [editBlog, setEditBlog] = useState<Blog | null>(null);
   const [formData, setFormData] = useState({
     title: "",
-    content: "",
+    link: "",
     category: "",
     image: "",
   });
@@ -109,45 +109,51 @@ const BlogsPage = () => {
       setEditBlog(blog);
       setFormData({
         title: blog.title,
-        content: blog.content,
+        link: blog.link, 
         category: blog.category,
         image: blog.image || "",
       });
     } else {
       setEditBlog(null);
-      setFormData({ title: "", content: "", category: "", image: "" });
+      setFormData({ title: "", link: "", category: "", image: "" }); // Changed from 'link' to 'content'
     }
     setIsFormOpen(true);
   };
 
-  // Save Blog (Add/Edit)
-  const handleSave = () => {
-    if (editBlog) {
-      // Update
-      setBlogs((prev) =>
-        prev.map((b) =>
-          b.blog_id === editBlog.blog_id ? { ...b, ...formData } : b
-        )
-      );
-      toast({ title: "Blog Updated", description: "Changes saved successfully" });
-    } else {
-      // Insert new
-      const newBlog: Blog = {
-        blog_id: Date.now(), // temporary ID
-        admin_id: 1,
-        title: formData.title,
-        content: formData.content,
-        category: formData.category,
-        image: formData.image,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        status: "draft",
-        likes: 0,
-      };
-      setBlogs((prev) => [newBlog, ...prev]);
-      toast({ title: "Blog Added", description: "New blog created" });
+  // 🆕 Save Blog (Add/Edit) now calls the API
+  const handleSave = async () => {
+    try {
+      if (editBlog) {
+        // Update
+        const response = await axios.put("http://localhost/Git/Project1/Backend/SaveBlog.php", {
+          blog_id: editBlog.blog_id,
+          ...formData,
+        });
+        const updatedBlog = response.data.blog;
+        setBlogs((prev) =>
+          prev.map((b) =>
+            b.blog_id === updatedBlog.blog_id ? updatedBlog : b
+          )
+        );
+        toast({ title: "Blog Updated", description: "Changes saved successfully" });
+      } else {
+        // Insert new
+        const response = await axios.post("http://localhost/Git/Project1/Backend/SaveBlog.php", {
+          ...formData,
+        });
+        const newBlog = response.data.blog;
+        setBlogs((prev) => [newBlog, ...prev]);
+        toast({ title: "Blog Added", description: "New blog created" });
+      }
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error("Failed to save blog:", error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save the blog. Please check your inputs.",
+        variant: "destructive",
+      });
     }
-    setIsFormOpen(false);
   };
 
   return (
@@ -179,10 +185,9 @@ const BlogsPage = () => {
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={`font-semibold py-2 px-4 rounded-full border text-sm transition-all
-              ${
-                selectedCategory === category
-                  ? "bg-[#26B170] text-white border-[#26B170]"
-                  : "bg-white text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white"
+              ${selectedCategory === category
+                ? "bg-[#26B170] text-white border-[#26B170]"
+                : "bg-white text-[#26B170] border-[#26B170] hover:bg-[#26B170] hover:text-white"
               }`}
           >
             {category}
@@ -194,55 +199,54 @@ const BlogsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {filteredBlogs.map((blog) => (
           <Card key={blog.blog_id} className="glass-card hover:shadow-lg transition-all">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{blog.title}</CardTitle>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                    <Calendar className="w-4 h-4" />
-                    {blog.created_at ? blog.created_at :"24-05-2025" }
-                    {/* {new Date(blog.created_at).toLocaleDateString()} */}
-                  </div>
-                </div>
-              
-              </div>
-            </CardHeader>
-            <CardContent>
-              <img
-                src={blog.image ? `http://localhost/Git/Project1/${blog.image}` : "https://placehold.co/600x400/26B170/ffffff?text=Blog"}
-                alt={blog.title}
-                className="w-full h-40 object-cover rounded mb-3"
-              />
-              <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                {blog.content.replace(/<[^>]+>/g, "").slice(0, 150)}...
-              </p>
+  <CardHeader>
+    <div className="flex items-start justify-between">
+      <div>
+        <CardTitle className="text-lg">{blog.title}</CardTitle>
+        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+          <Calendar className="w-4 h-4" />
+          {blog.created_at ? blog.created_at : "24-05-2025"}
+        </div>
+      </div>
+    </div>
+  </CardHeader>
 
-              <div className="flex gap-2 pt-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm"><Eye className="w-3 h-3 mr-1" /></Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader><DialogTitle>{blog.title}</DialogTitle></DialogHeader>
-                    <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: blog.content }} />
-                  </DialogContent>
-                </Dialog>
+  <CardContent>
+    <img
+      src={blog.image ? `http://localhost/Git/Project1/${blog.image}` : "https://placehold.co/600x400/26B170/ffffff?text=Blog"}
+      alt={blog.title}
+      className="w-full h-40 object-cover rounded mb-3"
+    />
 
-                <Button variant="outline" size="sm" onClick={() => openForm(blog)}>
-                  <Edit className="w-3 h-3 mr-1" />
-                </Button>
+    <p className="text-gray-600 text-sm line-clamp-3 mb-3">
+      {blog.excerpt}{" "}
+      {blog.link && (
+        <a
+          href={blog.link}  
+          className="text-[#26B170] font-semibold hover:underline ml-1"
+        >
+          Read more on Wikipedia →
+        </a>
+      )}
+    </p>
 
-                <Button variant="outline" size="sm" onClick={() => toggleVisibility(blog.blog_id)}>
-                  {blog.status === "hidden" ? <EyeOpen className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                  {/* {blog.status === "hidden" ? "Unhide" : "Hide"} */}
-                </Button>
+    {/* Action buttons */}
+    <div className="flex gap-2 pt-2">
+      <Button variant="outline" size="sm" onClick={() => openForm(blog)}>
+        <Edit className="w-3 h-3 mr-1" />
+      </Button>
 
-                <Button variant="outline" size="sm" onClick={() => deleteBlog(blog.blog_id)} className="hover:bg-red-50 hover:text-red-700">
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      <Button variant="outline" size="sm" onClick={() => toggleVisibility(blog.blog_id)}>
+        {blog.status === "hidden" ? <EyeOpen className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
+      </Button>
+
+      <Button variant="outline" size="sm" onClick={() => deleteBlog(blog.blog_id)} className="hover:bg-red-50 hover:text-red-700">
+        <Trash2 className="w-3 h-3" />
+      </Button>
+    </div>
+  </CardContent>
+</Card>
+
         ))}
       </div>
 
@@ -256,7 +260,7 @@ const BlogsPage = () => {
             <Input placeholder="Title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
             <Input placeholder="Category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
             <Input placeholder="Image URL" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} />
-            <Textarea rows={5} placeholder="Content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} />
+            <Textarea rows={5} placeholder="Link" value={formData.link} onChange={(e) => setFormData({ ...formData, link: e.target.value })} />
           </div>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setIsFormOpen(false)}>Cancel</Button>
@@ -264,7 +268,7 @@ const BlogsPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 };
 
