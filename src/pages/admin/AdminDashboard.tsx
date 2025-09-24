@@ -1,6 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Building2, Package, ShoppingCart, TrendingUp, Clock } from 'lucide-react';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Users,
+  Building2,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 
 interface DashboardStats {
   totalUsers: number;
@@ -14,45 +22,28 @@ interface DashboardStats {
   totalRevenue: number;
 }
 
-export interface Provider {
-  id: string;
+interface Order {
+  order_id: number;
+  customer: string;
+  total_amount: string;
+  status: string;
+  order_date: string;
+}
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  joinDate: string;
+}
+
+interface Provider {
+  id: number;
   name: string;
   email: string;
   company: string;
-  status: 'pending' | 'approved' | 'rejected' | 'disabled';
+  status: "pending" | "approved" | "rejected" | "disabled";
   joinDate: string;
-  productsCount: number;
-  servicesCount: number;
-}
-
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  joinDate: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  status: 'active' | 'inactive';
-}
-
-export interface Service {
-  id: string;
-  name: string;
-  price: number;
-  status: 'active' | 'inactive';
-}
-
-export interface Order {
-  id: string;
-  customer: string;
-  items: string[];
-  total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  date: string;
 }
 
 export default function DashboardPage() {
@@ -71,105 +62,91 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [recentCustomers, setRecentCustomers] = useState<Customer[]>([]);
   const [recentProviders, setRecentProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // --- Mock Data ---
-    const users: Customer[] = [
-      { id: '1', name: 'John Doe', email: 'john@example.com', joinDate: '2025-09-01' },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com', joinDate: '2025-09-02' },
-      { id: '3', name: 'Alice Brown', email: 'alice@example.com', joinDate: '2025-09-03' },
-      { id: '4', name: 'Michael Lee', email: 'michael@example.com', joinDate: '2025-09-04' },
-      { id: '5', name: 'Bob Johnson', email: 'bob@example.com', joinDate: '2025-09-05' },
-    ];
-
-    const providers: Provider[] = [
-      { id: '1', name: 'SolarX Solutions', email: 'contact@solarx.com', company: 'SolarX', status: 'approved', joinDate: '2025-09-01', productsCount: 3, servicesCount: 2 },
-      { id: '2', name: 'Green Energy Inc', email: 'info@greenenergy.com', company: 'Green Energy', status: 'pending', joinDate: '2025-09-03', productsCount: 5, servicesCount: 3 },
-      { id: '3', name: 'Sun Power', email: 'support@sunpower.com', company: 'Sun Power', status: 'approved', joinDate: '2025-09-04', productsCount: 2, servicesCount: 4 },
-      { id: '4', name: 'Eco Energy', email: 'hello@ecoenergy.com', company: 'Eco Energy', status: 'approved', joinDate: '2025-09-05', productsCount: 4, servicesCount: 3 },
-      { id: '5', name: 'PhotonTech', email: 'contact@photontech.com', company: 'PhotonTech', status: 'pending', joinDate: '2025-09-06', productsCount: 2, servicesCount: 2 },
-    ];
-
-    const products: Product[] = [
-      { id: '1', name: 'Solar Panel A', price: 1200, status: 'active' },
-      { id: '2', name: 'Solar Panel B', price: 1000, status: 'active' },
-      { id: '3', name: 'Battery Storage', price: 800, status: 'inactive' },
-      { id: '4', name: 'Inverter X', price: 600, status: 'active' },
-    ];
-
-    const services: Service[] = [
-      { id: '1', name: 'Installation', price: 500, status: 'active' },
-      { id: '2', name: 'Maintenance', price: 300, status: 'active' },
-      { id: '3', name: 'Consultation', price: 200, status: 'inactive' },
-    ];
-
-    const orders: Order[] = [
-      { id: '1', customer: 'John Doe', items: ['Solar Panel A'], total: 1200, status: 'delivered', date: '2025-09-01' },
-      { id: '2', customer: 'Jane Smith', items: ['Solar Panel B', 'Inverter X'], total: 1600, status: 'processing', date: '2025-09-02' },
-      { id: '3', customer: 'Alice Brown', items: ['Battery Storage'], total: 800, status: 'shipped', date: '2025-09-03' },
-      { id: '4', customer: 'Michael Lee', items: ['Installation'], total: 500, status: 'pending', date: '2025-09-04' },
-      { id: '5', customer: 'Bob Johnson', items: ['Maintenance'], total: 300, status: 'delivered', date: '2025-09-05' },
-    ];
-
-    const totalRevenue = products.reduce((sum, p) => sum + p.price, 0) + services.reduce((sum, s) => sum + s.price, 0);
-
-    setStats({
-      totalUsers: users.length,
-      activeUsers: users.length,
-      totalProviders: providers.length,
-      pendingProviders: providers.filter(p => p.status === 'pending').length,
-      totalProducts: products.length,
-      activeProducts: products.filter(p => p.status === 'active').length,
-      totalServices: services.length,
-      activeServices: services.filter(s => s.status === 'active').length,
-      totalRevenue,
-    });
-
-    setRecentOrders(orders.slice(0, 5));
-    setRecentCustomers(users.slice(0, 5));
-    setRecentProviders(providers.slice(0, 5));
+    fetchDashboard();
   }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        "http://localhost/Git/Project1/Backend/AdminDashboard.php",
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (res.data.success) {
+        setStats(res.data.stats);
+        setRecentOrders(res.data.recentOrders);
+        setRecentCustomers(res.data.recentCustomers);
+        setRecentProviders(res.data.recentProviders);
+      } else {
+        setError(res.data.message || "Failed to fetch dashboard data");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong while fetching dashboard data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const statCards = [
     {
-      title: 'Total Customers',
+      title: "Total Customers",
       value: stats.totalUsers,
       subtitle: `${stats.activeUsers} active`,
       icon: Users,
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50',
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      title: 'Providers',
+      title: "Providers",
       value: stats.totalProviders,
       subtitle: `${stats.pendingProviders} pending`,
       icon: Building2,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50',
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      title: 'Products & Services',
+      title: "Products & Services",
       value: stats.activeProducts + stats.activeServices,
       subtitle: `${stats.totalProducts + stats.totalServices} total`,
       icon: Package,
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-50',
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
-      title: 'Total Revenue',
+      title: "Total Revenue",
       value: stats.totalRevenue,
-      subtitle: 'From products & services',
+      subtitle: "From products & services",
       icon: ShoppingCart,
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'bg-orange-50',
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50",
     },
   ];
+
+  if (loading) {
+    return <p className="text-center text-gray-600">Loading dashboard...</p>;
+  }
+
+  if (error) {
+    return (
+      <p className="text-center text-red-500 font-medium">
+        Error: {error}
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to SolarX Admin Panel</p>
+        <p className="text-gray-600 mt-2">Welcome to Admin Panel</p>
       </div>
 
       {/* Stats Grid */}
@@ -177,16 +154,27 @@ export default function DashboardPage() {
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="glass border-white/20 hover:shadow-lg transition-all duration-300">
+            <Card
+              key={index}
+              className="glass border-white/20 hover:shadow-lg transition-all duration-300"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {stat.subtitle}
+                    </p>
                   </div>
-                  <div className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center`}>
-                    <Icon className={`w-6 h-6 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} />
+                  <div
+                    className={`w-12 h-12 rounded-full ${stat.bgColor} flex items-center justify-center`}
+                  >
+                    <Icon
+                      className={`w-6 h-6 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -208,21 +196,38 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
+                <div
+                  key={order.order_id}
+                  className="flex items-center justify-between p-4 bg-white/50 rounded-lg"
+                >
                   <div>
-                    <p className="font-medium text-gray-900">Order #{order.id}</p>
+                    <p className="font-medium text-gray-900">
+                      Order #{order.order_id}
+                    </p>
                     <p className="text-sm text-gray-600">{order.customer}</p>
-                    <p className="text-xs text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(order.order_date).toLocaleDateString()}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">Rs{order.total.toFixed(2)}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                      order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                      order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {order.status}
+                    <p className="font-semibold text-gray-900">
+                      Rs{parseFloat(order.total_amount).toFixed(2)}
+                    </p>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        order.status === "delivered"
+                          ? "bg-green-100 text-green-800"
+                          : order.status === "shipped"
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "processing" ||
+                            order.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : order.status === "on_transit"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {order.status || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -242,11 +247,16 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentCustomers.map((customer) => (
-                <div key={customer.id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
+                <div
+                  key={customer.id}
+                  className="flex items-center justify-between p-4 bg-white/50 rounded-lg"
+                >
                   <div>
                     <p className="font-medium text-gray-900">{customer.name}</p>
                     <p className="text-sm text-gray-600">{customer.email}</p>
-                    <p className="text-xs text-gray-500">{new Date(customer.joinDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(customer.joinDate).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -265,19 +275,31 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentProviders.map((provider) => (
-                <div key={provider.id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
+                <div
+                  key={provider.id}
+                  className="flex items-center justify-between p-4 bg-white/50 rounded-lg"
+                >
                   <div>
-                    <p className="font-medium text-gray-900">{provider.name}</p>
+                    <p className="font-medium text-gray-900">
+                      {provider.name}
+                    </p>
                     <p className="text-sm text-gray-600">{provider.company}</p>
-                    <p className="text-xs text-gray-500">{new Date(provider.joinDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(provider.joinDate).toLocaleDateString()}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      provider.status === 'approved' ? 'bg-green-100 text-green-800' :
-                      provider.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      provider.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        provider.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : provider.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : provider.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {provider.status}
                     </span>
                   </div>

@@ -261,4 +261,86 @@ public function getProviderCounts($provider_id)
     //         echo json_encode(["message" => "Failed to register. " . $e->getMessage()]);
     //     }
     // }
+
+    public function getAdminData($admin_id)
+    {
+        $this->admin_id = $admin_id;
+        try {
+    // $db = new Database();
+    // $conn = $db->connect();
+
+    // Total Users
+    $totalUsers = $this->conn->query("SELECT COUNT(*) AS count FROM user")->fetch(PDO::FETCH_ASSOC)['count'];
+
+    // Active Users (not blocked)
+    $activeUsers = $this->conn->query("SELECT COUNT(*) AS count FROM user WHERE is_blocked = 0")->fetch(PDO::FETCH_ASSOC)['count'];
+
+    // Providers
+    $totalProviders = $this->conn->query("SELECT COUNT(*) AS count FROM user WHERE user_role = 'service_provider'")->fetch(PDO::FETCH_ASSOC)['count'];
+    $blockedProviders = $this->conn->query("SELECT COUNT(*) AS count FROM user WHERE user_role = 'service_provider' AND is_blocked = '1'")->fetch(PDO::FETCH_ASSOC)['count'];
+
+    // Products
+    $totalProducts = $this->conn->query("SELECT COUNT(*) AS count FROM product")->fetch(PDO::FETCH_ASSOC)['count'];
+    $activeProducts = $this->conn->query("SELECT COUNT(*) AS count FROM product WHERE is_approved = 1 AND is_delete = 0")->fetch(PDO::FETCH_ASSOC)['count'];
+
+    // Services
+    $totalServices = $this->conn->query("SELECT COUNT(*) AS count FROM service")->fetch(PDO::FETCH_ASSOC)['count'];
+    $activeServices = $this->conn->query("SELECT COUNT(*) AS count FROM service WHERE is_approved=1 AND is_active = 1 AND is_delete = 0")->fetch(PDO::FETCH_ASSOC)['count'];
+
+    // Revenue (sum of successful payments)
+    $totalRevenue = $this->conn->query("SELECT COALESCE(SUM(amount), 0) AS sum FROM payment WHERE status = 'completed'")->fetch(PDO::FETCH_ASSOC)['sum'];
+
+    // Recent Orders (last 5)
+    $recentOrders = $this->conn->query("
+        SELECT o.order_id, c.customer_id, u.username AS customer, o.total_amount, o.status, o.order_date
+        FROM `order` o
+        JOIN customer c ON o.customer_id = c.customer_id
+        JOIN user u ON c.user_id = u.user_id
+        ORDER BY o.order_date DESC
+        LIMIT 5
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Recent Customers (last 5)
+    $recentCustomers = $this->conn->query("
+        SELECT c.customer_id AS id, u.username AS name, u.email, u.created_at AS joinDate
+        FROM customer c
+        JOIN user u ON c.user_id = u.user_id
+        ORDER BY u.created_at DESC
+        LIMIT 5
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Recent Providers (last 5)
+    $recentProviders = $this->conn->query("
+        SELECT sp.provider_id AS id, u.username AS name, u.email, sp.company_name AS company,
+               sp.verification_status AS status, u.created_at AS joinDate
+        FROM service_provider sp
+        JOIN user u ON sp.user_id = u.user_id
+        ORDER BY u.created_at DESC
+        LIMIT 5
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    return([
+        "success" => true,
+        "stats" => [
+            "totalUsers" => (int)$totalUsers,
+            "activeUsers" => (int)$activeUsers,
+            "totalProviders" => (int)$totalProviders,
+            "pendingProviders" => (int)$blockedProviders,
+            "totalProducts" => (int)$totalProducts,
+            "activeProducts" => (int)$activeProducts,
+            "totalServices" => (int)$totalServices,
+            "activeServices" => (int)$activeServices,
+            "totalRevenue" => (float)$totalRevenue,
+        ],
+        "recentOrders" => $recentOrders,
+        "recentCustomers" => $recentCustomers,
+        "recentProviders" => $recentProviders,
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error: " . $e->getMessage(),
+    ]);
+    } 
+}  
 }
