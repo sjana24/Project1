@@ -611,42 +611,103 @@ class Order
         }
     }
 
-    public function updateOrderStatusProvider($order_id, $new_status)
-    {
-        $this->order_id = $order_id;
-        $this->new_status = $new_status;
+//     public function updateOrderStatusProvider($order_id, $new_status)
+//     {
+//         $this->order_id = $order_id;
+//         $this->new_status = $new_status;
 
-        try {
-            $sql = "UPDATE `order`
-        SET status = :status, updated_at = NOW()
-        WHERE order_id = :order_id";
+//         try {
+//             $sql = "UPDATE `order`
+//         SET status = :status, updated_at = NOW()
+//         WHERE order_id = :order_id";
 
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':status', $this->new_status, PDO::PARAM_STR);
-            $stmt->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
+//             $stmt = $this->conn->prepare($sql);
+//             $stmt->bindParam(':status', $this->new_status, PDO::PARAM_STR);
+//             $stmt->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
 
-            $stmt->execute();
+//             $stmt->execute();
 
 
-            if ($stmt->execute()) {
-                return [
-                    "success" => true,
-                    "message" => "Order  status updated successfully."
-                ];
-            } else {
-                return [
-                    "success" => false,
-                    "message" => "Failed to update order approval status."
-                ];
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
+//             if ($stmt->execute()) {
+// $sql = "UPDATE `order`
+//         SET status = :status, updated_at = NOW()
+//         WHERE order_id = :order_id";
+
+//             $stmt = $this->conn->prepare($sql);
+//             $stmt->bindParam(':status', $this->new_status, PDO::PARAM_STR);
+//             $stmt->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
+
+//             $stmt->execute();
+
+//                 return [
+//                     "success" => true,
+//                     "message" => "Order  status updated successfully."
+//                 ];
+//             } else {
+//                 return [
+//                     "success" => false,
+//                     "message" => "Failed to update order approval status."
+//                 ];
+//             }
+//         } catch (PDOException $e) {
+//             http_response_code(500);
+//             return [
+//                 "success" => false,
+//                 "message" => "Error updating product approval: " . $e->getMessage()
+//             ];
+//         }
+//     }
+public function updateOrderStatusProvider($order_id, $new_status)
+{
+    $this->order_id = $order_id;
+    $this->new_status = $new_status;
+
+    try {
+        // ✅ 1. Fetch customer_id for this order
+        $customerSql = "SELECT customer_id FROM `order` WHERE order_id = :order_id";
+        $stmtCustomer = $this->conn->prepare($customerSql);
+        $stmtCustomer->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
+        $stmtCustomer->execute();
+        $customer = $stmtCustomer->fetch(PDO::FETCH_ASSOC);
+
+        if (!$customer) {
             return [
                 "success" => false,
-                "message" => "Error updating product approval: " . $e->getMessage()
+                "message" => "Order not found."
             ];
         }
+        $customer_id = $customer['customer_id'];
+
+        // ✅ 2. Update order status
+        $updateSql = "UPDATE `order`
+                      SET status = :status, updated_at = NOW()
+                      WHERE order_id = :order_id";
+        $stmtUpdate = $this->conn->prepare($updateSql);
+        $stmtUpdate->bindParam(':status', $this->new_status, PDO::PARAM_STR);
+        $stmtUpdate->bindParam(':order_id', $this->order_id, PDO::PARAM_INT);
+
+        if ($stmtUpdate->execute()) {
+            return [
+                "success" => true,
+                "message" => "Order status updated successfully.",
+                "customer_id" => $customer_id
+            ];
+        } else {
+            return [
+                "success" => false,
+                "message" => "Failed to update order status."
+            ];
+        }
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            "success" => false,
+            "message" => "Error updating order: " . $e->getMessage()
+        ];
     }
+}
+
 
 public function GetOrderCount($provider_id)
 {

@@ -21,95 +21,162 @@ class Product
     {
         $dbObj = new Database;
         $this->conn = $dbObj->connect();
+        // print_r($this->conn);
     }
 
-        public function getAllProductsCustomer()
+
+public function getAllProductsCustomer()
 {
     try {
         $is_approved = 1;
         $is_delete = 0;
-        $is_blocked = 0; // ✅ ensure provider's user account is active
+        $is_blocked = 0;
 
-        // ✅ Fetch only approved + not deleted products
-        // ✅ Ensure provider user is active (is_blocked = 0)
-        $sql = "SELECT p.*, 
-                       sp.company_name, 
-                       sp.profile_image,
-                       u.username AS provider_name
-                FROM product p
-                JOIN service_provider sp ON p.provider_id = sp.provider_id
-                JOIN user u ON sp.user_id = u.user_id
-                WHERE p.is_approved = :is_approved 
-                  AND p.is_delete = :is_delete
-                  AND u.is_blocked = :is_blocked"; 
+        // Select product fields + provider info (use LEFT JOIN so products aren't dropped)
+        $sql = "
+            SELECT
+                p.product_id,
+                p.provider_id,
+                p.name,
+                p.description,
+                p.price,
+                p.category,
+                p.images,
+                p.specifications,
+                p.is_approved,
+                p.is_delete,
+                p.created_at,
+                p.updated_at,
+                sp.provider_id AS sp_provider_id,
+                sp.user_id  AS sp_user_id,
+                sp.contact_number,
+                sp.address,
+                sp.district,
+                sp.profile_image,
+                sp.company_name,
+                sp.business_registration_number,
+                sp.company_description,
+                sp.website,
+                sp.verification_status,
+                u.user_id AS provider_user_id,
+                u.username AS provider_name,
+                u.is_blocked AS provider_is_blocked
+            FROM product p
+            LEFT JOIN service_provider sp ON p.provider_id = sp.provider_id
+            LEFT JOIN user u ON sp.user_id = u.user_id
+            WHERE p.is_approved = :is_approved
+              AND p.is_delete = :is_delete
+              -- allow provider_is_blocked = 0 OR NULL (in case provider user missing)
+              AND (u.is_blocked = :is_blocked OR u.is_blocked IS NULL)
+            ORDER BY p.created_at DESC
+        ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':is_approved', $is_approved, PDO::PARAM_INT);
-        $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
+        $stmt->bindParam(':is_delete',  $is_delete,  PDO::PARAM_INT);
         $stmt->bindParam(':is_blocked', $is_blocked, PDO::PARAM_INT);
         $stmt->execute();
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($products) {
-            foreach ($products as &$product) {
-                $product_id = $product['product_id'];
-
-                // ✅ Fetch only approved reviews + reviewers not blocked
-                $reviewSql = "SELECT 
-                                r.review_id,
-                                r.customer_id,
-                                r.rating,
-                                r.comment,
-                                r.created_at,
-                                u.username AS reviewer_name
-                              FROM review r
-                              JOIN user u ON r.customer_id = u.user_id
-                              WHERE r.product_id = :product_id
-                                AND r.is_approved = 1
-                                AND u.is_blocked = 0
-                              ORDER BY r.created_at DESC";
-                $reviewStmt = $this->conn->prepare($reviewSql);
-                $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-                $reviewStmt->execute();
-                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // ✅ Average rating only from approved reviews + active users
-                $avgRatingSql = "SELECT ROUND(AVG(r.rating), 1) AS average_rating
-                                 FROM review r
-                                 JOIN user u ON r.customer_id = u.user_id
-                                 WHERE r.product_id = :product_id
-                                   AND r.is_approved = 1
-                                   AND u.is_blocked = 0";
-                $avgStmt = $this->conn->prepare($avgRatingSql);
-                $avgStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-                $avgStmt->execute();
-                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
-
-                // Attach extra info
-                $product['reviews'] = $reviews;
-                $product['average_rating'] = $avgRating['average_rating'] ?? null;
-                $product['total_reviews'] = count($reviews);
-            }
-
-            return [
-                'success' => true,
-                'products' => $products,
-                'message' => 'Products with reviews fetched successfully.'
-            ];
-        } else {
+        if (!$products || count($products) === 0) {
             return [
                 'success' => false,
+                'products' => [],
                 'message' => 'No products found.'
             ];
         }
+
+        // For each product fetch reviews (safe dual-attempt) and compute avg in PHP
+        foreach ($products as &$product) {
+            $product_id = (int)$product['product_id'];
+
+            // Attempt A: review -> customer -> user (recommended schema)
+            $reviewSqlA = "
+                SELECT
+                    r.review_id,
+                    r.customer_id,
+                    r.product_id,
+                    r.service_id,
+                    r.rating,
+                    r.comment,
+                    r.created_at,
+                    r.updated_at,
+                    r.is_approved,
+                    u.user_id AS reviewer_user_id,
+                    u.username AS reviewer_name,
+                    u.is_blocked AS reviewer_is_blocked
+                FROM review r
+                LEFT JOIN customer c ON r.customer_id = c.customer_id
+                LEFT JOIN user u ON c.user_id = u.user_id
+                WHERE r.product_id = :product_id
+                  AND r.is_approved = 1
+                  AND (u.is_blocked = 0 OR u.is_blocked IS NULL)
+                ORDER BY r.created_at DESC
+            ";
+            $rStmt = $this->conn->prepare($reviewSqlA);
+            $rStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+            $rStmt->execute();
+            $reviews = $rStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // If no reviews found with Attempt A, try Attempt B: review -> user (customer_id = user_id)
+            if (!$reviews || count($reviews) === 0) {
+                $reviewSqlB = "
+                    SELECT
+                        r.review_id,
+                        r.customer_id,
+                        r.product_id,
+                        r.service_id,
+                        r.rating,
+                        r.comment,
+                        r.created_at,
+                        r.updated_at,
+                        r.is_approved,
+                        u.user_id AS reviewer_user_id,
+                        u.username AS reviewer_name,
+                        u.is_blocked AS reviewer_is_blocked
+                    FROM review r
+                    LEFT JOIN user u ON r.customer_id = u.user_id
+                    WHERE r.product_id = :product_id
+                      AND r.is_approved = 1
+                      AND (u.is_blocked = 0 OR u.is_blocked IS NULL)
+                    ORDER BY r.created_at DESC
+                ";
+                $rStmt2 = $this->conn->prepare($reviewSqlB);
+                $rStmt2->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                $rStmt2->execute();
+                $reviews = $rStmt2->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            // Ensure we always return an array for reviews
+            $product['reviews'] = $reviews ?: [];
+
+            // Compute average rating in PHP (only approved, active reviewers are returned above)
+            $ratings = array_column($product['reviews'], 'rating');
+            $ratings = array_map('floatval', $ratings);
+            $totalReviews = count($ratings);
+            $averageRating = $totalReviews > 0 ? round(array_sum($ratings) / $totalReviews, 1) : null;
+
+            $product['average_rating'] = $averageRating;
+            $product['total_reviews']   = $totalReviews;
+        }
+        unset($product); // break reference
+
+        return [
+            'success' => true,
+            'products' => $products,
+            'message' => 'Products with reviews fetched successfully.'
+        ];
     } catch (PDOException $e) {
-        http_response_code(500);
+        // log full error for debugging and return a friendly message
+        error_log("getAllProductsCustomer1 Error: " . $e->getMessage());
         return [
             'success' => false,
-            'message' => 'Failed to fetch products. ' . $e->getMessage()
+            'message' => 'Failed to fetch products: ' . $e->getMessage()
         ];
     }
 }
+
+
 
     public function getAllProductsProvider($provider_id)
     {
@@ -195,77 +262,77 @@ class Product
         }
     }
 
-     public function getAllProductsAdmin()
-    {
-        try {
-            $is_delete = 0;
-            $sql = "SELECT p.*, u.username AS provider_name
-                        FROM product p
-                        JOIN service_provider sp ON p.provider_id = sp.provider_id
-                        JOIN user u ON sp.user_id = u.user_id
-                        WHERE  p.is_delete = :is_delete ";
+public function getAllProductsAdmin()
+{
+    try {
+        $is_delete = 0;
+        $sql = "SELECT p.*, u.username AS provider_name
+                FROM product p
+                LEFT JOIN service_provider sp ON p.provider_id = sp.provider_id
+                LEFT JOIN user u ON sp.user_id = u.user_id
+                WHERE p.is_delete = :is_delete";
 
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
-            $stmt->execute();
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':is_delete', $is_delete, PDO::PARAM_INT);
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($products) {
-                foreach ($products as &$product) {
-                    $product_id = $product['product_id'];
+        if ($products) {
+            foreach ($products as &$product) {
+                $product_id = $product['product_id'];
 
-                    $reviewSql = "  SELECT 
-                                        r.review_id,
-                                        r.customer_id,
-                                        r.rating,
-                                        r.comment,
-                                        r.is_approved,
-                                        r.created_at,
-                                        u.username AS reviewer_name
-                                    FROM review r
-                                    JOIN user u ON r.customer_id = u.user_id
-                                    WHERE r.product_id = :product_id
-                                    ORDER BY r.created_at DESC ";
-                    $reviewStmt = $this->conn->prepare($reviewSql);
-                    $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-                    $reviewStmt->execute();
-                    $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+                // ✅ Fetch reviews
+                $reviewSql = "SELECT 
+                                r.review_id,
+                                r.customer_id,
+                                r.rating,
+                                r.comment,
+                                r.is_approved,
+                                r.created_at,
+                                u.username AS reviewer_name
+                              FROM review r
+                              JOIN customer c ON r.customer_id = c.customer_id
+                              JOIN user u ON c.user_id = u.user_id
+                              WHERE r.product_id = :product_id
+                              ORDER BY r.created_at DESC";
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Fetch average rating
-                    $avgRatingSql = "   SELECT ROUND(AVG(rating), 1) AS average_rating
-                                        FROM review
-                                        WHERE product_id = :product_id
-                                    ";
-                    $avgStmt = $this->conn->prepare($avgRatingSql);
-                    $avgStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-                    $avgStmt->execute();
-                    $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+                // ✅ Average rating
+                $avgRatingSql = "SELECT ROUND(AVG(rating), 1) AS average_rating
+                                 FROM review
+                                 WHERE product_id = :product_id";
+                $avgStmt = $this->conn->prepare($avgRatingSql);
+                $avgStmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                $avgStmt->execute();
+                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Attach to product array
-                    $product['reviews'] = $reviews;
-                    $product['average_rating'] = $avgRating['average_rating'] ?? null;
-                }
-
-
-                return [
-                    'success' => true,
-                    'products' => $products,
-                    'message' => 'Products with reviews fetched successfully.'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No products found.'
-                ];
+                $product['reviews'] = $reviews;
+                $product['average_rating'] = $avgRating['average_rating'] ?? null;
             }
-        } catch (PDOException $e) {
-            http_response_code(500);
+
+            return [
+                'success' => true,
+                'products' => $products,
+                'message' => 'Products with reviews fetched successfully.'
+            ];
+        } else {
             return [
                 'success' => false,
-                'message' => 'Failed to fetch products. ' . $e->getMessage()
+                'message' => 'No products found (check is_delete flag or JOIN conditions).'
             ];
         }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch products. ' . $e->getMessage()
+        ];
     }
+}
+
 
      public function updateProductServiceAdmin($product_id, $is_approved)
     {

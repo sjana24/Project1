@@ -58,7 +58,7 @@ class Service
         $this->conn = $dbObj->connect();
     }
 
-    public function getAllServices()
+    public function getAllServices1()
     {
 
         try {
@@ -142,6 +142,83 @@ class Service
             ];
         }
     }
+    public function getAllServices()
+{
+    try {
+        // Fetch all services with provider info, even if some fields are null
+        $sql = "SELECT 
+                    s.*, 
+                    u.username AS provider_name,
+                    sp.company_name AS company_name,
+                    sp.profile_image AS company_image
+                FROM service s
+                LEFT JOIN service_provider sp ON s.provider_id = sp.provider_id
+                LEFT JOIN user u ON sp.user_id = u.user_id
+                WHERE u.is_blocked = 0 OR u.user_id IS NULL";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($services) {
+            foreach ($services as &$service) {
+                $service_id = $service['service_id'];
+
+                // Fetch approved reviews
+                $reviewSql = "
+                    SELECT 
+                        r.review_id,
+                        r.customer_id,
+                        r.rating,
+                        r.comment,
+                        r.created_at,
+                        u.username AS reviewer_name
+                    FROM service_review r
+                    LEFT JOIN user u ON r.customer_id = u.user_id
+                    WHERE r.service_id = :service_id AND r.is_approved = 1
+                    ORDER BY r.created_at DESC";
+                
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Average rating
+                $avgRatingSql = "
+                    SELECT ROUND(AVG(rating), 1) AS average_rating
+                    FROM service_review
+                    WHERE service_id = :service_id AND is_approved = 1";
+                
+                $avgStmt = $this->conn->prepare($avgRatingSql);
+                $avgStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $avgStmt->execute();
+                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+                // Attach reviews and average rating
+                $service['reviews'] = $reviews;
+                $service['average_rating'] = $avgRating['average_rating'] ?? null;
+            }
+
+            return [
+                'success' => true,
+                'services' => $services,
+                'message' => 'Services fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No services found.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch services. ' . $e->getMessage()
+        ];
+    }
+}
+
 
     public function getAllServicesProvider($provider_id)
     {
@@ -220,7 +297,7 @@ class Service
             ];
         }
     }
-    public function getAllServicesAdmin()
+    public function getAllServicesAdmin12()
 {
     try {
         // Fetch all services
@@ -290,6 +367,78 @@ class Service
         ];
     }
 }
+public function getAllServicesAdmin()
+{
+    try {
+        // Fetch all services with provider name (if available)
+        $sql = "SELECT s.*, u.username AS provider_name
+                FROM service s
+                LEFT JOIN service_provider sp ON s.provider_id = sp.provider_id
+                LEFT JOIN user u ON sp.user_id = u.user_id
+                WHERE s.is_delete = 0";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($services) {
+            // Fetch reviews and average rating for each service
+            foreach ($services as &$service) {
+                $service_id = $service['service_id'];
+
+                // Reviews
+                $reviewSql = "SELECT 
+                                r.review_id,
+                                r.customer_id,
+                                r.rating,
+                                r.comment,
+                                r.is_approved,
+                                r.created_at,
+                                u.username AS reviewer_name
+                              FROM service_review r
+                              LEFT JOIN user u ON r.customer_id = u.user_id
+                              WHERE r.service_id = :service_id
+                              ORDER BY r.created_at DESC";
+                
+                $reviewStmt = $this->conn->prepare($reviewSql);
+                $reviewStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $reviewStmt->execute();
+                $reviews = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Average rating
+                $avgRatingSql = "SELECT ROUND(AVG(rating), 1) AS average_rating
+                                 FROM service_review
+                                 WHERE service_id = :service_id";
+                $avgStmt = $this->conn->prepare($avgRatingSql);
+                $avgStmt->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+                $avgStmt->execute();
+                $avgRating = $avgStmt->fetch(PDO::FETCH_ASSOC);
+
+                // Attach reviews and average rating
+                $service['reviews'] = $reviews;
+                $service['average_rating'] = $avgRating['average_rating'] ?? null;
+            }
+
+            return [
+                'success' => true,
+                'services' => $services,
+                'message' => 'Services with reviews fetched successfully.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No services found.'
+            ];
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        return [
+            'success' => false,
+            'message' => 'Failed to fetch services. ' . $e->getMessage()
+        ];
+    }
+}
+
 
 public function updateServiceStatusAdmin($service_id, $is_approved)
     {
@@ -1089,4 +1238,35 @@ LEFT JOIN relocation_requests rr ON sr.request_id = rr.request_id;
             ];
         }
     }
+
+    // public function getProviderIdByServiceId($provider_id)
+    // {
+    //     $this->provider_id = $provider_id;
+
+    //     try {
+    //         // ✅ 1. Get provider info
+    //         $stmt = $this->conn->prepare("SELECT * FROM service_provider WHERE provider_id = :provider_id");
+    //         $stmt->execute([':provider_id' => $this->provider_id]);
+    //         $provider = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    //         if (!$provider) {
+    //             return ["success" => false, "message" => "Provider not found"];
+    //         }
+
+        
+
+    //         // ✅ Final Response
+    //         return [
+    //             "success" => true,
+    //             "provider" => $provider,
+    //             "products" => $products,
+    //             "services" => $services,
+    //             "orders" => $orders,
+    //             "users" => $users,
+    //             "projects" => $projects,
+    //         ];
+    //     } catch (Exception $e) {
+    //         return ["success" => false, "message" => $e->getMessage()];
+    //     }
+    // }
 }

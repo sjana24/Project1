@@ -165,7 +165,7 @@ const ProductPage = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-accent rounded-lg overflow-hidden">
+                  <div className="w-12 h-12 bg-transparent rounded-lg overflow-hidden">
                     <img src={`http://localhost/Git/Project1/Backend/${product.image}`} alt={product.name} className="w-full h-full object-cover"/>
                   </div>
                   <div>

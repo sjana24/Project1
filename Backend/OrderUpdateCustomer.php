@@ -21,7 +21,7 @@ if (isset($_SESSION['user'])) {
     $user_id = $_SESSION['user']['user_id'];
     $user_role = $_SESSION['user']['user_role'];
 
-    echo "$user_name,$user_id,$user_role";
+    // echo "$user_name,$user_id,$user_role";
     if ("customer" === $user_role) {
         $data = json_decode(file_get_contents("php://input"), true);
         $array = $data['product_Details'];
@@ -29,9 +29,9 @@ if (isset($_SESSION['user'])) {
         $address=$data['address'];
         $paymentMethod=$data['paymentMethod'];
 
-        print_r( $array);
-        print_r($card); 
-        print_r($address);
+        // print_r( $array);
+        // print_r($card); 
+        // print_r($address);
         $order=new Order();
         $responce=$order->createOrder($user_id,$array,$paymentMethod,$address,300);
         echo json_encode($responce);

@@ -45,26 +45,26 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
     const total = subtotal + deliveryFee;
     const navigate = useNavigate();
 
-    const confirmPayment = async () => {
+    const confirmPayment1 = async () => {
         if (!paymentMethod) {
             console.log("hi");
 
 
         }
         else {
-            if(paymentMethod ==="cod"){
-                            const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
+            if (paymentMethod === "cod") {
+                const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
                     // customer_id: currentUser.customerId,
                     // product_Details: "janakan",
-                    paymentMethod:paymentMethod,
-                    card_details:null,
+                    paymentMethod: paymentMethod,
+                    card_details: null,
                     product_Details: selectedItems,
-                    address:formData,
+                    address: formData,
 
                 },
                     { withCredentials: true }
                 );
-        
+
                 if (!responce.data.success) {
                     toast({
                         title: "Order Placed",
@@ -82,48 +82,95 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
                 }
 
             }
-            else{
-            const validationErrors = validate();
+            else {
+                const validationErrors = validate();
 
-            if (Object.keys(validationErrors).length === 0) {
-                console.log("No errors - validation passed!");
-                // const orderUpdate=await axios.post('http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php', {name:"jana",userCredentials:true});
-                const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
-                    // customer_id: currentUser.customerId,
-                    // product_Details: "janakan",
-                    paymentMethod:paymentMethod,
-                    card_details: cardData,
-                    product_Details: selectedItems,
-                    address:formData,
+                if (Object.keys(validationErrors).length === 0) {
+                    console.log("No errors - validation passed!");
+                    // const orderUpdate=await axios.post('http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php', {name:"jana",userCredentials:true});
+                    const responce = await axios.post("http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php", {
+                        // customer_id: currentUser.customerId,
+                        // product_Details: "janakan",
+                        paymentMethod: paymentMethod,
+                        card_details: cardData,
+                        product_Details: selectedItems,
+                        address: formData,
 
-                },
-                    { withCredentials: true }
-                );
-        
-                if (!responce.data.success) {
-                    toast({
-                        title: "Order Placed",
-                        description: "Your order placed successfully.",
-                        variant: "default", // optional styling
-                    });
-                    //  navigate("/");
-                    // redirect("/");
+                    },
+                        { withCredentials: true }
+                    );
+
+                    if (!responce.data.success) {
+                        toast({
+                            title: "Order Placed",
+                            description: "Your order placed successfully.",
+                            variant: "default", // optional styling
+                        });
+                        //  navigate("/");
+                        // redirect("/");
+                    } else {
+                        toast({
+                            title: "Ordering Failed",
+                            description: responce.data.message || "There was an error submitting your application.",
+                            variant: "destructive", // optional styling
+                        });
+                    }
+                    // Proceed with form submission
                 } else {
-                    toast({
-                        title: "Ordering Failed",
-                        description: responce.data.message || "There was an error submitting your application.",
-                        variant: "destructive", // optional styling
-                    });
+                    console.log("Validation errors:", errors);
+                    // Show errors to user
                 }
-                // Proceed with form submission
-            } else {
-                console.log("Validation errors:", errors);
-                // Show errors to user
-            }}
-            console.log(" doi");
+            }
+
         }
 
     }
+    const confirmPayment = async () => {
+        if (!paymentMethod) {
+            console.log("Please select a payment method");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                "http://localhost/Git/Project1/Backend/OrderUpdateCustomer.php",
+                {
+                    paymentMethod: paymentMethod,
+                    card_details: paymentMethod === "card" ? cardData : null,
+                    product_Details: selectedItems,
+                    address: formData,
+                },
+                { withCredentials: true }
+            );
+
+            if (response.data.success) {
+                toast({
+                    title: "Order Placed",
+                    description: "Your order placed successfully.",
+                    variant: "default",
+                });
+
+                onClose();
+                navigate(`/orders?redirect=${encodeURIComponent(location.pathname)}`);// ✅ close modal
+                // navigate("/") // if you also want redirect
+            } else {
+                toast({
+                    title: "Ordering Failed",
+                    description:
+                        response.data.message ||
+                        "There was an error submitting your application.",
+                    variant: "destructive",
+                });
+            }
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: error.message || "Something went wrong.",
+                variant: "destructive",
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setCardData((prev) => ({
@@ -216,6 +263,7 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
 
                             {paymentMethod === "card" && (
                                 <div className="mt-4 space-y-2">
+                                    {/* Card Number */}
                                     <input
                                         type="text"
                                         name="cardNumber"
@@ -224,9 +272,16 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
                                         placeholder="Card Number"
                                         className="w-full border px-4 py-2 rounded mb-2"
                                         required
+                                        maxLength={16}
+                                        pattern="\d{16}"
+                                        title="Card number must be 16 digits"
                                     />
-                                    {errors.CardNumber && <p className="text-red-500 text-sm mt-1">{errors.CardNumber}</p>}
+                                    {errors.cardNumber && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>
+                                    )}
+
                                     <div className="flex gap-2">
+                                        {/* Expiry */}
                                         <input
                                             type="text"
                                             name="expiry"
@@ -234,8 +289,15 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
                                             onChange={handleChange}
                                             placeholder="Expiry (MM/YY)"
                                             className="w-1/2 border px-4 py-2 rounded"
+                                            required
+                                            pattern="(0[1-9]|1[0-2])\/\d{2}"
+                                            title="Expiry date must be in MM/YY format"
                                         />
-                                        {errors.expiry && <p className="text-red-500 text-sm mt-1">{errors.expiry}</p>}
+                                        {errors.expiry && (
+                                            <p className="text-red-500 text-sm mt-1">{errors.expiry}</p>
+                                        )}
+
+                                        {/* CVV */}
                                         <input
                                             type="text"
                                             name="cvv"
@@ -243,10 +305,17 @@ const CartModal = ({ isOpen, onClose, selectedItems, formData }: CartModalProps)
                                             onChange={handleChange}
                                             placeholder="CVV"
                                             className="w-1/2 border px-4 py-2 rounded"
+                                            required
+                                            maxLength={3}
+                                            pattern="\d{3}"
+                                            title="CVV must be 3 digits"
                                         />
-                                        {errors.cvv && <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>}
+                                        {errors.cvv && (
+                                            <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>
+                                        )}
                                     </div>
                                 </div>
+
                             )}
                         </div>
                     </div>

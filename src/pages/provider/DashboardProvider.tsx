@@ -208,13 +208,13 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {error && (
+      {/* {error && (
         <Card>
           <CardContent className="p-6">
             <p className="text-sm text-red-600">Error: {error}</p>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

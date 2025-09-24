@@ -7,6 +7,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 require_once "./Root/Order.php";
+require_once "./Root/Notification.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
@@ -33,7 +34,16 @@ if (isset($_SESSION['user'])) {
          $new_status = $data['new_status'];
 
         $order = new Order();
+        
         $response = $order->updateOrderStatusProvider((int)$order_id,$new_status);
+        if($response['success']){
+            $notification=new Notification();
+            $notificationResponse=$notification->insertNotification($response['customer_id'],$user_role,"Order status","Your order #$order_id status has been updated to '$new_status' by the service provider.",$user_id);
+            if(!$notificationResponse['success']){
+
+            }
+            
+        }
 
         echo json_encode($response);
     } else {

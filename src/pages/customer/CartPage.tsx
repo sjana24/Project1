@@ -35,37 +35,6 @@ const CartPage = () => {
     );
 
 
-    // const item1s: item[] = [
-    //     {
-    //         image: "one.jpeg",
-    //         name: "Sample Product",
-    //         price: 12345,
-    //         productId: 1,
-    //         providerId: 1,
-    //         quantity: 1,
-    //         userId: 1,
-    //         total_price:1,
-    //         unit_price:2,
-    //     },
-    // {
-    //     image: "one.jpeg",
-    //     name: "Sample Product",
-    //     price: 12345,
-    //     productId: 2,
-    //     providerId: 2,
-    //     quantity: 2,
-    //     userId: 2,
-    // },
-    // {
-    //     image: "one.jpeg",
-    //     name: "Sample Product",
-    //     price: 12345,
-    //     productId: 3,
-    //     providerId: 3,
-    //     quantity: 3,
-    //     userId: 3,
-    // },
-    // ];
     const provinces = [
         { value: "Central", label: "Central Province" },
         { value: "Eastern", label: "Eastern Province" },
@@ -88,31 +57,34 @@ const CartPage = () => {
         Uva: ["Badulla", "Monaragala"],
         Sabaragamuwa: ["Ratnapura", "Kegalle"]
     };
-    useEffect(() => {
-        //   const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "null");
-        setCartItems([]);
+   // ✅ function to fetch cart items
+const fetchCartItems = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost/Git/Project1/Backend/ShowCardItems.php",
+      { withCredentials: true }
+    );
 
-        //   if (!currentUser) return; // Safeguard in case there's no user
+    const data = response.data;
+    if (data.success) {
+      console.log("Data received:", data);
+      setCartItemsCount(data.items);
+      updateCartCount();
+      setCartItems(data.items);
+    } else {
+      console.log("Failed to load items:", data);
+    }
+  } catch (err) {
+    console.error("Error fetching cart items:", err);
+  }
+};
 
-        axios
-            .get("http://localhost/Git/Project1/Backend/ShowCardItems.php", {
-                withCredentials: true
-            })
-            .then((response) => {
-                const data = response.data;
-                if (data.success) {
-                    console.log("Data received:", data);
-                    setCartItemsCount(data.items);
-                    updateCartCount();
-                    setCartItems(data.items);
-                } else {
-                    console.log("Failed to load items:", data);
-                }
-            })
-            .catch((err) => {
-                console.error("Error fetching cart items:", err);
-            });
-    }, [cartUpdated]); // Add currentUser as dependency if it can change
+// ✅ useEffect calls it when cartUpdated changes
+useEffect(() => {
+  setCartItems([]); // clear first
+  fetchCartItems();
+}, [cartUpdated]);
+
 
     const [formData, setFormData] = useState<any>({
         province: "",
@@ -173,11 +145,11 @@ const CartPage = () => {
         setErrors(prev => ({ ...prev, [key]: "" }));
     };
     const handleClick = () => {
-        console.log("hi this is me");
-        console.log("Selected items:", selectedCartItems);
-        console.log("Form data:", formData);
+        // console.log("hi this is me");
+        // console.log("Selected items:", selectedCartItems);
+        // console.log("Form data:", formData);
         const addressData = `${formData.street}, ${formData.province}, ${formData.city}`;
-        console.log("Address data:", addressData);
+        // console.log("Address data:", addressData);
         // setAddress({address:addressData});
          setAddress(addressData);
         //   setSelectedProduct(product);
@@ -402,7 +374,7 @@ const CartPage = () => {
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping</span>
-                                    <span>Rs 0</span>
+                                    <span>Rs 00</span>
                                 </div>
                                 <div className="border-t pt-3">
                                     <div className="flex justify-between text-lg font-semibold">
@@ -436,15 +408,7 @@ const CartPage = () => {
                                 Proceed to Checkout
                             </button>
 
-                            {!currentUser && (
-                                <p className="text-sm text-gray-600 text-center mt-4">
-                                    Please{" "}
-                                    <Link to="/login" className="text-blue-600 hover:underline">
-                                        login
-                                    </Link>{" "}
-                                    to continue
-                                </p>
-                            )}
+                            
                         </div>
                     </div>
 

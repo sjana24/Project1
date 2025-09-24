@@ -235,4 +235,63 @@ class Provider
         return ["success" => false, "message" => $e->getMessage()];
     }
 }
+
+ public function getProviderIdByServiceId($provider_id)
+    {
+        $this->provider_id = $provider_id;
+
+        try {
+            // ✅ 1. Get provider info
+            $stmt = $this->conn->prepare("SELECT * FROM service_provider WHERE provider_id = :provider_id");
+            $stmt->execute([':provider_id' => $this->provider_id]);
+            $provider = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$provider) {
+                return ["success" => false, "message" => "Provider not found"];
+            }
+
+            // ✅ 2. Get products
+            $stmt = $this->conn->prepare("SELECT * FROM product WHERE provider_id = :provider_id AND is_delete = 0");
+            $stmt->execute([':provider_id' => $provider_id]);
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ 3. Get services
+            $stmt = $this->conn->prepare("SELECT * FROM service WHERE provider_id = :provider_id AND is_delete = 0");
+            $stmt->execute([':provider_id' => $provider_id]);
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ 4. Get orders (join order_items if you want more details)
+            $stmt = $this->conn->prepare("SELECT * FROM `order` WHERE provider_id = :provider_id");
+            $stmt->execute([':provider_id' => $provider_id]);
+            $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ 5. Get related users (customers who ordered from this provider)
+            $stmt = $this->conn->prepare("
+            SELECT DISTINCT u.* 
+            FROM user u
+            JOIN `order` o ON o.customer_id = u.user_id
+            WHERE o.provider_id = :provider_id
+        ");
+            $stmt->execute([':provider_id' => $provider_id]);
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ 6. Get ongoing projects
+            $stmt = $this->conn->prepare("SELECT * FROM ongoing_project WHERE request_id = :provider_id");
+            $stmt->execute([':provider_id' => $provider_id]);
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ Final Response
+            return [
+                "success" => true,
+                "provider" => $provider,
+                "products" => $products,
+                "services" => $services,
+                "orders" => $orders,
+                "users" => $users,
+                "projects" => $projects,
+            ];
+        } catch (Exception $e) {
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
 }

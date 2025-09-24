@@ -208,17 +208,17 @@ const Services = () => {
       if (response.data.success) {
         console.log("Request sent successful");
         toast({
-          title: "Request sent!",
-          description: ` request sended to .`,
+          title: "Request sent successfully",
+          description: `${response.data.message} `,
           // description: `${product.productId},${product.name},${product.price},${product.productId},${currentUser.id}`,
         });
 
 
       } else {
-        console.log(response.data);
+        // console.log(response.data);
         toast({
           title: "Request sent failed",
-          description: "Invalid credentials check and resend again",
+          description: `${response.data.message} `,
           variant: "destructive",
         });
         // console.log(" error in login"); // show error message from PHP
@@ -235,7 +235,7 @@ const Services = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="py-20">
+      <div className="py-20 px-10">
         <div className="container mx-auto px-4">
 
 
@@ -316,11 +316,11 @@ const Services = () => {
             <div className="relative z-10">
               <CardHeader className="p-5">
                 <div className="flex items-center gap-4 mb-3">
-                  <img
+                  {/* <img
                     src={`http://localhost/Git/Project1/Backend/${service.company_image}`}
                     alt={service.company_name}
                     className="w-14 h-14 rounded-xl object-cover border shadow"
-                  />
+                  /> */}
                   <div>
                     <CardTitle className="text-xl font-semibold">{service.name}</CardTitle>
                     <p className="text-sm text-muted-foreground">{service.company_name}</p>

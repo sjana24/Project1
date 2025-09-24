@@ -170,7 +170,7 @@ const { toast } = useToast();
 
   const handleSubmit = () => {
     const validationErrors = validate();
-    console.log(formData);
+    // console.log(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       toast({

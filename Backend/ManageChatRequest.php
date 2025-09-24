@@ -74,15 +74,19 @@ try {
     $newStatus = $response['status'];
 
     if ($success && $newStatus === "accepted") {
-        $res1 = $notify->insertNotificationStatusCustomer(
-            $contact_id,
-            $user_role,
-            $newStatus,
-            $customer_id,
-            $success,
-            $user_id
-        );
+        // $res1 = $notify->insertNotification(
+        //     // $contact_id,
+        //     $user_role,
+        //     $newStatus,
+        //     $customer_id,
+        //     $success,
+        //     $user_id
+        // );
+
+         $res1=$notify->insertNotification($response['customer_id'],$user_role,"Contact request status","Your contact request '$newStatus' successfully by the service provider.",$user_id);
+          
         $res2 = $chat->createConversation($contact_id, $customer_id, $user_id);
+        // $resNotify=
 
         if ($res1 && $res2) {
             http_response_code(200);

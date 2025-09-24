@@ -349,4 +349,111 @@ public function getProviderCounts($provider_id)
     ]);
     } 
 }  
+
+
+
+
+
+
+
+ public function getAllAdminOrders() 
+ {
+        $data = [];
+
+        // ------------------------
+        // 1. Product Orders with multiple items
+        // ------------------------
+        $sqlProductOrders = "
+            SELECT 
+                o.order_id,
+                CONCAT('ORD-', YEAR(o.order_date), '-', LPAD(o.order_id, 3, '0')) AS orderNumber,
+                u.username AS customerName,
+                u.email AS customerEmail,
+                o.status,
+                o.order_date,
+                pr.product_id,
+                pr.name AS productName,
+                pr.images AS productImage,
+                pr.price,
+                oi.quantity,
+                (oi.quantity * pr.price) AS itemTotal
+            FROM `order` o
+            JOIN user u ON o.customer_id = u.user_id
+            JOIN order_item oi ON o.order_id = oi.order_id
+            JOIN product pr ON oi.product_id = pr.product_id
+            ORDER BY o.order_id DESC
+        ";
+
+        $stmt = $this->conn->prepare($sqlProductOrders);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $productOrders = [];
+        foreach ($rows as $row) {
+            $id = $row['order_id'];
+            if (!isset($productOrders[$id])) {
+                $productOrders[$id] = [
+                    "id" => $id,
+                    "orderNumber" => $row['orderNumber'],
+                    "customerName" => $row['customerName'],
+                    "customerEmail" => $row['customerEmail'],
+                    "status" => $row['status'],
+                    "orderDate" => $row['order_date'],
+                    "items" => [],
+                    "visible" => true
+                ];
+            }
+
+            $productOrders[$id]["items"][] = [
+                "productId" => $row["product_id"],
+                "productName" => $row["productName"],
+                "productImage" => $row["productImage"],
+                "price" => (float) $row["price"],
+                "quantity" => (int) $row["quantity"],
+                "total" => (float) $row["itemTotal"]
+            ];
+        }
+
+        // Reset keys (from associative to indexed array)
+        $data['productOrders'] = array_values($productOrders);
+
+        // ------------------------
+        // 2. Project Orders (with start + due date)
+        // ------------------------
+        $sqlProjectOrders = "
+            SELECT 
+    op.project_id AS id,
+    CONCAT('PRJ-', YEAR(op.start_date), '-', LPAD(op.project_id, 3, '0')) AS orderNumber,
+    u.username AS customerName,
+    u.email AS customerEmail,
+    op.project_name AS projectTitle,
+    op.status,
+    p.status AS projectStatus,
+    sp.company_name AS providerName,
+    op.start_date,
+    op.due_date
+FROM ongoing_project op
+JOIN service_request sr ON op.request_id = sr.request_id
+JOIN service s ON sr.service_id = s.service_id
+JOIN service_provider sp ON s.provider_id = sp.provider_id
+JOIN user u ON sr.customer_id = u.user_id
+LEFT JOIN service_payment p ON op.request_id = p.request_id
+ORDER BY op.project_id DESC";
+
+
+        $stmt = $this->conn->prepare($sqlProjectOrders);
+        $stmt->execute();
+        $projectOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($projectOrders as &$proj) {
+            $proj['visible'] = true;
+            $proj['startDate'] = $proj['start_date'];
+            $proj['dueDate'] = $proj['due_date'];
+            unset($proj['start_date'], $proj['estimated_completion']);
+        }
+
+        $data['projectOrders'] = $projectOrders;
+
+        return $data;
+    }
 }
