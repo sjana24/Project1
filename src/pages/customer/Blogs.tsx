@@ -17,7 +17,7 @@ export type Blog = {
   read_time: number;
   category: string;
   tags: string; // comma-separated
-  content: string;
+  link: string;
   image?: string;
 
 };
@@ -45,59 +45,6 @@ const MessageModal: React.FC<{
   );
 };
 
-// Comment Section Component
-const CommentSection: React.FC<{ blogId: number }> = ({ blogId }) => {
-const [showCommentForm, setShowCommentForm] = useState(false);
-const [comment, setComment] = useState("");
-
-const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment.trim()) {
-      alert("Please enter a comment!");
-      return;
-    }
-    
-    alert(`Comment submitted for blog ${blogId}: ${comment}`);
-    setComment("");
-    setShowCommentForm(false);
-  };
-
-
-  return (
-    <div>
-      {/* Comment Button */}
-      <button
-        onClick={() => setShowCommentForm(!showCommentForm)}
-        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-      >
-        <MessageSquare className="w-5 h-5" />
-        <span>Comment</span>
-      </button>
-
-      {/* Comment Form */}
-      {showCommentForm && (
-        <div className="absolute top-full left-0 right-0 mt-4 bg-white border rounded-lg shadow-lg p-4 z-10">
-          <form onSubmit={handleCommentSubmit} className="space-y-3">
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Write your comment..."
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              rows={3}
-            />
-            <button
-              type="submit"
-              className="bg-[#26B170] text-white px-4 py-2 rounded hover:bg-green-600 transition"
-            >
-              Submit Comment
-            </button>
-          </form>
-        </div>
-      )}
-
-    </div>
-  );
-};
 
 
 // BlogModal component
@@ -170,7 +117,7 @@ const BlogModal: React.FC<{
         </div>
         <div
           className="prose max-w-none text-gray-700 px-8 py-6"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
+          dangerouslySetInnerHTML={{ __html: blog.link }}
         />
 
       </div>
@@ -210,7 +157,7 @@ const Blogs: React.FC = () => {
   }, []);
 
   // Fetch single blog
-  const fetchBlogContent = async (blogId: number) => {
+  const fetchBlogLink = async (blogId: number) => {
     try {
       const response = await axios.get<Blog>(
         `http://localhost/Git/Project1/Backend/GetBlogDetails.php?id=${blogId}`
@@ -218,7 +165,7 @@ const Blogs: React.FC = () => {
       setSelectedBlog(response.data);
       setIsModalOpen(true);
     } catch (error) {
-      console.error("Failed to fetch blog content:", error);
+      console.error("Failed to fetch blog link:", error);
     }
   };
 
@@ -316,8 +263,20 @@ const Blogs: React.FC = () => {
                   </h2>
 
                   <p className="text-gray-600 mb-4 line-clamp-3">
-                    {blog.excerpt}
-                  </p>
+  {blog.excerpt}{" "}
+  {blog.link && (
+    <a
+      href={blog.link} // takes link directly from the database
+      className="text-[#26B170] font-semibold hover:underline ml-1"
+    >
+      Read more on Wikipedia →
+    </a>
+  )}
+</p>
+
+
+
+
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -339,15 +298,6 @@ const Blogs: React.FC = () => {
     Like
   </button>
 
-  {/* Read More button */}
-  <Button
-    onClick={() => fetchBlogContent(blog.blog_id)}
-    className="flex items-center justify-center px-4 py-2 h-10 text-sm rounded font-semibold 
-               bg-white text-[#26B170] border border-[#26B170] 
-               hover:bg-[#26B170] hover:text-white"
-  >
-    Read More
-  </Button>
 </div>
 
 
