@@ -53,19 +53,59 @@ const CustomersPage = () => {
     setFilteredCustomers(filtered);
   }, [searchTerm, customers]);
 
-  const updateStatus = (customer_id: number, new_status: 'active' | 'disabled') => {
-    console.log(customer_id, new_status);
-    // Call API to update status if needed
-    const updated = customers.map(c =>
-      c.user_id === customer_id ? { ...c, status: new_status } : c
+  // const updateStatus = (customer_id: number, new_status: 'active' | 'disabled') => {
+  //   console.log(customer_id, new_status);
+  //   // Call API to update status if needed
+  //   const updated = customers.map(c =>
+  //     c.user_id === customer_id ? { ...c, status: new_status } : c
+  //   );
+  //   setCustomers(updated);
+  //   setFilteredCustomers(updated);
+  //   toast({
+  //     title: "Status Updated",
+  //     description: `Customer status updated to ${new_status}`,
+  //   });
+  // };
+  const updateStatus = async (customer_id: number, new_status: 'active' | 'disabled') => {
+  try {
+    const res = await axios.post(
+      "http://localhost/Git/Project1/Backend/UpdateCustomerStatus.php",
+      {
+        user_id: customer_id,
+        status: new_status,
+      },
+      { withCredentials: true }
     );
-    setCustomers(updated);
-    setFilteredCustomers(updated);
+
+    if (res.data.success) {
+      // Update state locally so UI changes immediately
+      const updated = customers.map(c =>
+        c.user_id === customer_id ? { ...c, status: new_status } : c
+      );
+      setCustomers(updated);
+      setFilteredCustomers(updated);
+
+      toast({
+        title: "Status Updated",
+        description: `Customer status updated to ${new_status}`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: res.data.message || "Failed to update customer status",
+        variant: "destructive",
+      });
+    }
+  } catch (err) {
+    console.error("Error updating status:", err);
     toast({
-      title: "Status Updated",
-      description: `Customer status updated to ${new_status}`,
+      title: "Error",
+      description: "Something went wrong",
+      variant: "destructive",
     });
-  };
+  }
+};
+
 
   const getStatusBadge = (status: string) => {
     return status === 'active' ? (
@@ -176,7 +216,7 @@ const CustomersPage = () => {
                   <span className="text-sm">{new Date(user.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">View Details</Button>
+                  {/* <Button size="sm" variant="outline" className="flex-1">View Details</Button> */}
                   {user.status === 'disabled' ? (
                     <Button
                       size="sm"
