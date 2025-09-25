@@ -22,8 +22,8 @@ const Contact = () => {
 
   const contactInfo = [
     { icon: Mail, title: "Email Us", description: "Send us an email anytime", details: "contact@solax.com", action: "mailto:contact@solax.com" },
-    { icon: Phone, title: "Call Us", description: "Mon-Fri from 8am to 6pm", details: "+1 (555) 123-4567", action: "tel:+15551234567" },
-    { icon: MapPin, title: "Visit Us", description: "Our headquarters", details: "123 Solar Street, Green City, CA 90210", action: "#" },
+    { icon: Phone, title: "Call Us", description: "Mon-Fri from 8am to 6pm", details: "0701234567", action: "tel:0701234567" },
+    { icon: MapPin, title: "Visit Us", description: "Our headquarters", details: "123 Solar Street, Colombo, CA 90210", action: "#" },
     { icon: Clock, title: "Business Hours", description: "When we're available", details: "Mon-Fri: 8am-6pm PST", action: "#" }
   ];
 
